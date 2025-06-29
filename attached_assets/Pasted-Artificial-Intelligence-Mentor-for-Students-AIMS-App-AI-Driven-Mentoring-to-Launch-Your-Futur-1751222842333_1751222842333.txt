@@ -1,0 +1,64 @@
+Artificial Intelligence Mentor for Students (‘AIMS’ App)
+" AI Driven Mentoring to Launch Your Future to Your Dream College"
+
+“Many miss opportunities not due to lack of ability, but because they aren't aware or ready when it arrives.” This statement is well applicable to me. Every year I realize about a competition or opportunity for which the eligibility or deadline has already passed. If I would have known about these opportunities out there and participated and won, it would have significantly bolstered my chances of being considered in top five Ivy League colleges. Every year, there are thousands of eligible students who aren’t aware about the path to land up in their dream Ivy League college and miss the opportunity.  Having said that, I want to solve this problem using AI / ML and help each and every High School student to increase their chances of landing up in their dream colleges. Below I have highlighted the detailed problem statement and how I am going to solve using Artificial Intelligence.
+Problem Statement – 
+a)	Gap in Mentoring system- There is a huge gap in current mentoring system for High School Freshmen in their schools. Many counsellors in Public High schools lack time in guiding and mentoring students and couldn’t guide them in tailoring their academic path to achieve the student interests. Especially for a first time HS student in a family who is being exposed to US studies for the first time, they do know what electives and subjects they need to opt for and what would be the relevance in getting good GPA and provide better path to get a seat in top IVY league college. Every counselor’s vison stops at local state’s university, and they never provide input for the students to they can excel and take a step further to top IVY league colleges across US. Due to this problem, there are thousands of students across US, who have missed getting a seat in top colleges because they were no proper tools available to them either in schools or outside by which they can get proper guidance from 9th grade onwards. 
+b)	Out of Box – With my personal experience with 3 different High School counsellors in Texas which is known as top school district in US, I can strongly say that none of them know about any of the extra cultural activities the student can participate apart from the school clubs and local science fairs . Also, there is lot of competition in any school clubs and getting a chance to become a president or captain for the team is not possible for all the students. Apart from the clubs there are many other competitions at national and international level where students across US can easily participate and try their luck. Few of the competition’s I want to highlight here are – (to name a few)
+1.	NASA Human Rover Exploration Competition (eligible for Middle and High Schoolers 
+2.	NASA App Inventor
+3.	Apple App Inventor
+4.	Congressional App Challenge
+5.	Summer Internships - https://apps.ideal-logic.com
+6.	Summer Pre College Courses (From Sophomore till Senior)
+7.	Volunteering opportunities…etc
+The above are just some examples, and the key is the due dates and timelines for all the competitions. If you try these kinds of competitions from 9th grade itself there are strong chances of winning a prize in these competitions which has lot of value add in your resume when applying for colleges.
+
+c)	AP / IB Programs – Taking AP / IB is mandatory if you want to aim for top ivy league college. But the AP offering in the school is not sufficient for students, they must take various AP courses online via virtual school mode. The more AP courses you take the more chances of getting good GPA and getting into top colleges. Once should not miss this chance and generally students realize this when they are in 11th grade and at that point, they do not have much time left. Lot of time is being wasted for talented students in current counseling system because they are not aware of this.
+
+d)	Costly Online Mentoring programs / Commercial social media – I have researched about 500 YouTube channels and websites on college admission tips and almost every channel give generic guidance and it may not be applicable to you. Also you have to spend lot of time in finding the relevant competition / internship / certification. And by the time you figure it out, you may miss the deadlines. Its too cumbersome and its super costly for you to hire a tailored mentor who can guide you on your academic path. Even you spend hundreds of dollars on professional mentoring, its only one time deal.
+
+
+Solution –
+
+To solve this, I have come up with an app using AI and I call it “Artificial Intelligent Mentor for Students” – “AIMS”
+
+My AIMS app will help every Freshmen in designing their Academic career, monitor them, guide them and remind them till they land into their dream to college. It will be students’ personal mentor with a chat bot option too so they can get customized and tailored responses.
+
+a)	A tailored path of their academic success plan with different options available in their High School depending on their interest in academics.
+b)	Will give them a to do list in order to get into a to IVY league college.
+
+ Consider below example-
+
+i.	John is a freshman and has interest in Math and his dream college is Princeton University. Once he open’s app and enters his choice of subjects and selects Princeton as his first preference in the selection, AI will list all possible options for him and give him different success paths which can place in a strong position to get into Princeton by the time he gets promoted to 11th grade. It will list all AP courses/ IB courses which he needs to take. It will show all national and international level competitions along with the start dates, app remainders and follow-ups and will provide them various graphs to show if they are on track or behind the schedule.
+
+ii.	Sean, a freshman is interested in medical and want to land in Harvard University to pursue his Premed. When he selects premed + Harvard University in AIMS app, he will be given a 3 to 4 different tailored options which will emphasize on (to name a few)
+a.	The subjects which he must take in his 9,10th ,11th grades. (Available at his selected School / District)
+b.	Summer Internships in Hospitals starting form (9th Grade Summer – Will suggest local Hospitals / Doc’s where he can explore the Internship work) 
+c.	Voluntary work (will provide him with all available options of local Voluntary work / organizations)
+d.	Regional Science fair
+e.	Science Olympiads
+f.	SAT / ACT (Will provide with all free online resources to prepare well in advance for the exam)
+g.	AP / IB Courses….etc.
+
+
+Market Research-
+
+I have researched and visited many apps and websites focused for students, none of them match to my ‘AIMS’ app in terms of scope and covering end to end student academic eco system. Majority of them are niche apps which are meant to address either the education needs or specific competition in general. ‘AIMS’ is like your virtual companion who engages with you daily and keeping you are on track ensuring you stay focused on your academic journey.  
+
+Unique Selling Preposition (USP’s of AIMS app)
+
+•	Measurable and Accountable.
+•	AI Powered Personalized Learning Path.
+•	Designed to serve as End-to-End Students Academic Eco System.
+•	Unlimited knowledge base on every topic tailored to student’s interest.
+
+
+
+
+
+ 
+
+
+
+
