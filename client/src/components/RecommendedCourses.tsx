@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StudentProfile } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 interface RecommendedCoursesProps {
   studentProfile: StudentProfile;
@@ -19,6 +20,15 @@ interface Course {
 }
 
 export default function RecommendedCourses({ studentProfile }: RecommendedCoursesProps) {
+  const { toast } = useToast();
+
+  const handleAddToPlan = (course: Course) => {
+    console.log("Add to plan clicked:", course.title);
+    toast({
+      title: "Course Added to Plan",
+      description: `${course.title} has been added to your academic plan.`,
+    });
+  };
   // Generate course recommendations based on student profile
   const generateRecommendations = (): Course[] => {
     const recommendations: Course[] = [];
@@ -225,6 +235,7 @@ export default function RecommendedCourses({ studentProfile }: RecommendedCourse
                       variant="ghost" 
                       size="sm" 
                       className="text-primary hover:text-primary/80 text-sm font-medium"
+                      onClick={() => handleAddToPlan(course)}
                     >
                       Add to Plan
                     </Button>

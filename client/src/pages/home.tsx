@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { StudentProfile, User } from "@shared/schema";
 import WelcomeHeader from "@/components/WelcomeHeader";
 import QuickActions from "@/components/QuickActions";
 import AIChatWidget from "@/components/AIChatWidget";
@@ -20,6 +21,7 @@ export default function Home() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function Home() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: studentProfile, isLoading: profileLoading } = useQuery({
+  const { data: studentProfile, isLoading: profileLoading } = useQuery<StudentProfile>({
     queryKey: ["/api/student/profile"],
     enabled: isAuthenticated,
     retry: false,
@@ -83,26 +85,54 @@ export default function Home() {
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
-                <a href="#" className="text-gray-900 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                <a href="#" className="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Pathways</a>
-                <a href="#" className="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Opportunities</a>
-                <a href="#" className="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Progress</a>
+                <button 
+                  onClick={() => setActiveTab('dashboard')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    activeTab === 'dashboard' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary'
+                  }`}
+                >
+                  Dashboard
+                </button>
+                <button 
+                  onClick={() => setActiveTab('pathway')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    activeTab === 'pathway' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary'
+                  }`}
+                >
+                  Pathway
+                </button>
+                <button 
+                  onClick={() => setActiveTab('opportunities')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    activeTab === 'opportunities' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary'
+                  }`}
+                >
+                  Opportunities
+                </button>
+                <button 
+                  onClick={() => setActiveTab('progress')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    activeTab === 'progress' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary'
+                  }`}
+                >
+                  Progress
+                </button>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <button className="text-gray-500 hover:text-primary">
                 <Bell className="text-lg" />
               </button>
-              {user?.profileImageUrl ? (
+              {(user as any)?.profileImageUrl ? (
                 <img 
-                  src={user.profileImageUrl} 
+                  src={(user as any).profileImageUrl} 
                   alt="Profile" 
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    {user?.firstName?.charAt(0) || user?.email?.charAt(0) || "?"}
+                    {(user as any)?.firstName?.charAt(0) || (user as any)?.email?.charAt(0) || "?"}
                   </span>
                 </div>
               )}
@@ -122,30 +152,41 @@ export default function Home() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
-        <WelcomeHeader studentProfile={studentProfile} user={user} />
+        <WelcomeHeader studentProfile={studentProfile!} user={user as User | null} />
 
-        {/* Quick Actions & AI Chat */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-2">
-            <QuickActions />
-          </div>
-          <AIChatWidget />
-        </div>
+        {/* Tab Content */}
+        {activeTab === 'dashboard' && (
+          <>
+            {/* Quick Actions & AI Chat */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+              <div className="lg:col-span-2">
+                <QuickActions />
+              </div>
+              <AIChatWidget />
+            </div>
 
-        {/* Personalized Pathway */}
-        <PersonalizedPathway studentProfile={studentProfile} />
+            {/* Current Opportunities & To-Do */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <CurrentOpportunities studentProfile={studentProfile!} />
+              <TodoList studentProfile={studentProfile!} />
+            </div>
 
-        {/* Current Opportunities & To-Do */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <CurrentOpportunities studentProfile={studentProfile} />
-          <TodoList studentProfile={studentProfile} />
-        </div>
+            {/* Recommended AP Courses */}
+            <RecommendedCourses studentProfile={studentProfile!} />
+          </>
+        )}
 
-        {/* Progress Overview */}
-        <ProgressOverview studentProfile={studentProfile} />
+        {activeTab === 'pathway' && (
+          <PersonalizedPathway studentProfile={studentProfile!} />
+        )}
 
-        {/* Recommended AP Courses */}
-        <RecommendedCourses studentProfile={studentProfile} />
+        {activeTab === 'opportunities' && (
+          <CurrentOpportunities studentProfile={studentProfile!} />
+        )}
+
+        {activeTab === 'progress' && (
+          <ProgressOverview studentProfile={studentProfile!} />
+        )}
       </div>
 
       {/* Floating Chat Button */}

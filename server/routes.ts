@@ -41,7 +41,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/student/profile', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      console.log("Received data:", JSON.stringify(req.body, null, 2));
       
       const profileData = {
         ...req.body,
@@ -49,7 +48,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isOnboardingComplete: true
       };
       
-      console.log("Profile data before validation:", JSON.stringify(profileData, null, 2));
       const validatedData = insertStudentProfileSchema.parse(profileData);
       const profile = await storage.createStudentProfile(validatedData);
       
