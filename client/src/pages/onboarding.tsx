@@ -97,7 +97,7 @@ export default function Onboarding() {
     mutationFn: async (data: OnboardingData) => {
       const response = await apiRequest("POST", "/api/student/profile", {
         ...data,
-        currentGpa: data.currentGpa ? parseFloat(data.currentGpa) : null,
+        currentGpa: data.currentGpa || null,
       });
       return response.json();
     },
@@ -400,7 +400,6 @@ export default function Onboarding() {
                 className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                 value={form.watch("careerGoals") || ""}
                 onChange={(e) => {
-                  console.log("Career goals input changed:", e.target.value);
                   form.setValue("careerGoals", e.target.value, { shouldValidate: true });
                 }}
               />

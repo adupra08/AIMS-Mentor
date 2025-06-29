@@ -41,45 +41,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/student/profile', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
+      console.log("Received data:", JSON.stringify(req.body, null, 2));
+      
       const profileData = {
         ...req.body,
         userId,
         isOnboardingComplete: true
       };
       
-      // Ensure arrays are properly typed
-      if (profileData.currentSubjects && !Array.isArray(profileData.currentSubjects)) {
-        profileData.currentSubjects = Object.values(profileData.currentSubjects);
-      }
-      if (profileData.interestedSubjects && !Array.isArray(profileData.interestedSubjects)) {
-        profileData.interestedSubjects = Object.values(profileData.interestedSubjects);
-      }
-      if (profileData.dreamColleges && !Array.isArray(profileData.dreamColleges)) {
-        profileData.dreamColleges = Object.values(profileData.dreamColleges);
-      }
-      if (profileData.academicInterests && !Array.isArray(profileData.academicInterests)) {
-        profileData.academicInterests = Object.values(profileData.academicInterests);
-      }
-      if (profileData.extracurricularActivities && !Array.isArray(profileData.extracurricularActivities)) {
-        profileData.extracurricularActivities = Object.values(profileData.extracurricularActivities);
-      }
-      if (profileData.completedAPs && !Array.isArray(profileData.completedAPs)) {
-        profileData.completedAPs = Object.values(profileData.completedAPs);
-      }
-      if (profileData.plannedAPs && !Array.isArray(profileData.plannedAPs)) {
-        profileData.plannedAPs = Object.values(profileData.plannedAPs);
-      }
-      
-      // Handle testScores type conversion
-      if (profileData.testScores) {
-        const scores = profileData.testScores as any;
-        profileData.testScores = {
-          sat: scores.sat && !isNaN(Number(scores.sat)) ? Number(scores.sat) : undefined,
-          act: scores.act && !isNaN(Number(scores.act)) ? Number(scores.act) : undefined,
-          psat: scores.psat && !isNaN(Number(scores.psat)) ? Number(scores.psat) : undefined,
-        };
-      }
-      
+      console.log("Profile data before validation:", JSON.stringify(profileData, null, 2));
       const validatedData = insertStudentProfileSchema.parse(profileData);
       const profile = await storage.createStudentProfile(validatedData);
       
