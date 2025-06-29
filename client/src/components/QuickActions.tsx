@@ -1,31 +1,58 @@
 import { Route, Trophy, BookOpen, Handshake } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 export default function QuickActions() {
+  const { toast } = useToast();
+
   const quickActions = [
     {
       icon: Route,
       label: "View Pathway",
       color: "bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary",
-      action: () => console.log("View Pathway clicked")
+      action: () => {
+        console.log("View Pathway clicked");
+        toast({
+          title: "Academic Pathway",
+          description: "Click the 'Pathway' tab above to view your personalized academic plan.",
+        });
+      }
     },
     {
       icon: Trophy,
       label: "Competitions",
       color: "bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary",
-      action: () => console.log("Competitions clicked")
+      action: () => {
+        console.log("Competitions clicked");
+        toast({
+          title: "Competitions",
+          description: "Check the 'Opportunities' tab to find competitions matching your interests.",
+        });
+      }
     },
     {
       icon: BookOpen,
       label: "AP Courses",
       color: "bg-accent bg-opacity-10 hover:bg-opacity-20 text-accent",
-      action: () => console.log("AP Courses clicked")
+      action: () => {
+        console.log("AP Courses clicked");
+        toast({
+          title: "AP Courses",
+          description: "Scroll down to see your recommended AP courses based on your goals.",
+        });
+      }
     },
     {
       icon: Handshake,
       label: "Internships",
       color: "bg-purple-100 hover:bg-purple-200 text-purple-600",
-      action: () => console.log("Internships clicked")
+      action: () => {
+        console.log("Internships clicked");
+        toast({
+          title: "Internships",
+          description: "Visit the 'Opportunities' tab to explore internship programs.",
+        });
+      }
     }
   ];
 

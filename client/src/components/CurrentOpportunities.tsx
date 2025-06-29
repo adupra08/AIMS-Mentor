@@ -16,8 +16,9 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
 
   const { data: opportunities, isLoading } = useQuery({
     queryKey: ["/api/opportunities", {
-      grades: [studentProfile.currentGrade],
+      grades: [9, 10, 11, 12], // Show opportunities for all high school grades
       subjects: studentProfile.academicInterests,
+      location: studentProfile.location,
     }],
   });
 
@@ -42,6 +43,40 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
     },
   });
 
+  const handleBookmark = (opportunityId: number) => {
+    bookmarkMutation.mutate(opportunityId);
+  };
+
+  const formatDate = (date: string | Date) => {
+    try {
+      const d = new Date(date);
+      return d.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch {
+      return 'TBD';
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "competition":
+        return "bg-blue-100 text-blue-800";
+      case "internship":
+        return "bg-green-100 text-green-800";
+      case "scholarship":
+        return "bg-purple-100 text-purple-800";
+      case "program":
+        return "bg-orange-100 text-orange-800";
+      case "course":
+        return "bg-indigo-100 text-indigo-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
   if (isLoading) {
     return (
       <Card className="shadow-sm border border-gray-200">
@@ -55,11 +90,7 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-                  <div className="flex space-x-4">
-                    <div className="h-3 bg-gray-200 rounded w-20"></div>
-                    <div className="h-3 bg-gray-200 rounded w-16"></div>
-                    <div className="h-3 bg-gray-200 rounded w-24"></div>
-                  </div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                 </div>
               </div>
             ))}
@@ -69,89 +100,85 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
     );
   }
 
-  const handleBookmark = (opportunityId: number) => {
-    bookmarkMutation.mutate(opportunityId);
-  };
-
-  const getMatchBadge = (opportunity: any) => {
-    const matchingInterests = opportunity.subjects?.filter((subject: string) =>
-      studentProfile.academicInterests?.includes(subject)
-    ).length || 0;
-
-    if (matchingInterests >= 2) {
-      return <Badge className="bg-secondary/20 text-secondary">Perfect Match</Badge>;
-    } else if (matchingInterests >= 1) {
-      return <Badge className="bg-accent/20 text-accent">High Match</Badge>;
-    } else {
-      return <Badge variant="secondary">Good Match</Badge>;
-    }
-  };
+  const opportunitiesArray = Array.isArray(opportunities) ? opportunities : [];
 
   return (
     <Card className="shadow-sm border border-gray-200">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-semibold text-gray-900">Upcoming Opportunities</CardTitle>
-          <Button variant="ghost" className="text-primary hover:text-primary/80">
-            View All
-          </Button>
+          <Badge variant="secondary" className="text-xs">
+            {opportunitiesArray.length} available
+          </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {opportunities?.slice(0, 3).map((opportunity: any) => (
+          {opportunitiesArray.slice(0, 3).map((opportunity: any) => (
             <div
               key={opportunity.id}
               className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors aims-card-hover"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">{opportunity.title}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{opportunity.description}</p>
-                  <div className="flex items-center space-x-4 text-xs text-gray-500">
-                    <span className="flex items-center">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900">{opportunity.title}</h3>
+                    <Badge className={getCategoryColor(opportunity.category)}>
+                      {opportunity.category}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">{opportunity.description}</p>
+                  <div className="flex items-center flex-wrap gap-4 text-xs text-gray-500">
+                    <div className="flex items-center">
                       <Calendar className="mr-1 h-3 w-3" />
-                      Due: {opportunity.deadline 
-                        ? new Date(opportunity.deadline).toLocaleDateString()
-                        : "Rolling"
-                      }
-                    </span>
-                    <span className="flex items-center">
-                      {opportunity.isTeamBased ? (
-                        <>
-                          <Users className="mr-1 h-3 w-3" />
-                          Team Based
-                        </>
-                      ) : (
-                        <>
-                          <User className="mr-1 h-3 w-3" />
-                          Individual
-                        </>
-                      )}
-                    </span>
-                    {opportunity.location && (
-                      <span className="flex items-center">
-                        <MapPin className="mr-1 h-3 w-3" />
-                        {opportunity.location}
-                      </span>
+                      <span>Due: {formatDate(opportunity.deadline)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="mr-1 h-3 w-3" />
+                      <span>{opportunity.location}</span>
+                    </div>
+                    {opportunity.eligibleGrades && (
+                      <div className="flex items-center">
+                        <User className="mr-1 h-3 w-3" />
+                        <span>Grades: {opportunity.eligibleGrades.join(', ')}</span>
+                      </div>
                     )}
-                    {getMatchBadge(opportunity)}
+                    {opportunity.isTeamBased && (
+                      <div className="flex items-center">
+                        <Users className="mr-1 h-3 w-3" />
+                        <span>Team</span>
+                      </div>
+                    )}
+                    {opportunity.isPaid && (
+                      <div className="flex items-center">
+                        <span className="text-green-600 font-medium">Paid</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center space-x-2">
+                      {opportunity.tags && opportunity.tags.slice(0, 3).map((tag: string) => (
+                        <Badge key={tag} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleBookmark(opportunity.id)}
+                      className="text-primary hover:text-primary/80"
+                      disabled={bookmarkMutation.isPending}
+                    >
+                      <Bookmark className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleBookmark(opportunity.id)}
-                  disabled={bookmarkMutation.isPending}
-                  className="ml-4 text-primary hover:text-primary/80"
-                >
-                  <Bookmark className="h-4 w-4" />
-                </Button>
               </div>
             </div>
           ))}
           
-          {!opportunities?.length && (
+          {opportunitiesArray.length === 0 && (
             <div className="text-center py-8 text-gray-500">
               <p>No opportunities found matching your profile.</p>
               <p className="text-sm mt-1">Check back later or adjust your interests.</p>

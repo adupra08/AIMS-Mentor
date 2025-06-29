@@ -15,6 +15,14 @@ interface TodoListProps {
 export default function TodoList({ studentProfile }: TodoListProps) {
   const { toast } = useToast();
 
+  const handleAddTask = () => {
+    console.log("Add new task clicked");
+    toast({
+      title: "Add Task",
+      description: "Task creation functionality coming soon!",
+    });
+  };
+
   const { data: todos, isLoading } = useQuery({
     queryKey: ["/api/student/todos"],
   });
@@ -98,9 +106,10 @@ export default function TodoList({ studentProfile }: TodoListProps) {
     return new Date(dueDate) < new Date();
   };
 
-  const completedTodos = todos?.filter((todo: any) => todo.isCompleted) || [];
-  const incompleteTodos = todos?.filter((todo: any) => !todo.isCompleted) || [];
-  const totalTodos = todos?.length || 0;
+  const todosArray = Array.isArray(todos) ? todos : [];
+  const completedTodos = todosArray.filter((todo: any) => todo.isCompleted);
+  const incompleteTodos = todosArray.filter((todo: any) => !todo.isCompleted);
+  const totalTodos = todosArray.length;
   const completedCount = completedTodos.length;
 
   if (isLoading) {
@@ -224,7 +233,10 @@ export default function TodoList({ studentProfile }: TodoListProps) {
           )}
         </div>
 
-        <Button className="w-full mt-4 border border-primary text-primary hover:bg-primary hover:text-white transition-colors">
+        <Button 
+          className="w-full mt-4 border border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+          onClick={handleAddTask}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add New Task
         </Button>

@@ -42,10 +42,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       
+      // Properly format array fields for JSONB storage
+      const {
+        currentSubjects,
+        interestedSubjects,
+        dreamColleges,
+        academicInterests,
+        extracurricularActivities,
+        completedAPs,
+        plannedAPs,
+        ...otherFields
+      } = req.body;
+
       const profileData = {
-        ...req.body,
+        ...otherFields,
         userId,
-        isOnboardingComplete: true
+        isOnboardingComplete: true,
+        currentSubjects: currentSubjects ? JSON.parse(JSON.stringify(currentSubjects)) : [],
+        interestedSubjects: interestedSubjects ? JSON.parse(JSON.stringify(interestedSubjects)) : [],
+        dreamColleges: dreamColleges ? JSON.parse(JSON.stringify(dreamColleges)) : [],
+        academicInterests: academicInterests ? JSON.parse(JSON.stringify(academicInterests)) : [],
+        extracurricularActivities: extracurricularActivities ? JSON.parse(JSON.stringify(extracurricularActivities)) : [],
+        completedAPs: completedAPs ? JSON.parse(JSON.stringify(completedAPs)) : [],
+        plannedAPs: plannedAPs ? JSON.parse(JSON.stringify(plannedAPs)) : []
       };
       
       const validatedData = insertStudentProfileSchema.parse(profileData);
