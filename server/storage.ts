@@ -166,7 +166,7 @@ export class DatabaseStorage implements IStorage {
       }
       
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        return await db.select().from(opportunities).where(and(...conditions)).orderBy(desc(opportunities.createdAt));
       }
     }
     

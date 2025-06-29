@@ -72,7 +72,12 @@
   }
   
   .aims-card-hover {
-    @apply transition-all duration-200 hover:shadow-lg hover:border-primary/20;
+    @apply transition-all duration-200 hover:shadow-lg;
+    border: 1px solid hsl(var(--border));
+  }
+  
+  .aims-card-hover:hover {
+    border-color: hsl(var(--primary) / 0.2);
   }
   
   .progress-circle {
