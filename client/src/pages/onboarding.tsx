@@ -194,7 +194,10 @@ export default function Onboarding() {
                       step="0.01" 
                       min="0" 
                       max="4" 
-                      {...field} 
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
                     />
                   </FormControl>
                   <FormMessage />
@@ -398,7 +401,10 @@ export default function Onboarding() {
                     <Textarea 
                       placeholder="Describe your career aspirations and what you hope to achieve..."
                       className="min-h-[100px]"
-                      {...field} 
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
                     />
                   </FormControl>
                   <FormMessage />
@@ -460,7 +466,13 @@ export default function Onboarding() {
                   <FormItem>
                     <FormLabel>Location (City, State)</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Houston, TX" {...field} />
+                      <Input 
+                        placeholder="e.g., Houston, TX" 
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -474,7 +486,13 @@ export default function Onboarding() {
                   <FormItem>
                     <FormLabel>School District</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Houston ISD" {...field} />
+                      <Input 
+                        placeholder="e.g., Houston ISD" 
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
