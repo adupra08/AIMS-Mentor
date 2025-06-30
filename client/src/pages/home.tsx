@@ -14,7 +14,7 @@ import TodoList from "@/components/TodoList";
 import ProgressOverview from "@/components/ProgressOverview";
 import RecommendedCourses from "@/components/RecommendedCourses";
 import FloatingChatButton from "@/components/FloatingChatButton";
-import { GraduationCap, Bell } from "lucide-react";
+import { GraduationCap, Bell, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -122,6 +122,13 @@ export default function Home() {
             <div className="flex items-center space-x-4">
               <button className="text-gray-500 hover:text-primary">
                 <Bell className="text-lg" />
+              </button>
+              <button 
+                onClick={() => setLocation('/settings')}
+                className="text-gray-500 hover:text-primary p-2 rounded-md"
+                title="Settings"
+              >
+                <Settings className="text-lg" />
               </button>
               {(user as any)?.profileImageUrl ? (
                 <img 

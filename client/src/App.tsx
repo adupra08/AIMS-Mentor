@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Onboarding from "@/pages/onboarding";
+import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -28,6 +29,7 @@ function Router() {
         <>
           <Route path="/" component={Home} />
           <Route path="/onboarding" component={Onboarding} />
+          <Route path="/settings" component={Settings} />
         </>
       )}
       <Route component={NotFound} />
