@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Calendar, Users, User, MapPin, Bookmark } from "lucide-react";
+import { Calendar, Users, User, MapPin, Bookmark, ExternalLink, DollarSign, Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,15 +11,27 @@ interface CurrentOpportunitiesProps {
   studentProfile: StudentProfile;
 }
 
+interface Opportunity {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  eligibleGrades: number[];
+  subjects: string[];
+  deadline: string;
+  applicationUrl: string;
+  isTeamBased: boolean;
+  location: string;
+  isPaid: boolean;
+  difficultyLevel: string;
+  tags: string[];
+}
+
 export default function CurrentOpportunities({ studentProfile }: CurrentOpportunitiesProps) {
   const { toast } = useToast();
 
   const { data: opportunities, isLoading } = useQuery({
-    queryKey: ["/api/opportunities", {
-      grades: [9, 10, 11, 12], // Show opportunities for all high school grades
-      subjects: studentProfile.academicInterests,
-      location: studentProfile.location,
-    }],
+    queryKey: ["/api/opportunities"],
   });
 
   const bookmarkMutation = useMutation({
@@ -101,20 +113,51 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
   }
 
   const opportunitiesArray = Array.isArray(opportunities) ? opportunities : [];
+  
+  // Filter opportunities based on student profile
+  const filteredOpportunities = opportunitiesArray.filter((opportunity: Opportunity) => {
+    // Check if student's grade is eligible
+    const isGradeEligible = opportunity.eligibleGrades.includes(studentProfile.currentGrade);
+    
+    // Check if there's subject overlap (case-insensitive)
+    const studentSubjects = (studentProfile.currentSubjects || []).map((s: string) => s.toLowerCase());
+    const opportunitySubjects = opportunity.subjects.map((s: string) => s.toLowerCase());
+    const hasSubjectMatch = studentSubjects.length === 0 || 
+                           opportunitySubjects.some(subject => 
+                             studentSubjects.some(studentSubject => 
+                               subject.includes(studentSubject) || studentSubject.includes(subject)
+                             )
+                           );
+    
+    // Check if location is suitable (USA, International, National are always good)
+    const isLocationSuitable = opportunity.location === "National" || 
+                              opportunity.location === "International" || 
+                              opportunity.location === "USA" ||
+                              (studentProfile.location && opportunity.location.includes("USA"));
+    
+    return isGradeEligible && (hasSubjectMatch || opportunitySubjects.length === 0) && isLocationSuitable;
+  });
+
+  // Sort by deadline (upcoming first) and relevance
+  const sortedOpportunities = filteredOpportunities.sort((a, b) => {
+    const dateA = new Date(a.deadline);
+    const dateB = new Date(b.deadline);
+    return dateA.getTime() - dateB.getTime();
+  });
 
   return (
     <Card className="shadow-sm border border-gray-200">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-semibold text-gray-900">Upcoming Opportunities</CardTitle>
+          <CardTitle className="text-xl font-semibold text-gray-900">Relevant Opportunities</CardTitle>
           <Badge variant="secondary" className="text-xs">
-            {opportunitiesArray.length} available
+            {sortedOpportunities.length} matches found
           </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {opportunitiesArray.slice(0, 3).map((opportunity: any) => (
+          {sortedOpportunities.slice(0, 6).map((opportunity: Opportunity) => (
             <div
               key={opportunity.id}
               className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors aims-card-hover"
@@ -157,31 +200,52 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
                   </div>
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center space-x-2">
-                      {opportunity.tags && opportunity.tags.slice(0, 3).map((tag: string) => (
+                      {opportunity.tags && opportunity.tags.slice(0, 2).map((tag: string) => (
                         <Badge key={tag} variant="outline" className="text-xs">
                           {tag}
                         </Badge>
                       ))}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleBookmark(opportunity.id)}
-                      className="text-primary hover:text-primary/80"
-                      disabled={bookmarkMutation.isPending}
-                    >
-                      <Bookmark className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(opportunity.applicationUrl, '_blank')}
+                        className="text-primary hover:text-primary/80"
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1" />
+                        Apply
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleBookmark(opportunity.id)}
+                        className="text-primary hover:text-primary/80"
+                        disabled={bookmarkMutation.isPending}
+                      >
+                        <Bookmark className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           ))}
           
-          {opportunitiesArray.length === 0 && (
+          {sortedOpportunities.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              <p>No opportunities found matching your profile.</p>
-              <p className="text-sm mt-1">Check back later or adjust your interests.</p>
+              <Trophy className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p className="font-medium">No relevant opportunities found</p>
+              <p className="text-sm mt-1">We're matching opportunities to your grade ({studentProfile.currentGrade}) and subjects.</p>
+              <p className="text-sm">Check back later for new opportunities!</p>
+            </div>
+          )}
+          
+          {sortedOpportunities.length > 6 && (
+            <div className="text-center pt-4">
+              <Button variant="outline" size="sm">
+                View All {sortedOpportunities.length} Opportunities
+              </Button>
             </div>
           )}
         </div>

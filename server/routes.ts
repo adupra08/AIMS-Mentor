@@ -359,6 +359,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // General opportunities route
+  app.get('/api/opportunities', async (req, res) => {
+    try {
+      const opportunities = await storage.getOpportunities();
+      res.json(opportunities);
+    } catch (error) {
+      console.error("Error fetching opportunities:", error);
+      res.status(500).json({ message: "Failed to fetch opportunities" });
+    }
+  });
+
   // Seed data route (for development)
   app.post('/api/seed/opportunities', async (req, res) => {
     try {
