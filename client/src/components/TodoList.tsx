@@ -321,7 +321,7 @@ export default function TodoList({ studentProfile }: TodoListProps) {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Enter task description" {...field} />
+                        <Textarea placeholder="Enter task description" {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -335,7 +335,7 @@ export default function TodoList({ studentProfile }: TodoListProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Priority</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || "medium"}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select priority" />
@@ -358,7 +358,7 @@ export default function TodoList({ studentProfile }: TodoListProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Category</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || "study"}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select category" />

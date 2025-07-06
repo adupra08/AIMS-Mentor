@@ -11,7 +11,7 @@ export default function AIChatWidget() {
   const [message, setMessage] = useState("");
   const { toast } = useToast();
 
-  const { data: chatMessages } = useQuery({
+  const { data: chatMessages, refetch } = useQuery({
     queryKey: ["/api/student/chat"],
     refetchInterval: 30000, // Refetch every 30 seconds
   });
@@ -23,7 +23,11 @@ export default function AIChatWidget() {
     },
     onSuccess: () => {
       setMessage("");
-      // The query will be refetched automatically due to the interval
+      refetch(); // Immediately refresh chat messages
+      toast({
+        title: "Message sent!",
+        description: "Your AI mentor is thinking...",
+      });
     },
     onError: (error) => {
       toast({
@@ -48,7 +52,7 @@ export default function AIChatWidget() {
   };
 
   // Get the latest AI message for display
-  const latestAiMessage = chatMessages?.find((msg: any) => msg.sender === "ai");
+  const latestAiMessage = Array.isArray(chatMessages) ? chatMessages.find((msg: any) => msg.sender === "ai") : null;
 
   return (
     <Card className="shadow-sm border border-gray-200">
