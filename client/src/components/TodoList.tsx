@@ -22,7 +22,11 @@ interface TodoListProps {
 }
 
 // Define the form schema for task creation
-const createTodoSchema = insertTodoSchema.extend({
+const createTodoSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  priority: z.enum(["low", "medium", "high"]).default("medium"),
+  category: z.enum(["study", "application", "extracurricular", "research", "test_prep"]).default("study"),
   dueDate: z.string().optional(),
 });
 
@@ -328,7 +332,12 @@ export default function TodoList({ studentProfile }: TodoListProps) {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Enter task description" {...field} value={field.value || ""} />
+                        <Textarea 
+                          placeholder="Enter task description" 
+                          {...field}
+                          value={field.value || ""}
+                          onChange={(e) => field.onChange(e.target.value)}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -342,7 +351,7 @@ export default function TodoList({ studentProfile }: TodoListProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Priority</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value || "medium"}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select priority" />
@@ -365,7 +374,7 @@ export default function TodoList({ studentProfile }: TodoListProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Category</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value || "study"}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select category" />
