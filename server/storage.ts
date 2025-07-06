@@ -631,6 +631,20 @@ export class DatabaseStorage implements IStorage {
         isPaid: true,
         difficultyLevel: "intermediate",
         tags: ["Leadership", "Non-profit", "Washington DC", "Summer Program"]
+      },
+      {
+        title: "Microsoft Imagine Cup",
+        description: "Premier global technology startup competition for student founders using Microsoft Cloud. Win up to $100,000 USD, mentorship with Microsoft CEO, and global recognition.",
+        category: "competition",
+        eligibleGrades: [9, 10, 11, 12],
+        subjects: ["Computer Science", "Engineering", "Business", "Technology"],
+        deadline: new Date("2026-01-22"),
+        applicationUrl: "https://imaginecup.microsoft.com/en-US/",
+        isTeamBased: true,
+        location: "Global",
+        isPaid: true,
+        difficultyLevel: "advanced",
+        tags: ["Microsoft", "Startup", "Technology", "Global", "AI", "Cloud"]
       }
     ];
 
