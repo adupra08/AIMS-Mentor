@@ -116,6 +116,12 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
   
   // Filter opportunities based on student profile
   const filteredOpportunities = opportunitiesArray.filter((opportunity: Opportunity) => {
+    // Check if deadline is in the future
+    const deadline = new Date(opportunity.deadline);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+    const isFutureDeadline = deadline >= today;
+    
     // Check if student's grade is eligible
     const isGradeEligible = opportunity.eligibleGrades.includes(studentProfile.currentGrade);
     
@@ -135,7 +141,7 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
                               opportunity.location === "USA" ||
                               (studentProfile.location && opportunity.location.includes("USA"));
     
-    return isGradeEligible && (hasSubjectMatch || opportunitySubjects.length === 0) && isLocationSuitable;
+    return isFutureDeadline && isGradeEligible && (hasSubjectMatch || opportunitySubjects.length === 0) && isLocationSuitable;
   });
 
   // Sort by deadline (upcoming first) and relevance
