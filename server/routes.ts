@@ -233,7 +233,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const todoData = {
         ...req.body,
-        studentId: profile.id
+        studentId: profile.id,
+        // Convert string date to Date object if provided
+        dueDate: req.body.dueDate ? new Date(req.body.dueDate) : null
       };
       console.log("Todo data before validation:", todoData);
       

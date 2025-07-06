@@ -56,7 +56,7 @@ export default function TodoList({ studentProfile }: TodoListProps) {
         priority: data.priority || "medium",
         category: data.category || "study",
         studentId: studentProfile.id,
-        dueDate: data.dueDate ? new Date(data.dueDate) : null,
+        dueDate: data.dueDate || null,
       };
       console.log("Sending todo data:", todoData);
       const response = await apiRequest("POST", "/api/student/todos", todoData);
