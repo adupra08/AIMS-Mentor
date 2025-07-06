@@ -1,26 +1,78 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Calendar, Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { StudentProfile } from "@shared/schema";
+import { StudentProfile, insertTodoSchema } from "@shared/schema";
+import { z } from "zod";
 
 interface TodoListProps {
   studentProfile: StudentProfile;
 }
 
+// Define the form schema for task creation
+const createTodoSchema = insertTodoSchema.extend({
+  dueDate: z.string().optional(),
+});
+
+type CreateTodoFormData = z.infer<typeof createTodoSchema>;
+
 export default function TodoList({ studentProfile }: TodoListProps) {
   const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleAddTask = () => {
-    console.log("Add new task clicked");
-    toast({
-      title: "Add Task",
-      description: "Task creation functionality coming soon!",
-    });
+  const form = useForm<CreateTodoFormData>({
+    resolver: zodResolver(createTodoSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      priority: "medium",
+      category: "study",
+      dueDate: "",
+    },
+  });
+
+  const createTodoMutation = useMutation({
+    mutationFn: async (data: CreateTodoFormData) => {
+      const todoData = {
+        ...data,
+        studentId: studentProfile.id,
+        dueDate: data.dueDate ? new Date(data.dueDate) : null,
+      };
+      const response = await apiRequest("POST", "/api/student/todos", todoData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/student/todos"] });
+      toast({
+        title: "Success",
+        description: "Task created successfully!",
+      });
+      setIsDialogOpen(false);
+      form.reset();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create task. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (data: CreateTodoFormData) => {
+    createTodoMutation.mutate(data);
   };
 
   const { data: todos, isLoading } = useQuery({
@@ -233,13 +285,132 @@ export default function TodoList({ studentProfile }: TodoListProps) {
           )}
         </div>
 
-        <Button 
-          className="w-full mt-4 border border-primary text-primary hover:bg-primary hover:text-white transition-colors"
-          onClick={handleAddTask}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add New Task
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              className="w-full mt-4 border border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Task
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add New Task</DialogTitle>
+            </DialogHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Task Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter task title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Enter task description" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="priority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Priority</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="study">Study</SelectItem>
+                            <SelectItem value="application">Application</SelectItem>
+                            <SelectItem value="extracurricular">Extracurricular</SelectItem>
+                            <SelectItem value="research">Research</SelectItem>
+                            <SelectItem value="test_prep">Test Prep</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="dueDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Due Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="flex justify-end space-x-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setIsDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={createTodoMutation.isPending}
+                  >
+                    {createTodoMutation.isPending ? "Creating..." : "Create Task"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
