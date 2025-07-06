@@ -45,15 +45,21 @@ export default function TodoList({ studentProfile }: TodoListProps) {
 
   const createTodoMutation = useMutation({
     mutationFn: async (data: CreateTodoFormData) => {
+      console.log("Creating todo with data:", data);
       const todoData = {
-        ...data,
+        title: data.title,
+        description: data.description || "",
+        priority: data.priority || "medium",
+        category: data.category || "study",
         studentId: studentProfile.id,
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
       };
+      console.log("Sending todo data:", todoData);
       const response = await apiRequest("POST", "/api/student/todos", todoData);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      console.log("Todo created successfully:", result);
       queryClient.invalidateQueries({ queryKey: ["/api/student/todos"] });
       toast({
         title: "Success",
@@ -63,9 +69,10 @@ export default function TodoList({ studentProfile }: TodoListProps) {
       form.reset();
     },
     onError: (error) => {
+      console.error("Error creating todo:", error);
       toast({
         title: "Error",
-        description: "Failed to create task. Please try again.",
+        description: `Failed to create task: ${error.message || "Please try again."}`,
         variant: "destructive",
       });
     },

@@ -220,21 +220,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/student/todos', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
+      console.log("Creating todo for user:", userId);
+      console.log("Request body:", req.body);
+      
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
+        console.log("Student profile not found for user:", userId);
         return res.status(404).json({ message: "Student profile not found" });
       }
       
-      const validatedData = insertTodoSchema.parse({
+      console.log("Found profile:", profile.id);
+      
+      const todoData = {
         ...req.body,
         studentId: profile.id
-      });
+      };
+      console.log("Todo data before validation:", todoData);
+      
+      const validatedData = insertTodoSchema.parse(todoData);
+      console.log("Validated data:", validatedData);
       
       const todo = await storage.createTodo(validatedData);
+      console.log("Created todo:", todo);
       res.json(todo);
     } catch (error) {
       console.error("Error creating todo:", error);
-      res.status(400).json({ message: "Failed to create todo" });
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      }
+      res.status(400).json({ 
+        message: "Failed to create todo",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
