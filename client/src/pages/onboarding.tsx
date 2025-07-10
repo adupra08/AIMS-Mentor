@@ -14,19 +14,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { GraduationCap, ChevronLeft, ChevronRight } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GraduationCap, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 const onboardingSchema = z.object({
   currentGrade: z.number().min(9).max(12),
   currentGpa: z.string().optional(),
   currentSubjects: z.array(z.string()).min(1, "Please select at least one current subject"),
   interestedSubjects: z.array(z.string()).min(1, "Please select at least one interested subject"),
-  dreamColleges: z.array(z.string()).min(1, "Please select at least one dream college"),
+  dreamColleges: z.array(z.string()).optional(),
+  customDreamColleges: z.array(z.string()).optional(),
   academicInterests: z.array(z.string()).min(1, "Please select at least one academic interest"),
   careerGoals: z.string().min(10, "Please provide your career goals (at least 10 characters)"),
   extracurricularActivities: z.array(z.string()).optional(),
   location: z.string().optional(),
   schoolDistrict: z.string().optional(),
+}).refine((data) => {
+  const totalColleges = (data.dreamColleges?.length || 0) + (data.customDreamColleges?.length || 0);
+  return totalColleges > 0;
+}, {
+  message: "Please select at least one dream college or add a custom college",
+  path: ["dreamColleges"],
 });
 
 type OnboardingData = z.infer<typeof onboardingSchema>;
@@ -47,16 +55,41 @@ const INTERESTED_SUBJECTS = [
 ];
 
 const DREAM_COLLEGES = [
-  "Harvard University", "Stanford University", "MIT", "Princeton University",
-  "Yale University", "Columbia University", "University of Pennsylvania",
-  "Duke University", "Northwestern University", "Johns Hopkins University",
-  "University of Chicago", "California Institute of Technology",
-  "Cornell University", "Rice University", "Vanderbilt University",
-  "University of Notre Dame", "Carnegie Mellon University", "Emory University",
-  "Georgetown University", "University of California, Berkeley",
-  "University of California, Los Angeles", "University of Michigan",
-  "University of Virginia", "University of North Carolina at Chapel Hill",
-  "University of Texas at Austin", "Georgia Institute of Technology"
+  { name: "Harvard University", location: "Cambridge, MA, USA" },
+  { name: "Stanford University", location: "Stanford, CA, USA" },
+  { name: "MIT", location: "Cambridge, MA, USA" },
+  { name: "Princeton University", location: "Princeton, NJ, USA" },
+  { name: "Yale University", location: "New Haven, CT, USA" },
+  { name: "Columbia University", location: "New York, NY, USA" },
+  { name: "University of Pennsylvania", location: "Philadelphia, PA, USA" },
+  { name: "Duke University", location: "Durham, NC, USA" },
+  { name: "Northwestern University", location: "Evanston, IL, USA" },
+  { name: "Johns Hopkins University", location: "Baltimore, MD, USA" },
+  { name: "University of Chicago", location: "Chicago, IL, USA" },
+  { name: "California Institute of Technology", location: "Pasadena, CA, USA" },
+  { name: "Cornell University", location: "Ithaca, NY, USA" },
+  { name: "Rice University", location: "Houston, TX, USA" },
+  { name: "Vanderbilt University", location: "Nashville, TN, USA" },
+  { name: "University of Notre Dame", location: "Notre Dame, IN, USA" },
+  { name: "Carnegie Mellon University", location: "Pittsburgh, PA, USA" },
+  { name: "Emory University", location: "Atlanta, GA, USA" },
+  { name: "Georgetown University", location: "Washington, DC, USA" },
+  { name: "University of California, Berkeley", location: "Berkeley, CA, USA" },
+  { name: "University of California, Los Angeles", location: "Los Angeles, CA, USA" },
+  { name: "University of Michigan", location: "Ann Arbor, MI, USA" },
+  { name: "University of Virginia", location: "Charlottesville, VA, USA" },
+  { name: "University of North Carolina at Chapel Hill", location: "Chapel Hill, NC, USA" },
+  { name: "University of Texas at Austin", location: "Austin, TX, USA" },
+  { name: "Georgia Institute of Technology", location: "Atlanta, GA, USA" },
+  { name: "University of Oxford", location: "Oxford, England, UK" },
+  { name: "University of Cambridge", location: "Cambridge, England, UK" },
+  { name: "London School of Economics", location: "London, England, UK" },
+  { name: "University of Toronto", location: "Toronto, Ontario, Canada" },
+  { name: "McGill University", location: "Montreal, Quebec, Canada" },
+  { name: "University of British Columbia", location: "Vancouver, BC, Canada" },
+  { name: "Australian National University", location: "Canberra, Australia" },
+  { name: "University of Melbourne", location: "Melbourne, Australia" },
+  { name: "University of Sydney", location: "Sydney, Australia" }
 ];
 
 const ACADEMIC_INTERESTS = [
@@ -77,6 +110,7 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(1);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [customCollegeInput, setCustomCollegeInput] = useState("");
   const totalSteps = 5;
 
   const form = useForm<OnboardingData>({
@@ -85,6 +119,7 @@ export default function Onboarding() {
       currentSubjects: [],
       interestedSubjects: [],
       dreamColleges: [],
+      customDreamColleges: [],
       academicInterests: [],
       extracurricularActivities: [],
       careerGoals: "",
@@ -95,8 +130,11 @@ export default function Onboarding() {
 
   const createProfileMutation = useMutation({
     mutationFn: async (data: OnboardingData) => {
+      // Combine selected and custom dream colleges
+      const allDreamColleges = [...data.dreamColleges, ...(data.customDreamColleges || [])];
       const response = await apiRequest("POST", "/api/student/profile", {
         ...data,
+        dreamColleges: allDreamColleges,
         currentGpa: data.currentGpa || null,
       });
       return response.json();
@@ -346,50 +384,134 @@ export default function Onboarding() {
               <p className="text-gray-600">Where do you dream of studying?</p>
             </div>
             
-            <FormField
-              control={form.control}
-              name="dreamColleges"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Dream colleges (select up to 5) *</FormLabel>
-                  <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto">
-                    {DREAM_COLLEGES.map((college) => (
-                      <FormField
-                        key={college}
-                        control={form.control}
-                        name="dreamColleges"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(college)}
-                                onCheckedChange={(checked) => {
-                                  if (checked && field.value.length >= 5) {
-                                    toast({
-                                      title: "Limit Reached",
-                                      description: "You can select up to 5 dream colleges.",
-                                      variant: "destructive",
-                                    });
-                                    return;
-                                  }
-                                  return checked
-                                    ? field.onChange([...field.value, college])
-                                    : field.onChange(field.value?.filter((value) => value !== college));
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              {college}
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
+            <Tabs defaultValue="preset" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="preset">Popular Colleges</TabsTrigger>
+                <TabsTrigger value="custom">Add Your Own</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="preset" className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="dreamColleges"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>Dream colleges (select up to 5) *</FormLabel>
+                      <div className="grid grid-cols-1 gap-3 max-h-60 overflow-y-auto">
+                        {DREAM_COLLEGES.map((college) => (
+                          <FormField
+                            key={college.name}
+                            control={form.control}
+                            name="dreamColleges"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(college.name)}
+                                    onCheckedChange={(checked) => {
+                                      if (checked && field.value.length >= 5) {
+                                        toast({
+                                          title: "Limit Reached",
+                                          description: "You can select up to 5 dream colleges.",
+                                          variant: "destructive",
+                                        });
+                                        return;
+                                      }
+                                      return checked
+                                        ? field.onChange([...field.value, college.name])
+                                        : field.onChange(field.value?.filter((value) => value !== college.name));
+                                    }}
+                                  />
+                                </FormControl>
+                                <div className="flex-1">
+                                  <FormLabel className="text-sm font-medium">
+                                    {college.name}
+                                  </FormLabel>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {college.location}
+                                  </p>
+                                </div>
+                              </FormItem>
+                            )}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+              
+              <TabsContent value="custom" className="space-y-4">
+                <div className="space-y-4">
+                  <FormLabel>Add your dream colleges</FormLabel>
+                  <div className="flex space-x-2">
+                    <Input
+                      placeholder="e.g., Stanford University, California"
+                      value={customCollegeInput}
+                      onChange={(e) => setCustomCollegeInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const customColleges = form.getValues("customDreamColleges") || [];
+                          if (customCollegeInput.trim() && !customColleges.includes(customCollegeInput.trim())) {
+                            form.setValue("customDreamColleges", [...customColleges, customCollegeInput.trim()]);
+                            setCustomCollegeInput("");
+                          }
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const customColleges = form.getValues("customDreamColleges") || [];
+                        if (customCollegeInput.trim() && !customColleges.includes(customCollegeInput.trim())) {
+                          form.setValue("customDreamColleges", [...customColleges, customCollegeInput.trim()]);
+                          setCustomCollegeInput("");
+                        }
+                      }}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  
+                  <FormField
+                    control={form.control}
+                    name="customDreamColleges"
+                    render={({ field }) => (
+                      <FormItem>
+                        {field.value && field.value.length > 0 && (
+                          <div className="space-y-2">
+                            <FormLabel>Your custom colleges:</FormLabel>
+                            <div className="space-y-2">
+                              {field.value.map((college, index) => (
+                                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                  <span className="text-sm">{college}</span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const updatedColleges = field.value.filter((_, i) => i !== index);
+                                      form.setValue("customDreamColleges", updatedColleges);
+                                    }}
+                                  >
+                                    ×
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
 
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
