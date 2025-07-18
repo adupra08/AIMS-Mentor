@@ -102,6 +102,7 @@ Environment variables required:
 ## Changelog
 
 Changelog:
+- July 18, 2025 (Evening): Fixed build process - Resolved static file serving path issue, created build-deploy.sh script, verified production build works correctly
 - July 18, 2025 (Evening): Applied deployment fixes - Added environment variable validation for REPL_ID and SESSION_SECRET, configured cookie security settings for production, verified database and session table configuration
 - July 18, 2025: Updated app branding to "AI Mentor for Students - AIMS" across all UI components
 - June 29, 2025: Initial setup
