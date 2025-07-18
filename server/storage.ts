@@ -7,6 +7,7 @@ import {
   todos,
   chatMessages,
   progressTracking,
+  achievements,
   type User,
   type UpsertUser,
   type StudentProfile,
@@ -23,6 +24,8 @@ import {
   type InsertChatMessage,
   type ProgressTracking,
   type InsertProgressTracking,
+  type Achievement,
+  type InsertAchievement,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, inArray } from "drizzle-orm";
@@ -65,6 +68,12 @@ export interface IStorage {
   // Progress tracking operations
   getStudentProgress(studentId: number): Promise<ProgressTracking[]>;
   updateProgress(progress: InsertProgressTracking): Promise<ProgressTracking>;
+  
+  // Achievement operations
+  getStudentAchievements(studentId: number): Promise<Achievement[]>;
+  createAchievement(achievement: InsertAchievement): Promise<Achievement>;
+  updateAchievement(id: number, updates: Partial<InsertAchievement>): Promise<Achievement>;
+  deleteAchievement(id: number): Promise<void>;
   
   // Seed operations
   seedOpportunities(): Promise<void>;
@@ -280,6 +289,38 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Seed operations
+  // Achievement operations
+  async getStudentAchievements(studentId: number): Promise<Achievement[]> {
+    return await db
+      .select()
+      .from(achievements)
+      .where(eq(achievements.studentId, studentId))
+      .orderBy(desc(achievements.dateAchieved));
+  }
+
+  async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
+    const [created] = await db
+      .insert(achievements)
+      .values(achievement)
+      .returning();
+    return created;
+  }
+
+  async updateAchievement(id: number, updates: Partial<InsertAchievement>): Promise<Achievement> {
+    const [updated] = await db
+      .update(achievements)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(achievements.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteAchievement(id: number): Promise<void> {
+    await db
+      .delete(achievements)
+      .where(eq(achievements.id, id));
+  }
+
   async seedOpportunities(): Promise<void> {
     const seedData = [
       {

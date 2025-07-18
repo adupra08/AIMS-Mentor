@@ -138,6 +138,27 @@ export const progressTracking = pgTable("progress_tracking", {
   recordedAt: timestamp("recorded_at").defaultNow(),
 });
 
+// Student achievements
+export const achievements = pgTable("achievements", {
+  id: serial("id").primaryKey(),
+  studentId: integer("student_id").notNull().references(() => studentProfiles.id),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  type: varchar("type").notNull(), // competition, research, certification, award, other
+  category: varchar("category"), // academic, extracurricular, leadership, technical
+  dateAchieved: timestamp("date_achieved"),
+  organization: varchar("organization"), // e.g., "Google", "Science Fair", "MIT"
+  location: varchar("location"), // where the achievement occurred
+  ranking: varchar("ranking"), // e.g., "1st Place", "Finalist", "Honorable Mention"
+  certificateUrl: varchar("certificate_url"), // link to certificate/proof
+  publicationUrl: varchar("publication_url"), // for research papers
+  skills: jsonb("skills").$type<string[]>().default([]), // related skills
+  isVerified: boolean("is_verified").default(false),
+  verificationNotes: text("verification_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const studentProfileRelations = relations(studentProfiles, ({ one, many }) => ({
   user: one(users, {
@@ -149,6 +170,7 @@ export const studentProfileRelations = relations(studentProfiles, ({ one, many }
   todos: many(todos),
   chatMessages: many(chatMessages),
   progressRecords: many(progressTracking),
+  achievements: many(achievements),
 }));
 
 export const academicPathwayRelations = relations(academicPathways, ({ one }) => ({
@@ -194,6 +216,13 @@ export const progressTrackingRelations = relations(progressTracking, ({ one }) =
   }),
 }));
 
+export const achievementRelations = relations(achievements, ({ one }) => ({
+  student: one(studentProfiles, {
+    fields: [achievements.studentId],
+    references: [studentProfiles.id],
+  }),
+}));
+
 // Schema types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -219,6 +248,9 @@ export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertProgressTracking = typeof progressTracking.$inferInsert;
 export type ProgressTracking = typeof progressTracking.$inferSelect;
 
+export type InsertAchievement = typeof achievements.$inferInsert;
+export type Achievement = typeof achievements.$inferSelect;
+
 // Zod schemas for validation
 export const insertStudentProfileSchema = createInsertSchema(studentProfiles).omit({
   id: true,
@@ -236,4 +268,10 @@ export const insertTodoSchema = createInsertSchema(todos).omit({
 export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
   id: true,
   createdAt: true,
+});
+
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });

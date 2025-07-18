@@ -5,7 +5,8 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
   insertStudentProfileSchema, 
   insertTodoSchema, 
-  insertChatMessageSchema 
+  insertChatMessageSchema,
+  insertAchievementSchema
 } from "@shared/schema";
 import { generateAcademicPathway } from "./services/pathwayGenerator";
 import { getChatResponse } from "./services/openai";
@@ -356,6 +357,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching progress:", error);
       res.status(500).json({ message: "Failed to fetch progress" });
+    }
+  });
+
+  // Achievement routes
+  app.get('/api/student/achievements', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const profile = await storage.getStudentProfile(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+      
+      const achievements = await storage.getStudentAchievements(profile.id);
+      res.json(achievements);
+    } catch (error) {
+      console.error("Error fetching achievements:", error);
+      res.status(500).json({ message: "Failed to fetch achievements" });
+    }
+  });
+
+  app.post('/api/student/achievements', isAuthenticated, async (req: any, res) => {
+    try {
+      console.log("Creating achievement for user:", req.user.claims.sub);
+      console.log("Request body:", req.body);
+      
+      const userId = req.user.claims.sub;
+      const profile = await storage.getStudentProfile(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+      
+      const achievementData = {
+        ...req.body,
+        studentId: profile.id,
+        dateAchieved: req.body.dateAchieved ? new Date(req.body.dateAchieved) : null,
+        skills: req.body.skills ? JSON.parse(JSON.stringify(req.body.skills)) : []
+      };
+      
+      console.log("Achievement data before validation:", achievementData);
+      
+      const validatedData = insertAchievementSchema.parse(achievementData);
+      console.log("Validated data:", validatedData);
+      
+      const achievement = await storage.createAchievement(validatedData);
+      console.log("Created achievement:", achievement);
+      
+      res.json(achievement);
+    } catch (error) {
+      console.error("Error creating achievement:", error);
+      res.status(500).json({ message: "Failed to create achievement" });
+    }
+  });
+
+  app.patch('/api/student/achievements/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const achievementId = parseInt(req.params.id);
+      const updates = {
+        ...req.body,
+        dateAchieved: req.body.dateAchieved ? new Date(req.body.dateAchieved) : undefined,
+        skills: req.body.skills ? JSON.parse(JSON.stringify(req.body.skills)) : undefined
+      };
+      
+      const achievement = await storage.updateAchievement(achievementId, updates);
+      res.json(achievement);
+    } catch (error) {
+      console.error("Error updating achievement:", error);
+      res.status(500).json({ message: "Failed to update achievement" });
+    }
+  });
+
+  app.delete('/api/student/achievements/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const achievementId = parseInt(req.params.id);
+      await storage.deleteAchievement(achievementId);
+      res.json({ message: "Achievement deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting achievement:", error);
+      res.status(500).json({ message: "Failed to delete achievement" });
     }
   });
 
