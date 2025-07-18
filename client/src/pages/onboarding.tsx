@@ -142,7 +142,7 @@ export default function Onboarding() {
     onSuccess: () => {
       toast({
         title: "Profile Created!",
-        description: "Welcome to AIMS! Your personalized academic journey starts now.",
+        description: "Welcome to AI Mentor for Students - AIMS! Your personalized academic journey starts now.",
       });
       setLocation("/");
     },
@@ -637,7 +637,7 @@ export default function Onboarding() {
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
                 <GraduationCap className="text-white text-lg" />
               </div>
-              <span className="ml-3 text-xl font-bold text-gray-900">AIMS</span>
+              <span className="ml-3 text-xl font-bold text-gray-900">AI Mentor for Students - AIMS</span>
             </div>
             <div className="text-sm text-gray-500">
               Step {currentStep} of {totalSteps}

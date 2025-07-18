@@ -1,8 +1,8 @@
-# AIMS - Artificial Intelligence Mentor for Students
+# AI Mentor for Students - AIMS
 
 ## Overview
 
-AIMS (Artificial Intelligence Mentor for Students) is a comprehensive web application that provides AI-driven mentoring to help high school students create personalized academic pathways to reach their dream colleges. The platform combines modern web technologies with AI capabilities to deliver tailored guidance, opportunity recommendations, and progress tracking.
+AI Mentor for Students - AIMS is a comprehensive web application that provides AI-driven mentoring to help high school students create personalized academic pathways to reach their dream colleges. The platform combines modern web technologies with AI capabilities to deliver tailored guidance, opportunity recommendations, and progress tracking.
 
 ## System Architecture
 
@@ -94,7 +94,8 @@ Environment variables required:
 ## Changelog
 
 Changelog:
-- June 29, 2025. Initial setup
+- July 18, 2025: Updated app branding to "AI Mentor for Students - AIMS" across all UI components
+- June 29, 2025: Initial setup
 
 ## User Preferences
 

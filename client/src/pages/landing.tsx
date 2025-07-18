@@ -17,7 +17,7 @@ export default function Landing() {
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
                 <GraduationCap className="text-white text-xl" />
               </div>
-              <span className="ml-3 text-xl font-bold text-gray-900">AIMS</span>
+              <span className="ml-3 text-xl font-bold text-gray-900">AI Mentor for Students - AIMS</span>
             </div>
             <Button onClick={handleLogin} className="bg-primary hover:bg-primary/90">
               Get Started
