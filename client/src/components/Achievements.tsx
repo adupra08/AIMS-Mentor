@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -37,7 +37,7 @@ import { format } from "date-fns";
 
 const achievementFormSchema = insertAchievementSchema.extend({
   skills: z.array(z.string()).optional(),
-});
+}).omit({ studentId: true, createdAt: true, updatedAt: true });
 
 type AchievementFormData = z.infer<typeof achievementFormSchema>;
 
@@ -67,6 +67,7 @@ export default function Achievements() {
       skills: [],
       isVerified: false,
       verificationNotes: "",
+      dateAchieved: undefined,
     },
   });
 
@@ -138,6 +139,10 @@ export default function Achievements() {
   });
 
   const onSubmit = (data: AchievementFormData) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form errors:", form.formState.errors);
+    console.log("Form is valid:", form.formState.isValid);
+    
     if (editingAchievement) {
       updateMutation.mutate({ id: editingAchievement.id, data });
     } else {
@@ -241,7 +246,21 @@ export default function Achievements() {
                 size="sm" 
                 onClick={() => {
                   setEditingAchievement(null);
-                  form.reset();
+                  form.reset({
+                    title: "",
+                    description: "",
+                    type: "competition",
+                    category: "academic",
+                    organization: "",
+                    location: "",
+                    ranking: "",
+                    certificateUrl: "",
+                    publicationUrl: "",
+                    skills: [],
+                    isVerified: false,
+                    verificationNotes: "",
+                    dateAchieved: undefined,
+                  });
                 }}
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -253,6 +272,12 @@ export default function Achievements() {
                 <DialogTitle>
                   {editingAchievement ? "Edit Achievement" : "Add New Achievement"}
                 </DialogTitle>
+                <DialogDescription>
+                  {editingAchievement 
+                    ? "Update your achievement details below." 
+                    : "Add a new achievement to your profile. Include competitions, research papers, certifications, or awards."
+                  }
+                </DialogDescription>
               </DialogHeader>
               
               <Form {...form}>
