@@ -2,6 +2,29 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+// Validate required environment variables in production
+if (process.env.NODE_ENV === "production") {
+  const requiredEnvVars = [
+    'DATABASE_URL',
+    'REPLIT_DOMAINS', 
+    'REPL_ID',
+    'SESSION_SECRET'
+  ];
+
+  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+  
+  if (missingVars.length > 0) {
+    console.error('❌ Missing required environment variables for production:');
+    missingVars.forEach(varName => {
+      console.error(`   - ${varName}`);
+    });
+    console.error('\nApplication cannot start without these environment variables.');
+    process.exit(1);
+  }
+  
+  console.log('✓ All required environment variables are present');
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
