@@ -84,16 +84,25 @@ The application is configured for deployment on Replit with:
 - **Build**: `npm run build` - Creates production builds for both client and server
 - **Production**: `npm start` - Serves the production application
 - **Database**: Uses Drizzle Kit for schema management and migrations
+- **Port Configuration**: Server runs on port 5000 with external port forwarding to 80
 
 Environment variables required:
-- `DATABASE_URL`: PostgreSQL connection string
+- `DATABASE_URL`: PostgreSQL connection string (automatically provided)
 - `OPENAI_API_KEY`: OpenAI API access key
-- `SESSION_SECRET`: Session encryption secret
-- `REPLIT_DOMAINS`: Allowed domains for authentication
+- `SESSION_SECRET`: Session encryption secret (configured)
+- `REPLIT_DOMAINS`: Allowed domains for authentication (configured)
+- `REPL_ID`: Replit environment identifier (configured)
+
+**Deployment Configuration**:
+- Authentication uses Replit's OpenID Connect with proper callback URLs
+- Session management with PostgreSQL session store
+- Cookie security settings configured for production
+- All required environment variables validated at startup
 
 ## Changelog
 
 Changelog:
+- July 18, 2025 (Evening): Applied deployment fixes - Added environment variable validation for REPL_ID and SESSION_SECRET, configured cookie security settings for production, verified database and session table configuration
 - July 18, 2025: Updated app branding to "AI Mentor for Students - AIMS" across all UI components
 - June 29, 2025: Initial setup
 
