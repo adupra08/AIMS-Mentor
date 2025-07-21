@@ -8,7 +8,7 @@ export default function QuickActions() {
   const quickActions = [
     {
       icon: Route,
-      label: "View Pathway",
+      label: "Academic Pathway",
       color: "bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary",
       action: () => {
         console.log("View Pathway clicked");
@@ -20,7 +20,7 @@ export default function QuickActions() {
     },
     {
       icon: Trophy,
-      label: "Competitions",
+      label: "Find Competitions",
       color: "bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary",
       action: () => {
         console.log("Competitions clicked");
@@ -32,7 +32,7 @@ export default function QuickActions() {
     },
     {
       icon: BookOpen,
-      label: "AP Courses",
+      label: "Course Planning",
       color: "bg-accent bg-opacity-10 hover:bg-opacity-20 text-accent",
       action: () => {
         console.log("AP Courses clicked");
@@ -44,7 +44,7 @@ export default function QuickActions() {
     },
     {
       icon: Handshake,
-      label: "Internships",
+      label: "Summer Programs",
       color: "bg-purple-100 hover:bg-purple-200 text-purple-600",
       action: () => {
         console.log("Internships clicked");
