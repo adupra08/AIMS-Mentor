@@ -28,7 +28,7 @@ Your role is to:
 Be encouraging, specific, and actionable in your responses. Keep responses conversational and supportive.`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      model: "gpt-4o", // Current model - change this to: "gpt-4o-mini", "gpt-4-turbo", "gpt-4", or "gpt-3.5-turbo"
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: message }
@@ -73,7 +73,7 @@ Provide a JSON response with:
 - recommendations: array of 3-5 specific, actionable recommendations`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      model: "gpt-4o", // Current model - change this to: "gpt-4o-mini", "gpt-4-turbo", "gpt-4", or "gpt-3.5-turbo"
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
       temperature: 0.3,
