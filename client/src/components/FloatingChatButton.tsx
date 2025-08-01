@@ -244,7 +244,7 @@ export default function FloatingChatButton() {
         {isOpen ? (
           <X className="h-6 w-6 sm:h-7 sm:w-7 group-hover:scale-110 transition-transform" />
         ) : (
-          <AIMentorIcon className="h-6 w-6 sm:h-7 sm:w-7 group-hover:scale-110 transition-transform" />
+          <AIMentorIcon className="h-8 w-8 sm:h-9 sm:w-9 group-hover:scale-110 transition-transform" />
         )}
         
         {/* Notification pulse for assistance */}
