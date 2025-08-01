@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Send } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import AIMentorIcon from "./AIMentorIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -67,16 +69,47 @@ export default function AIChatWidget() {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="space-y-3 mb-4 max-h-32 sm:max-h-40 overflow-y-auto overscroll-contain chat-scrollbar">
+        <div className="space-y-3 mb-4 max-h-48 sm:max-h-56 overflow-y-auto overscroll-contain chat-scrollbar">
           <div className="flex items-start space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0 animate-pulse-soft">
               <AIMentorIcon className="text-white h-5 w-5" />
             </div>
-            <div className="bg-gray-100 rounded-lg p-3 text-sm rounded-bl-sm flex-1">
-              <p className="leading-relaxed break-words">
-                {latestAiMessage?.message || 
-                 "Hi! I'm your AI mentor. Ask me anything about your academic journey, college preparation, or opportunities you should explore!"}
-              </p>
+            <div className="bg-gray-50 rounded-lg p-4 text-sm rounded-bl-sm flex-1 border border-gray-200">
+              <div className="prose prose-sm max-w-none">
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    // Custom components for better formatting
+                    h1: ({children}) => <h1 className="text-lg font-bold text-gray-900 mb-2">{children}</h1>,
+                    h2: ({children}) => <h2 className="text-base font-semibold text-gray-800 mb-2">{children}</h2>,
+                    h3: ({children}) => <h3 className="text-sm font-semibold text-gray-700 mb-1">{children}</h3>,
+                    p: ({children}) => <p className="text-gray-700 mb-2 leading-relaxed">{children}</p>,
+                    ul: ({children}) => <ul className="list-disc list-inside space-y-1 mb-2 text-gray-700">{children}</ul>,
+                    ol: ({children}) => <ol className="list-decimal list-inside space-y-1 mb-2 text-gray-700">{children}</ol>,
+                    li: ({children}) => <li className="ml-2">{children}</li>,
+                    strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                    em: ({children}) => <em className="italic text-gray-700">{children}</em>,
+                    code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono text-gray-800">{children}</code>,
+                    blockquote: ({children}) => <blockquote className="border-l-2 border-primary pl-3 italic text-gray-600 my-2">{children}</blockquote>
+                  }}
+                >
+                  {latestAiMessage ? latestAiMessage.message : (
+                    `**Welcome to AIMS!** 🎓
+
+I'm your **AI Academic Mentor**, here to help guide your journey to your dream college.
+
+**I can help you with:**
+• Academic planning and course selection
+• College preparation strategies  
+• Finding relevant competitions and opportunities
+• Extracurricular activity recommendations
+• Test preparation guidance
+• Personal development planning
+
+**What would you like to discuss today?** Feel free to ask me anything about your academic path!`
+                  )}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         </div>

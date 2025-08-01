@@ -25,7 +25,15 @@ Your role is to:
 4. Motivate and encourage the student
 5. Answer questions about academic pathways and extracurriculars
 
-Be encouraging, specific, and actionable in your responses. Keep responses conversational and supportive.`;
+Response formatting guidelines:
+- Use proper markdown formatting with **bold** for emphasis and bullet points for lists
+- Structure responses with clear sections using line breaks
+- Include numbered steps for action items
+- Use bullet points (•) for key recommendations
+- Format examples with proper indentation
+- Keep paragraphs concise but informative
+
+Be encouraging, specific, and actionable in your responses. Always format your responses professionally with clear structure and proper indentation.`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o", // Current model - change this to: "gpt-4o-mini", "gpt-4-turbo", "gpt-4", or "gpt-3.5-turbo"
@@ -33,7 +41,7 @@ Be encouraging, specific, and actionable in your responses. Keep responses conve
         { role: "system", content: systemPrompt },
         { role: "user", content: message }
       ],
-      max_tokens: 500,
+      max_tokens: 800,
       temperature: 0.7,
     });
 

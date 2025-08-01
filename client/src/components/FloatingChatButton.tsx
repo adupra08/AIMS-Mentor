@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import AIMentorIcon from "./AIMentorIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -199,11 +201,28 @@ export default function FloatingChatButton() {
                   <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
                     <AIMentorIcon className="text-white text-xs h-5 w-5" />
                   </div>
-                  <div className="bg-gray-100 rounded-lg p-3 text-sm rounded-bl-sm">
-                    <p className="leading-relaxed">
-                      Hi! I'm your AI mentor. Ask me anything about your academic journey, 
-                      college preparation, or opportunities you should explore!
-                    </p>
+                  <div className="bg-gray-50 rounded-lg p-3 text-sm rounded-bl-sm border border-gray-200">
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          p: ({children}) => <p className="text-gray-700 mb-1 leading-relaxed text-sm">{children}</p>,
+                          strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                          ul: ({children}) => <ul className="list-disc list-inside space-y-0.5 mb-1 text-gray-700 text-sm">{children}</ul>,
+                          li: ({children}) => <li className="ml-1 text-sm">{children}</li>,
+                        }}
+                      >
+                        {`**Hi! I'm your AI Academic Mentor** 🎓
+
+I can help you with:
+• Academic planning & course selection
+• College preparation strategies
+• Finding opportunities & competitions  
+• Test prep guidance
+
+**Ask me anything about your academic journey!**`}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               )}
