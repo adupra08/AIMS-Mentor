@@ -7,7 +7,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { StudentProfile, User } from "@shared/schema";
 import WelcomeHeader from "@/components/WelcomeHeader";
 import QuickActions from "@/components/QuickActions";
-import AIChatWidget from "@/components/AIChatWidget";
+
 import PersonalizedPathway from "@/components/PersonalizedPathway";
 import CurrentOpportunities from "@/components/CurrentOpportunities";
 import TodoList from "@/components/TodoList";
@@ -179,28 +179,25 @@ export default function Home() {
               <InteractiveDemo />
             </div>
 
-            {/* Quick Actions & AI Chat */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-              <div className="lg:col-span-2 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            {/* Quick Actions */}
+            <div className="mb-8">
+              <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
                 <QuickActions onTabChange={setActiveTab} />
-              </div>
-              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <AIChatWidget />
               </div>
             </div>
 
             {/* Current Opportunities & To-Do */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
                 <CurrentOpportunities studentProfile={studentProfile!} />
               </div>
-              <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+              <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 <TodoList studentProfile={studentProfile!} />
               </div>
             </div>
 
             {/* Recommended AP Courses */}
-            <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <RecommendedCourses studentProfile={studentProfile!} />
             </div>
           </>
