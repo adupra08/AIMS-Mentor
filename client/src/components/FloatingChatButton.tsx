@@ -97,7 +97,7 @@ export default function FloatingChatButton() {
     <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
       {/* Assistance Popup */}
       {showAssistancePopup && !isOpen && (
-        <div className="mb-4 mr-16 w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-4 animate-in slide-in-from-right-2 fade-in duration-300">
+        <div className="absolute bottom-16 right-0 w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-4 animate-in slide-in-from-right-2 fade-in duration-300">
           <div className="flex items-start space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
               <AIMentorIcon className="text-white h-5 w-5" />
@@ -139,7 +139,7 @@ export default function FloatingChatButton() {
 
       {/* Chat Interface */}
       {isOpen && (
-        <div className="mb-4 w-[calc(100vw-2rem)] max-w-sm sm:w-80 sm:max-w-none bg-white rounded-lg shadow-xl border border-gray-200 max-h-[80vh] sm:max-h-96 flex flex-col">
+        <div className="absolute bottom-16 right-0 w-[calc(100vw-2rem)] max-w-sm sm:w-80 sm:max-w-none bg-white rounded-lg shadow-xl border border-gray-200 max-h-[80vh] sm:max-h-96 flex flex-col">
           <CardHeader className="bg-gradient-to-r from-primary to-secondary text-white rounded-t-lg flex-shrink-0 py-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base sm:text-lg font-semibold flex items-center">
@@ -239,12 +239,12 @@ export default function FloatingChatButton() {
       {/* Floating Button */}
       <Button
         onClick={toggleChat}
-        className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-primary to-secondary text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group active:scale-95 mobile-touch-target"
+        className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-primary to-secondary text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group active:scale-95 mobile-touch-target"
       >
         {isOpen ? (
-          <X className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
+          <X className="h-6 w-6 sm:h-7 sm:w-7 group-hover:scale-110 transition-transform" />
         ) : (
-          <AIMentorIcon className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
+          <AIMentorIcon className="h-6 w-6 sm:h-7 sm:w-7 group-hover:scale-110 transition-transform" />
         )}
         
         {/* Notification pulse for assistance */}
