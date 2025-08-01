@@ -55,21 +55,24 @@ export default function AIChatWidget() {
   const latestAiMessage = Array.isArray(chatMessages) ? chatMessages.find((msg: any) => msg.sender === "ai") : null;
 
   return (
-    <Card className="shadow-sm border border-gray-200">
-      <CardHeader>
+    <Card className="shadow-sm border border-gray-200 w-full">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-gray-900">AI Mentor</CardTitle>
+          <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+            <Bot className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+            AI Mentor
+          </CardTitle>
           <div className="w-3 h-3 bg-secondary rounded-full animate-pulse"></div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3 mb-4 max-h-40 overflow-y-auto">
+      <CardContent className="pt-0">
+        <div className="space-y-3 mb-4 max-h-32 sm:max-h-40 overflow-y-auto overscroll-contain chat-scrollbar">
           <div className="flex items-start space-x-2">
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
               <Bot className="text-white text-xs" />
             </div>
-            <div className="bg-gray-100 rounded-lg p-3 text-sm">
-              <p>
+            <div className="bg-gray-100 rounded-lg p-3 text-sm rounded-bl-sm flex-1">
+              <p className="leading-relaxed break-words">
                 {latestAiMessage?.message || 
                  "Hi! I'm your AI mentor. Ask me anything about your academic journey, college preparation, or opportunities you should explore!"}
               </p>
@@ -83,15 +86,19 @@ export default function AIChatWidget() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="flex-1 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="flex-1 text-sm focus:ring-2 focus:ring-primary focus:border-transparent h-9 sm:h-10 chat-input"
             disabled={sendMessageMutation.isPending}
           />
           <Button
             onClick={handleSendMessage}
             disabled={sendMessageMutation.isPending || !message.trim()}
-            className="bg-primary hover:bg-primary/90 p-2"
+            className="bg-primary hover:bg-primary/90 h-9 w-9 sm:h-10 sm:w-10 p-0 flex-shrink-0 mobile-touch-target"
           >
-            <Send className="text-sm" />
+            {sendMessageMutation.isPending ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </CardContent>

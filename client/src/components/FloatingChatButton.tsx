@@ -53,37 +53,37 @@ export default function FloatingChatButton() {
   };
 
   // Sort messages by date and group user/AI pairs
-  const sortedMessages = chatMessages?.sort((a: any, b: any) => 
+  const sortedMessages = Array.isArray(chatMessages) ? chatMessages.sort((a: any, b: any) => 
     new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  ) || [];
+  ) : [];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
       {/* Chat Interface */}
       {isOpen && (
-        <div className="mb-4 w-80 max-h-96 bg-white rounded-lg shadow-xl border border-gray-200">
-          <CardHeader className="bg-gradient-to-r from-primary to-secondary text-white rounded-t-lg">
+        <div className="mb-4 w-[calc(100vw-2rem)] max-w-sm sm:w-80 sm:max-w-none bg-white rounded-lg shadow-xl border border-gray-200 max-h-[80vh] sm:max-h-96 flex flex-col">
+          <CardHeader className="bg-gradient-to-r from-primary to-secondary text-white rounded-t-lg flex-shrink-0 py-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold flex items-center">
-                <Bot className="mr-2 h-5 w-5" />
+              <CardTitle className="text-base sm:text-lg font-semibold flex items-center">
+                <Bot className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 AI Mentor
               </CardTitle>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={toggleChat}
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 p-1 h-auto"
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
           
-          <CardContent className="p-4">
+          <CardContent className="flex-1 flex flex-col p-3 sm:p-4 min-h-0">
             {/* Messages */}
-            <div className="space-y-4 mb-4 max-h-60 overflow-y-auto">
+            <div className="flex-1 space-y-3 mb-3 overflow-y-auto overscroll-contain chat-scrollbar">
               {isLoading ? (
-                <div className="text-center text-gray-500">
+                <div className="text-center text-gray-500 py-8">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
                   <p className="text-sm mt-2">Loading messages...</p>
                 </div>
@@ -94,19 +94,19 @@ export default function FloatingChatButton() {
                     className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                      className={`max-w-[85%] sm:max-w-xs px-3 py-2 rounded-lg text-sm leading-relaxed ${
                         msg.sender === 'user'
-                          ? 'bg-primary text-white'
-                          : 'bg-gray-100 text-gray-900'
+                          ? 'bg-primary text-white rounded-br-sm'
+                          : 'bg-gray-100 text-gray-900 rounded-bl-sm'
                       }`}
                     >
                       {msg.sender === 'ai' && (
                         <div className="flex items-center mb-1">
                           <Bot className="mr-1 h-3 w-3" />
-                          <span className="text-xs font-medium">AIMS</span>
+                          <span className="text-xs font-medium text-primary">AIMS</span>
                         </div>
                       )}
-                      <p>{msg.message}</p>
+                      <p className="whitespace-pre-wrap break-words">{msg.message}</p>
                       <div className="text-xs opacity-70 mt-1">
                         {new Date(msg.createdAt).toLocaleTimeString([], { 
                           hour: '2-digit', 
@@ -117,12 +117,12 @@ export default function FloatingChatButton() {
                   </div>
                 ))
               ) : (
-                <div className="flex items-start space-x-2">
+                <div className="flex items-start space-x-2 py-4">
                   <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
                     <Bot className="text-white text-xs" />
                   </div>
-                  <div className="bg-gray-100 rounded-lg p-3 text-sm">
-                    <p>
+                  <div className="bg-gray-100 rounded-lg p-3 text-sm rounded-bl-sm">
+                    <p className="leading-relaxed">
                       Hi! I'm your AI mentor. Ask me anything about your academic journey, 
                       college preparation, or opportunities you should explore!
                     </p>
@@ -132,22 +132,26 @@ export default function FloatingChatButton() {
             </div>
 
             {/* Input */}
-            <div className="flex items-center space-x-2 border-t pt-4">
+            <div className="flex items-center space-x-2 border-t pt-3 flex-shrink-0">
               <Input
                 type="text"
                 placeholder="Type your message..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="flex-1 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="flex-1 text-sm focus:ring-2 focus:ring-primary focus:border-transparent h-9 sm:h-10 chat-input"
                 disabled={sendMessageMutation.isPending}
               />
               <Button
                 onClick={handleSendMessage}
                 disabled={sendMessageMutation.isPending || !message.trim()}
-                className="bg-primary hover:bg-primary/90 p-2"
+                className="bg-primary hover:bg-primary/90 h-9 w-9 sm:h-10 sm:w-10 p-0 flex-shrink-0 mobile-touch-target"
               >
-                <Send className="h-4 w-4" />
+                {sendMessageMutation.isPending ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </CardContent>
@@ -157,12 +161,12 @@ export default function FloatingChatButton() {
       {/* Floating Button */}
       <Button
         onClick={toggleChat}
-        className="w-14 h-14 bg-gradient-to-br from-primary to-secondary text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
+        className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-primary to-secondary text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group active:scale-95 mobile-touch-target"
       >
         {isOpen ? (
-          <X className="text-xl group-hover:scale-110 transition-transform" />
+          <X className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
         ) : (
-          <MessageCircle className="text-xl group-hover:scale-110 transition-transform" />
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
         )}
       </Button>
     </div>

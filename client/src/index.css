@@ -73,23 +73,59 @@
   
   .aims-card-hover {
     @apply transition-all duration-200 hover:shadow-lg;
-    border: 1px solid hsl(var(--border));
+  }
+
+  /* Enhanced scrollbar styling for chat */
+  .chat-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground)) transparent;
   }
   
-  .aims-card-hover:hover {
-    border-color: hsl(var(--primary) / 0.2);
+  .chat-scrollbar::-webkit-scrollbar {
+    width: 4px;
   }
   
-  .progress-circle {
-    @apply relative inline-flex items-center justify-center;
+  .chat-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
   }
   
-  .progress-circle-bg {
-    @apply absolute inset-0 rounded-full bg-gray-200;
+  .chat-scrollbar::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground));
+    border-radius: 2px;
   }
   
-  .progress-circle-fill {
-    @apply absolute inset-0 rounded-full transition-all duration-500;
+  .chat-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--foreground));
+  }
+
+  /* Better touch targets for mobile */
+  @media (max-width: 640px) {
+    .mobile-touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Smooth animations for chat */
+  .chat-message-enter {
+    animation: slideInFromBottom 0.3s ease-out;
+  }
+  
+  @keyframes slideInFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Better focus states for accessibility */
+  .chat-input:focus {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
   }
 }
 
