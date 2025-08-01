@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { MessageCircle, X, Send, Bot } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MessageCircle, X, Send } from "lucide-react";
+import AIMentorIcon from "./AIMentorIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,32 @@ import { useToast } from "@/hooks/use-toast";
 export default function FloatingChatButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [showAssistancePopup, setShowAssistancePopup] = useState(false);
+  const [hasShownPopup, setHasShownPopup] = useState(false);
   const { toast } = useToast();
+
+  // Show assistance popup after user spends time on website
+  useEffect(() => {
+    if (hasShownPopup || isOpen) return;
+
+    const showPopupTimer = setTimeout(() => {
+      setShowAssistancePopup(true);
+      setHasShownPopup(true);
+    }, 10000); // Show after 10 seconds (reduced for demo)
+
+    return () => clearTimeout(showPopupTimer);
+  }, [hasShownPopup, isOpen]);
+
+  // Auto-hide popup after some time
+  useEffect(() => {
+    if (!showAssistancePopup) return;
+
+    const hidePopupTimer = setTimeout(() => {
+      setShowAssistancePopup(false);
+    }, 8000); // Hide after 8 seconds
+
+    return () => clearTimeout(hidePopupTimer);
+  }, [showAssistancePopup]);
 
   const { data: chatMessages, isLoading } = useQuery({
     queryKey: ["/api/student/chat"],
@@ -50,6 +76,16 @@ export default function FloatingChatButton() {
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
+    setShowAssistancePopup(false); // Hide popup when chat is opened
+  };
+
+  const handleAssistanceClick = () => {
+    setShowAssistancePopup(false);
+    setIsOpen(true);
+  };
+
+  const dismissPopup = () => {
+    setShowAssistancePopup(false);
   };
 
   // Sort messages by date and group user/AI pairs
@@ -59,13 +95,55 @@ export default function FloatingChatButton() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
+      {/* Assistance Popup */}
+      {showAssistancePopup && !isOpen && (
+        <div className="mb-4 mr-16 w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-4 animate-in slide-in-from-right-2 fade-in duration-300">
+          <div className="flex items-start space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+              <AIMentorIcon className="text-white h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Need assistance?</h3>
+              <p className="text-xs text-gray-600 mb-3">
+                I'm your AI mentor! I can help you with academic planning, finding opportunities, and answering questions about your pathway to college.
+              </p>
+              <div className="flex space-x-2">
+                <Button
+                  onClick={handleAssistanceClick}
+                  size="sm"
+                  className="text-xs bg-primary hover:bg-primary/90 h-7"
+                >
+                  Get Help
+                </Button>
+                <Button
+                  onClick={dismissPopup}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7"
+                >
+                  Not now
+                </Button>
+              </div>
+            </div>
+            <Button
+              onClick={dismissPopup}
+              variant="ghost"
+              size="sm"
+              className="p-1 h-auto text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Chat Interface */}
       {isOpen && (
         <div className="mb-4 w-[calc(100vw-2rem)] max-w-sm sm:w-80 sm:max-w-none bg-white rounded-lg shadow-xl border border-gray-200 max-h-[80vh] sm:max-h-96 flex flex-col">
           <CardHeader className="bg-gradient-to-r from-primary to-secondary text-white rounded-t-lg flex-shrink-0 py-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base sm:text-lg font-semibold flex items-center">
-                <Bot className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <AIMentorIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 AI Mentor
               </CardTitle>
               <Button 
@@ -102,7 +180,7 @@ export default function FloatingChatButton() {
                     >
                       {msg.sender === 'ai' && (
                         <div className="flex items-center mb-1">
-                          <Bot className="mr-1 h-3 w-3" />
+                          <AIMentorIcon className="mr-1 h-3 w-3" />
                           <span className="text-xs font-medium text-primary">AIMS</span>
                         </div>
                       )}
@@ -119,7 +197,7 @@ export default function FloatingChatButton() {
               ) : (
                 <div className="flex items-start space-x-2 py-4">
                   <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <Bot className="text-white text-xs" />
+                    <AIMentorIcon className="text-white text-xs h-5 w-5" />
                   </div>
                   <div className="bg-gray-100 rounded-lg p-3 text-sm rounded-bl-sm">
                     <p className="leading-relaxed">
@@ -166,7 +244,12 @@ export default function FloatingChatButton() {
         {isOpen ? (
           <X className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
         ) : (
-          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
+          <AIMentorIcon className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
+        )}
+        
+        {/* Notification pulse for assistance */}
+        {showAssistancePopup && !isOpen && (
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
         )}
       </Button>
     </div>

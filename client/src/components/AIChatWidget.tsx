@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Send, Bot } from "lucide-react";
+import { Send } from "lucide-react";
+import AIMentorIcon from "./AIMentorIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ export default function AIChatWidget() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
-            <Bot className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+            <AIMentorIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             AI Mentor
           </CardTitle>
           <div className="w-3 h-3 bg-secondary rounded-full animate-pulse"></div>
@@ -69,7 +70,7 @@ export default function AIChatWidget() {
         <div className="space-y-3 mb-4 max-h-32 sm:max-h-40 overflow-y-auto overscroll-contain chat-scrollbar">
           <div className="flex items-start space-x-2">
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-              <Bot className="text-white text-xs" />
+              <AIMentorIcon className="text-white h-5 w-5" />
             </div>
             <div className="bg-gray-100 rounded-lg p-3 text-sm rounded-bl-sm flex-1">
               <p className="leading-relaxed break-words">
