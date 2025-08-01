@@ -46,7 +46,7 @@ function ProgressCircle({ percentage, size = 80, strokeWidth = 8, color }: Progr
           strokeLinecap="round"
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}
-          className="transition-all duration-500 ease-in-out"
+          className="progress-animate"
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">

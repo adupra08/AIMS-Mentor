@@ -12,11 +12,11 @@ export default function WelcomeHeader({ studentProfile, user }: WelcomeHeaderPro
   const progress = 68; // This would be calculated from actual progress data
 
   return (
-    <div className="mb-8">
-      <div className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white">
+    <div className="mb-8 animate-fade-in">
+      <div className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white animate-scale-in">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">
+            <h1 className="text-3xl font-bold mb-2 animate-slide-up">
               Welcome back, {firstName}! 👋
             </h1>
             <p className="text-blue-100 text-lg">
@@ -45,9 +45,9 @@ export default function WelcomeHeader({ studentProfile, user }: WelcomeHeaderPro
           </div>
           <div className="hidden md:block">
             <div className="relative">
-              <div className="w-32 h-32 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <div className="w-32 h-32 bg-white bg-opacity-20 rounded-full flex items-center justify-center animate-bounce-gentle">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">{progress}%</div>
+                  <div className="text-2xl font-bold animate-pulse-soft">{progress}%</div>
                   <div className="text-sm opacity-90">Complete</div>
                 </div>
               </div>

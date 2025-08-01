@@ -47,22 +47,31 @@ export default function QuickActions({ onTabChange }: QuickActionsProps) {
   ];
 
   return (
-    <Card className="shadow-sm border border-gray-200">
+    <Card className="shadow-sm border border-gray-200 animate-slide-up">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold text-gray-900">Quick Actions</CardTitle>
+        <CardTitle className="text-xl font-semibold text-gray-900 flex items-center">
+          <span className="animate-fade-in">Quick Actions</span>
+          <div className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse-soft"></div>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickActions.map((action, index) => (
-            <button
-              key={index}
-              onClick={action.action}
-              className={`flex flex-col items-center p-4 rounded-lg transition-all duration-200 group ${action.color}`}
-            >
-              <action.icon className="text-2xl mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-sm font-medium">{action.label}</span>
-            </button>
-          ))}
+          {quickActions.map((action, index) => {
+            const IconComponent = action.icon;
+            return (
+              <button
+                key={index}
+                onClick={action.action}
+                className={`${action.color} p-4 rounded-lg micro-hover button-press flex flex-col items-center justify-center space-y-2 min-h-[100px] group animate-fade-in relative overflow-hidden`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                <IconComponent className="h-6 w-6 group-hover:scale-125 group-hover:rotate-6 transition-all duration-300 relative z-10" />
+                <span className="text-sm font-medium text-center leading-tight relative z-10 group-hover:font-semibold transition-all duration-200">{action.label}</span>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-current opacity-0 group-hover:opacity-30 transform scale-x-0 group-hover:scale-x-100 transition-all duration-300"></div>
+              </button>
+            );
+          })}
         </div>
       </CardContent>
     </Card>

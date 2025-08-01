@@ -15,6 +15,7 @@ import ProgressOverview from "@/components/ProgressOverview";
 import RecommendedCourses from "@/components/RecommendedCourses";
 import Achievements from "@/components/Achievements";
 import FloatingChatButton from "@/components/FloatingChatButton";
+import InteractiveDemo from "@/components/InteractiveDemo";
 import { GraduationCap, Bell, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -173,22 +174,35 @@ export default function Home() {
         {/* Tab Content */}
         {activeTab === 'dashboard' && (
           <>
+            {/* Interactive Demo - Showcase Micro-interactions */}
+            <div className="mb-8">
+              <InteractiveDemo />
+            </div>
+
             {/* Quick Actions & AI Chat */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                 <QuickActions onTabChange={setActiveTab} />
               </div>
-              <AIChatWidget />
+              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <AIChatWidget />
+              </div>
             </div>
 
             {/* Current Opportunities & To-Do */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <CurrentOpportunities studentProfile={studentProfile!} />
-              <TodoList studentProfile={studentProfile!} />
+              <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                <CurrentOpportunities studentProfile={studentProfile!} />
+              </div>
+              <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                <TodoList studentProfile={studentProfile!} />
+              </div>
             </div>
 
             {/* Recommended AP Courses */}
-            <RecommendedCourses studentProfile={studentProfile!} />
+            <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+              <RecommendedCourses studentProfile={studentProfile!} />
+            </div>
           </>
         )}
 
