@@ -67,7 +67,7 @@ export default function QuickActions({ onTabChange }: QuickActionsProps) {
               >
                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                 <IconComponent className="h-6 w-6 group-hover:scale-125 group-hover:rotate-6 transition-all duration-300 relative z-10" />
-                <span className="text-sm font-medium text-center leading-tight relative z-10 group-hover:font-semibold transition-all duration-200">{action.label}</span>
+                <span className="text-sm font-bold text-center leading-tight relative z-10 group-hover:font-extrabold transition-all duration-200">{action.label}</span>
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-current opacity-0 group-hover:opacity-30 transform scale-x-0 group-hover:scale-x-100 transition-all duration-300"></div>
               </button>
             );
