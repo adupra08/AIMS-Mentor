@@ -15,7 +15,7 @@ import ProgressOverview from "@/components/ProgressOverview";
 import RecommendedCourses from "@/components/RecommendedCourses";
 import Achievements from "@/components/Achievements";
 import FloatingChatButton from "@/components/FloatingChatButton";
-import InteractiveDemo from "@/components/InteractiveDemo";
+
 import { GraduationCap, Bell, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -174,11 +174,6 @@ export default function Home() {
         {/* Tab Content */}
         {activeTab === 'dashboard' && (
           <>
-            {/* Interactive Demo - Showcase Micro-interactions */}
-            <div className="mb-8">
-              <InteractiveDemo />
-            </div>
-
             {/* Quick Actions */}
             <div className="mb-8">
               <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
