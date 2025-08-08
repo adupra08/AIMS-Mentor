@@ -25,12 +25,18 @@ interface Opportunity {
   isPaid: boolean;
   difficultyLevel: string;
   tags: string[];
+  matchScore?: number;
+  matchReasons?: string[];
 }
 
 export default function CurrentOpportunities({ studentProfile }: CurrentOpportunitiesProps) {
   const { toast } = useToast();
 
-  const { data: opportunities, isLoading } = useQuery({
+  const { data: recommendedData, isLoading } = useQuery({
+    queryKey: ["/api/student/recommended-opportunities"],
+  });
+
+  const { data: allOpportunities, isLoading: isLoadingAll } = useQuery({
     queryKey: ["/api/opportunities"],
   });
 
@@ -89,11 +95,14 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingAll) {
     return (
       <Card className="shadow-sm border border-gray-200">
         <CardHeader>
-          <CardTitle className="text-xl font-semibold text-gray-900">Upcoming Opportunities</CardTitle>
+          <CardTitle className="text-xl font-semibold text-gray-900 flex items-center">
+            <Trophy className="w-5 h-5 mr-2" />
+            Recommended For You
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -112,58 +121,27 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
     );
   }
 
-  const opportunitiesArray = Array.isArray(opportunities) ? opportunities : [];
+  const recommendedOpportunities = recommendedData?.recommended || [];
+  const upcomingOpportunities = recommendedData?.upcoming || [];
   
-  // Filter opportunities based on student profile
-  const filteredOpportunities = opportunitiesArray.filter((opportunity: Opportunity) => {
-    // Check if deadline is in the future
-    const deadline = new Date(opportunity.deadline);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
-    const isFutureDeadline = deadline >= today;
-    
-    // Check if student's grade is eligible
-    const isGradeEligible = opportunity.eligibleGrades.includes(studentProfile.currentGrade);
-    
-    // Check if there's subject overlap (case-insensitive)
-    const studentSubjects = (studentProfile.currentSubjects || []).map((s: string) => s.toLowerCase());
-    const opportunitySubjects = opportunity.subjects.map((s: string) => s.toLowerCase());
-    const hasSubjectMatch = studentSubjects.length === 0 || 
-                           opportunitySubjects.some(subject => 
-                             studentSubjects.some(studentSubject => 
-                               subject.includes(studentSubject) || studentSubject.includes(subject)
-                             )
-                           );
-    
-    // Check if location is suitable (USA, International, National are always good)
-    const isLocationSuitable = opportunity.location === "National" || 
-                              opportunity.location === "International" || 
-                              opportunity.location === "USA" ||
-                              (studentProfile.location && opportunity.location.includes("USA"));
-    
-    return isFutureDeadline && isGradeEligible && (hasSubjectMatch || opportunitySubjects.length === 0) && isLocationSuitable;
-  });
-
-  // Sort by deadline (upcoming first) and relevance
-  const sortedOpportunities = filteredOpportunities.sort((a, b) => {
-    const dateA = new Date(a.deadline);
-    const dateB = new Date(b.deadline);
-    return dateA.getTime() - dateB.getTime();
-  });
+  const displayOpportunities = recommendedOpportunities.length > 0 ? recommendedOpportunities : (upcomingOpportunities.slice(0, 4) || []);
 
   return (
     <Card className="shadow-sm border border-gray-200">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-semibold text-gray-900">Relevant Opportunities</CardTitle>
+          <CardTitle className="text-xl font-semibold text-gray-900 flex items-center">
+            <Trophy className="w-5 h-5 mr-2" />
+            {recommendedOpportunities.length > 0 ? "Recommended For You" : "Upcoming Opportunities"}
+          </CardTitle>
           <Badge variant="secondary" className="text-xs">
-            {sortedOpportunities.length} matches found
+            {displayOpportunities.length} matches found
           </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {sortedOpportunities.slice(0, 6).map((opportunity: Opportunity) => (
+          {displayOpportunities.slice(0, 6).map((opportunity: Opportunity) => (
             <div
               key={opportunity.id}
               className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors aims-card-hover"
@@ -177,6 +155,18 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
                     </Badge>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">{opportunity.description}</p>
+                  {opportunity.matchReasons && opportunity.matchReasons.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                          {opportunity.matchScore}% match
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-green-600 mt-1">
+                        ✓ {opportunity.matchReasons[0]}
+                      </p>
+                    </div>
+                  )}
                   <div className="flex items-center flex-wrap gap-4 text-xs text-gray-500">
                     <div className="flex items-center">
                       <Calendar className="mr-1 h-3 w-3" />
@@ -238,19 +228,19 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
             </div>
           ))}
           
-          {sortedOpportunities.length === 0 && (
+          {displayOpportunities.length === 0 && (
             <div className="text-center py-8 text-gray-500">
               <Trophy className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p className="font-medium">No relevant opportunities found</p>
-              <p className="text-sm mt-1">We're matching opportunities to your grade ({studentProfile.currentGrade}) and subjects.</p>
+              <p className="font-medium">No opportunities found</p>
+              <p className="text-sm mt-1">We're finding the best matches for your grade ({studentProfile.currentGrade}) and interests.</p>
               <p className="text-sm">Check back later for new opportunities!</p>
             </div>
           )}
           
-          {sortedOpportunities.length > 6 && (
+          {displayOpportunities.length > 6 && (
             <div className="text-center pt-4">
               <Button variant="outline" size="sm">
-                View All {sortedOpportunities.length} Opportunities
+                View All {displayOpportunities.length} Opportunities
               </Button>
             </div>
           )}

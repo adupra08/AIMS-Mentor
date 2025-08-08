@@ -147,7 +147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Opportunities routes
   app.get('/api/opportunities', isAuthenticated, async (req: any, res) => {
     try {
-      const { grades, subjects, category, location } = req.query;
+      const { grades, subjects, category, location, recommended } = req.query;
       const filters = {
         grades: grades ? grades.split(',').map(Number) : undefined,
         subjects: subjects ? subjects.split(',') : undefined,
@@ -156,6 +156,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const opportunities = await storage.getOpportunities(filters);
+      
+      // If recommended=true, apply smart matching
+      if (recommended === 'true') {
+        const userId = req.user.claims.sub;
+        const studentProfile = await storage.getStudentProfile(userId);
+        if (studentProfile) {
+          const { matchOpportunities } = await import("./services/opportunityMatcher");
+          const matches = matchOpportunities(studentProfile, opportunities);
+          res.json(matches.map(match => ({
+            ...match.opportunity,
+            matchScore: match.score,
+            matchReasons: match.reasons
+          })));
+          return;
+        }
+      }
+      
       res.json(opportunities);
     } catch (error) {
       console.error("Error fetching opportunities:", error);
@@ -198,6 +215,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error bookmarking opportunity:", error);
       res.status(400).json({ message: "Failed to bookmark opportunity" });
+    }
+  });
+
+  // Get recommended opportunities for current student
+  app.get('/api/student/recommended-opportunities', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const studentProfile = await storage.getStudentProfile(userId);
+      if (!studentProfile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+
+      const allOpportunities = await storage.getOpportunities({});
+      const { matchOpportunities, getUpcomingOpportunities } = await import("./services/opportunityMatcher");
+      
+      const matches = matchOpportunities(studentProfile, allOpportunities);
+      const upcoming = getUpcomingOpportunities(allOpportunities);
+      
+      res.json({
+        recommended: matches.slice(0, 6).map(match => ({
+          ...match.opportunity,
+          matchScore: match.score,
+          matchReasons: match.reasons
+        })),
+        upcoming: upcoming,
+        totalMatches: matches.length
+      });
+    } catch (error) {
+      console.error("Error fetching recommended opportunities:", error);
+      res.status(500).json({ message: "Failed to fetch recommended opportunities" });
     }
   });
 
