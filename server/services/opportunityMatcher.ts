@@ -11,8 +11,17 @@ export function matchOpportunities(
   opportunities: Opportunity[]
 ): MatchingScore[] {
   const matches: MatchingScore[] = [];
+  const now = new Date();
 
   for (const opportunity of opportunities) {
+    // First, check if deadline is in the future (mandatory filter)
+    if (opportunity.deadline) {
+      const deadline = new Date(opportunity.deadline);
+      if (deadline <= now) {
+        continue; // Skip opportunities with past deadlines
+      }
+    }
+
     let score = 0;
     const reasons: string[] = [];
 
@@ -150,16 +159,25 @@ export function matchOpportunities(
 export function getUpcomingOpportunities(opportunities: Opportunity[]): Opportunity[] {
   const now = new Date();
   const nextMonths = new Date();
-  nextMonths.setMonth(now.getMonth() + 3); // Next 3 months
+  nextMonths.setMonth(now.getMonth() + 6); // Next 6 months for better coverage
 
   return opportunities
     .filter(opp => {
-      if (!opp.deadline) return false;
+      if (!opp.deadline) {
+        // Include opportunities without deadlines (ongoing programs)
+        return true;
+      }
       const deadline = new Date(opp.deadline);
-      return deadline >= now && deadline <= nextMonths;
+      return deadline > now && deadline <= nextMonths;
     })
-    .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
-    .slice(0, 5);
+    .sort((a, b) => {
+      // Sort by deadline, putting no-deadline items at the end
+      if (!a.deadline && !b.deadline) return 0;
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+    })
+    .slice(0, 8);
 }
 
 export function categorizOpportunityByStudent(
