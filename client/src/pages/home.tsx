@@ -14,6 +14,7 @@ import TodoList from "@/components/TodoList";
 import ProgressOverview from "@/components/ProgressOverview";
 import RecommendedCourses from "@/components/RecommendedCourses";
 import Achievements from "@/components/Achievements";
+import GraduationRequirements from "@/components/GraduationRequirements";
 import FloatingChatButton from "@/components/FloatingChatButton";
 
 import { GraduationCap, Bell, Settings } from "lucide-react";
@@ -127,6 +128,14 @@ export default function Home() {
                 >
                   Achievements
                 </button>
+                <button 
+                  onClick={() => setActiveTab('graduation')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    activeTab === 'graduation' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary'
+                  }`}
+                >
+                  Graduation
+                </button>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -212,6 +221,10 @@ export default function Home() {
 
         {activeTab === 'achievements' && (
           <Achievements />
+        )}
+
+        {activeTab === 'graduation' && (
+          <GraduationRequirements studentProfile={studentProfile!} />
         )}
       </div>
 

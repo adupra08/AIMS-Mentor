@@ -8,6 +8,8 @@ import {
   chatMessages,
   progressTracking,
   achievements,
+  graduationRequirements,
+  studentCourseProgress,
   type User,
   type UpsertUser,
   type StudentProfile,
@@ -26,6 +28,10 @@ import {
   type InsertProgressTracking,
   type Achievement,
   type InsertAchievement,
+  type GraduationRequirement,
+  type InsertGraduationRequirement,
+  type StudentCourseProgress,
+  type InsertStudentCourseProgress,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, inArray } from "drizzle-orm";
@@ -73,6 +79,12 @@ export interface IStorage {
   getStudentAchievements(studentId: number): Promise<Achievement[]>;
   createAchievement(achievement: InsertAchievement): Promise<Achievement>;
   updateAchievement(id: number, updates: Partial<InsertAchievement>): Promise<Achievement>;
+  
+  // Graduation requirements operations
+  getGraduationRequirements(state: string): Promise<GraduationRequirement[]>;
+  getStudentCourseProgress(studentId: number): Promise<StudentCourseProgress[]>;
+  createStudentCourseProgress(progress: InsertStudentCourseProgress): Promise<StudentCourseProgress>;
+  updateStudentCourseProgress(id: number, updates: Partial<InsertStudentCourseProgress>): Promise<StudentCourseProgress>;
   deleteAchievement(id: number): Promise<void>;
   
   // Seed operations
@@ -700,6 +712,40 @@ export class DatabaseStorage implements IStorage {
         await db.insert(opportunities).values(opportunity);
       }
     }
+  }
+
+  // Graduation requirements operations
+  async getGraduationRequirements(state: string): Promise<GraduationRequirement[]> {
+    return await db
+      .select()
+      .from(graduationRequirements)
+      .where(eq(graduationRequirements.state, state))
+      .orderBy(graduationRequirements.subject);
+  }
+
+  async getStudentCourseProgress(studentId: number): Promise<StudentCourseProgress[]> {
+    return await db
+      .select()
+      .from(studentCourseProgress)
+      .where(eq(studentCourseProgress.studentId, studentId))
+      .orderBy(studentCourseProgress.createdAt);
+  }
+
+  async createStudentCourseProgress(progress: InsertStudentCourseProgress): Promise<StudentCourseProgress> {
+    const [created] = await db
+      .insert(studentCourseProgress)
+      .values(progress)
+      .returning();
+    return created;
+  }
+
+  async updateStudentCourseProgress(id: number, updates: Partial<InsertStudentCourseProgress>): Promise<StudentCourseProgress> {
+    const [updated] = await db
+      .update(studentCourseProgress)
+      .set(updates)
+      .where(eq(studentCourseProgress.id, id))
+      .returning();
+    return updated;
   }
 }
 

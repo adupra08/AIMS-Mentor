@@ -6,7 +6,8 @@ import {
   insertStudentProfileSchema, 
   insertTodoSchema, 
   insertChatMessageSchema,
-  insertAchievementSchema
+  insertAchievementSchema,
+  insertStudentCourseProgressSchema
 } from "@shared/schema";
 import { generateAcademicPathway } from "./services/pathwayGenerator";
 import { getChatResponse } from "./services/openai";
@@ -59,13 +60,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...otherFields,
         userId,
         isOnboardingComplete: true,
-        currentSubjects: currentSubjects ? JSON.parse(JSON.stringify(currentSubjects)) : [],
-        interestedSubjects: interestedSubjects ? JSON.parse(JSON.stringify(interestedSubjects)) : [],
-        dreamColleges: dreamColleges ? JSON.parse(JSON.stringify(dreamColleges)) : [],
-        academicInterests: academicInterests ? JSON.parse(JSON.stringify(academicInterests)) : [],
-        extracurricularActivities: extracurricularActivities ? JSON.parse(JSON.stringify(extracurricularActivities)) : [],
-        completedAPs: completedAPs ? JSON.parse(JSON.stringify(completedAPs)) : [],
-        plannedAPs: plannedAPs ? JSON.parse(JSON.stringify(plannedAPs)) : []
+        currentSubjects: Array.isArray(currentSubjects) ? currentSubjects : [],
+        interestedSubjects: Array.isArray(interestedSubjects) ? interestedSubjects : [],
+        dreamColleges: Array.isArray(dreamColleges) ? dreamColleges : [],
+        academicInterests: Array.isArray(academicInterests) ? academicInterests : [],
+        extracurricularActivities: Array.isArray(extracurricularActivities) ? extracurricularActivities : [],
+        completedAPs: Array.isArray(completedAPs) ? completedAPs : [],
+        plannedAPs: Array.isArray(plannedAPs) ? plannedAPs : []
       };
       
       const validatedData = insertStudentProfileSchema.parse(profileData);
@@ -368,6 +369,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Graduation requirements routes
+  app.get('/api/student/graduation-requirements', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const profile = await storage.getStudentProfile(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+      
+      const requirements = await storage.getGraduationRequirements(profile.location || 'California');
+      const progress = await storage.getStudentCourseProgress(profile.id);
+      
+      res.json({ requirements, progress });
+    } catch (error) {
+      console.error("Error fetching graduation requirements:", error);
+      res.status(500).json({ message: "Failed to fetch graduation requirements" });
+    }
+  });
+
+  app.post('/api/student/course-progress', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const profile = await storage.getStudentProfile(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+      
+      const progressData = {
+        ...req.body,
+        studentId: profile.id
+      };
+      
+      const validatedData = insertStudentCourseProgressSchema.parse(progressData);
+      const progress = await storage.createStudentCourseProgress(validatedData);
+      res.json(progress);
+    } catch (error) {
+      console.error("Error creating course progress:", error);
+      res.status(400).json({ message: "Failed to create course progress" });
+    }
+  });
+
+  app.put('/api/student/course-progress/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const progress = await storage.updateStudentCourseProgress(parseInt(id), req.body);
+      res.json(progress);
+    } catch (error) {
+      console.error("Error updating course progress:", error);
+      res.status(400).json({ message: "Failed to update course progress" });
+    }
+  });
+
   // User profile update route
   app.patch('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
@@ -439,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         studentId: profile.id,
         dateAchieved: req.body.dateAchieved ? new Date(req.body.dateAchieved) : null,
-        skills: req.body.skills ? JSON.parse(JSON.stringify(req.body.skills)) : []
+        skills: Array.isArray(req.body.skills) ? req.body.skills : []
       };
       
       console.log("Achievement data before validation:", achievementData);
@@ -463,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updates = {
         ...req.body,
         dateAchieved: req.body.dateAchieved ? new Date(req.body.dateAchieved) : undefined,
-        skills: req.body.skills ? JSON.parse(JSON.stringify(req.body.skills)) : undefined
+        skills: Array.isArray(req.body.skills) ? req.body.skills : undefined
       };
       
       const achievement = await storage.updateAchievement(achievementId, updates);

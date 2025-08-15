@@ -159,6 +159,35 @@ export const achievements = pgTable("achievements", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Graduation Requirements table
+export const graduationRequirements = pgTable('graduation_requirements', {
+  id: serial('id').primaryKey(),
+  state: text('state').notNull(),
+  district: text('district'),
+  subject: text('subject').notNull(),
+  courseTitle: text('course_title').notNull(),
+  creditsRequired: decimal('credits_required', { precision: 3, scale: 1 }).notNull(),
+  isMandatory: boolean('is_mandatory').default(true).notNull(),
+  gradeLevel: text('grade_level'), // e.g., "9-12", "11-12"
+  description: text('description'),
+  alternatives: text('alternatives').array(), // Alternative courses that fulfill requirement
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Student Course Progress table
+export const studentCourseProgress = pgTable('student_course_progress', {
+  id: serial('id').primaryKey(),
+  studentId: integer('student_id').notNull().references(() => studentProfiles.id),
+  requirementId: integer('requirement_id').references(() => graduationRequirements.id),
+  courseName: text('course_name').notNull(),
+  creditsEarned: decimal('credits_earned', { precision: 3, scale: 1 }).notNull(),
+  grade: text('grade'), // A, B, C, D, F
+  semester: text('semester'), // Fall 2024, Spring 2025
+  isCompleted: boolean('is_completed').default(false).notNull(),
+  plannedSemester: text('planned_semester'), // For future courses
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const studentProfileRelations = relations(studentProfiles, ({ one, many }) => ({
   user: one(users, {
@@ -171,6 +200,7 @@ export const studentProfileRelations = relations(studentProfiles, ({ one, many }
   chatMessages: many(chatMessages),
   progressRecords: many(progressTracking),
   achievements: many(achievements),
+  courseProgress: many(studentCourseProgress),
 }));
 
 export const academicPathwayRelations = relations(academicPathways, ({ one }) => ({
@@ -223,6 +253,21 @@ export const achievementRelations = relations(achievements, ({ one }) => ({
   }),
 }));
 
+export const graduationRequirementRelations = relations(graduationRequirements, ({ many }) => ({
+  studentProgress: many(studentCourseProgress),
+}));
+
+export const studentCourseProgressRelations = relations(studentCourseProgress, ({ one }) => ({
+  student: one(studentProfiles, {
+    fields: [studentCourseProgress.studentId],
+    references: [studentProfiles.id],
+  }),
+  requirement: one(graduationRequirements, {
+    fields: [studentCourseProgress.requirementId],
+    references: [graduationRequirements.id],
+  }),
+}));
+
 // Schema types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -251,6 +296,12 @@ export type ProgressTracking = typeof progressTracking.$inferSelect;
 export type InsertAchievement = typeof achievements.$inferInsert;
 export type Achievement = typeof achievements.$inferSelect;
 
+export type InsertGraduationRequirement = typeof graduationRequirements.$inferInsert;
+export type GraduationRequirement = typeof graduationRequirements.$inferSelect;
+
+export type InsertStudentCourseProgress = typeof studentCourseProgress.$inferInsert;
+export type StudentCourseProgress = typeof studentCourseProgress.$inferSelect;
+
 // Zod schemas for validation
 export const insertStudentProfileSchema = createInsertSchema(studentProfiles).omit({
   id: true,
@@ -274,4 +325,14 @@ export const insertAchievementSchema = createInsertSchema(achievements).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+});
+
+export const insertGraduationRequirementSchema = createInsertSchema(graduationRequirements).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertStudentCourseProgressSchema = createInsertSchema(studentCourseProgress).omit({
+  id: true,
+  createdAt: true,
 });
