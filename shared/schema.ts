@@ -51,7 +51,8 @@ export const studentProfiles = pgTable("student_profiles", {
   completedAPs: jsonb("completed_aps").$type<string[]>().default([]),
   plannedAPs: jsonb("planned_aps").$type<string[]>().default([]),
   testScores: jsonb("test_scores").$type<{sat?: number, act?: number, psat?: number}>().default({}),
-  location: varchar("location"),
+  state: varchar("state"),
+  location: varchar("location"), // City name
   schoolDistrict: varchar("school_district"),
   isOnboardingComplete: boolean("is_onboarding_complete").default(false),
   createdAt: timestamp("created_at").defaultNow(),

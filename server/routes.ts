@@ -378,7 +378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Student profile not found" });
       }
       
-      const requirements = await storage.getGraduationRequirements(profile.location || 'California');
+      const requirements = await storage.getGraduationRequirements(profile.state || 'California');
       const progress = await storage.getStudentCourseProgress(profile.id);
       
       res.json({ requirements, progress });

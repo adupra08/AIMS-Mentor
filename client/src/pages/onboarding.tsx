@@ -27,8 +27,9 @@ const onboardingSchema = z.object({
   academicInterests: z.array(z.string()).min(1, "Please select at least one academic interest"),
   careerGoals: z.string().min(10, "Please provide your career goals (at least 10 characters)"),
   extracurricularActivities: z.array(z.string()).optional(),
-  location: z.string().optional(),
-  schoolDistrict: z.string().optional(),
+  state: z.string().min(1, "Please select your state"),
+  location: z.string().min(1, "Please enter your city"),
+  schoolDistrict: z.string().min(1, "Please enter your school district"),
 }).refine((data) => {
   const totalColleges = (data.dreamColleges?.length || 0) + (data.customDreamColleges?.length || 0);
   return totalColleges > 0;
@@ -106,6 +107,16 @@ const EXTRACURRICULAR_ACTIVITIES = [
   "Sports Teams", "Volunteer Work", "Community Service", "Internships"
 ];
 
+const US_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", 
+  "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", 
+  "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", 
+  "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", 
+  "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", 
+  "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", 
+  "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+];
+
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(1);
   const [, setLocation] = useLocation();
@@ -123,6 +134,7 @@ export default function Onboarding() {
       academicInterests: [],
       extracurricularActivities: [],
       careerGoals: "",
+      state: "",
       location: "",
       schoolDistrict: "",
     },
@@ -131,7 +143,7 @@ export default function Onboarding() {
   const createProfileMutation = useMutation({
     mutationFn: async (data: OnboardingData) => {
       // Combine selected and custom dream colleges
-      const allDreamColleges = [...data.dreamColleges, ...(data.customDreamColleges || [])];
+      const allDreamColleges = [...(data.dreamColleges || []), ...(data.customDreamColleges || [])];
       const response = await apiRequest("POST", "/api/student/profile", {
         ...data,
         dreamColleges: allDreamColleges,
@@ -180,7 +192,7 @@ export default function Onboarding() {
       case 2: return ["currentSubjects"];
       case 3: return ["interestedSubjects", "academicInterests"];
       case 4: return ["dreamColleges", "careerGoals"];
-      case 5: return ["extracurricularActivities", "location", "schoolDistrict"];
+      case 5: return ["extracurricularActivities", "state", "location", "schoolDistrict"];
       default: return [];
     }
   };
@@ -409,7 +421,7 @@ export default function Onboarding() {
                                   <Checkbox
                                     checked={field.value?.includes(college.name)}
                                     onCheckedChange={(checked) => {
-                                      if (checked && field.value.length >= 5) {
+                                      if (checked && (field.value || []).length >= 5) {
                                         toast({
                                           title: "Limit Reached",
                                           description: "You can select up to 5 dream colleges.",
@@ -418,8 +430,8 @@ export default function Onboarding() {
                                         return;
                                       }
                                       return checked
-                                        ? field.onChange([...field.value, college.name])
-                                        : field.onChange(field.value?.filter((value) => value !== college.name));
+                                        ? field.onChange([...(field.value || []), college.name])
+                                        : field.onChange((field.value || []).filter((value) => value !== college.name));
                                     }}
                                   />
                                 </FormControl>
@@ -494,7 +506,7 @@ export default function Onboarding() {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => {
-                                      const updatedColleges = field.value.filter((_, i) => i !== index);
+                                      const updatedColleges = (field.value || []).filter((_, i) => i !== index);
                                       form.setValue("customDreamColleges", updatedColleges);
                                     }}
                                   >
@@ -578,16 +590,41 @@ export default function Onboarding() {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>State *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your state" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {US_STATES.map((state) => (
+                        <SelectItem key={state} value={state}>
+                          {state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location (City, State)</FormLabel>
+                    <FormLabel>City *</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="e.g., Houston, TX" 
+                        placeholder="e.g., Houston" 
                         value={field.value || ""}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
@@ -604,7 +641,7 @@ export default function Onboarding() {
                 name="schoolDistrict"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>School District</FormLabel>
+                    <FormLabel>School District *</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="e.g., Houston ISD" 
