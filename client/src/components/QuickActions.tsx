@@ -11,7 +11,7 @@ export default function QuickActions({ onTabChange }: QuickActionsProps) {
     {
       icon: Route,
       label: "Academic Pathway",
-      color: "bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary",
+      color: "bg-blue-100 hover:bg-blue-200 text-blue-600",
       action: () => {
         console.log("View Pathway clicked");
         onTabChange('pathway');
@@ -20,7 +20,7 @@ export default function QuickActions({ onTabChange }: QuickActionsProps) {
     {
       icon: Trophy,
       label: "Find Competitions",
-      color: "bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary",
+      color: "bg-amber-100 hover:bg-amber-200 text-amber-600",
       action: () => {
         console.log("Competitions clicked");
         onTabChange('opportunities');
@@ -29,7 +29,7 @@ export default function QuickActions({ onTabChange }: QuickActionsProps) {
     {
       icon: BookOpen,
       label: "Course Planning",
-      color: "bg-accent bg-opacity-10 hover:bg-opacity-20 text-accent",
+      color: "bg-green-100 hover:bg-green-200 text-green-600",
       action: () => {
         console.log("AP Courses clicked");
         onTabChange('pathway');
