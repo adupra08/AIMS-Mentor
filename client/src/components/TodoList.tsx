@@ -179,7 +179,7 @@ export default function TodoList({ studentProfile }: TodoListProps) {
     return (
       <Card className="shadow-sm border border-gray-200">
         <CardHeader>
-          <CardTitle className="text-xl font-semibold text-gray-900">This Week's To-Do</CardTitle>
+          <CardTitle className="text-xl font-semibold text-gray-900">To Do</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -204,7 +204,7 @@ export default function TodoList({ studentProfile }: TodoListProps) {
     <Card className="shadow-sm border border-gray-200">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-semibold text-gray-900">This Week's To-Do</CardTitle>
+          <CardTitle className="text-xl font-semibold text-gray-900">To Do</CardTitle>
           <span className="text-sm text-gray-500">
             {completedCount} of {totalTodos} completed
           </span>
