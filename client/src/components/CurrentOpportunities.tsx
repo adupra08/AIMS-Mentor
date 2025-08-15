@@ -61,8 +61,43 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
     },
   });
 
+  const addToTodoMutation = useMutation({
+    mutationFn: async (opportunity: Opportunity) => {
+      const response = await apiRequest("POST", "/api/student/todos", {
+        title: `Apply to ${opportunity.title}`,
+        description: `Application deadline for ${opportunity.title}`,
+        dueDate: opportunity.deadline,
+        category: "application",
+        priority: "high",
+        isCompleted: false
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Added to To-Do List!",
+        description: "Application deadline added to your to-do list.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/todos"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to add to to-do list.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleBookmark = (opportunityId: number) => {
     bookmarkMutation.mutate(opportunityId);
+  };
+
+  const handleApplyAndAddTodo = (opportunity: Opportunity) => {
+    // Add to to-do list first
+    addToTodoMutation.mutate(opportunity);
+    // Then open application URL
+    window.open(opportunity.applicationUrl, '_blank');
   };
 
   const formatDate = (date: string | Date) => {
@@ -121,8 +156,8 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
     );
   }
 
-  const recommendedOpportunities = recommendedData?.recommended || [];
-  const upcomingOpportunities = recommendedData?.upcoming || [];
+  const recommendedOpportunities = (recommendedData as any)?.recommended || [];
+  const upcomingOpportunities = (recommendedData as any)?.upcoming || [];
   
   const displayOpportunities = recommendedOpportunities.length > 0 ? recommendedOpportunities : (upcomingOpportunities.slice(0, 4) || []);
 
@@ -206,11 +241,12 @@ export default function CurrentOpportunities({ studentProfile }: CurrentOpportun
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(opportunity.applicationUrl, '_blank')}
+                        onClick={() => handleApplyAndAddTodo(opportunity)}
                         className="text-primary hover:text-primary/80"
+                        disabled={addToTodoMutation.isPending}
                       >
                         <ExternalLink className="h-3 w-3 mr-1" />
-                        Apply
+                        {addToTodoMutation.isPending ? "Adding..." : "Apply"}
                       </Button>
                       <Button
                         variant="ghost"
