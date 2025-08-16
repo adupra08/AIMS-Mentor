@@ -35,16 +35,23 @@ export default function RecommendedCourses({ studentProfile }: RecommendedCourse
     const currentGrade = studentProfile.currentGrade;
     const interests = studentProfile.academicInterests || [];
     const interestedSubjects = studentProfile.interestedSubjects || [];
+    const careerGoals = studentProfile.careerGoals || "";
 
-    // Math courses
+    // Check for AI/ML/Robotics specific interests
+    const hasAIInterests = careerGoals.toLowerCase().includes("ai") || 
+                          careerGoals.toLowerCase().includes("ml") || 
+                          careerGoals.toLowerCase().includes("robotics") ||
+                          careerGoals.toLowerCase().includes("machine learning");
+
+    // Math courses - Higher priority for AI/ML students
     if (interests.includes("STEM Research") || interests.includes("Engineering") || 
-        interestedSubjects.includes("Mathematics")) {
+        interests.includes("Computer Science") || interestedSubjects.includes("Mathematics") || hasAIInterests) {
       if (currentGrade <= 10) {
         recommendations.push({
           title: "AP Calculus AB",
-          grade: "10th Grade",
+          grade: "10th Grade", 
           year: "2025",
-          description: "Essential for engineering and math-focused college applications",
+          description: hasAIInterests ? "Critical foundation for AI/ML algorithms and startup ventures" : "Essential for engineering and math-focused college applications",
           prerequisites: "Algebra II",
           matchLevel: "perfect",
           category: "Mathematics"
@@ -54,40 +61,66 @@ export default function RecommendedCourses({ studentProfile }: RecommendedCourse
         recommendations.push({
           title: "AP Calculus BC",
           grade: "11th Grade",
-          year: "2026",
-          description: "Advanced calculus for top-tier STEM programs",
+          year: "2026", 
+          description: hasAIInterests ? "Advanced calculus essential for machine learning and neural networks" : "Advanced calculus for top-tier STEM programs",
           prerequisites: "AP Calculus AB or Pre-Calculus",
           matchLevel: "perfect",
           category: "Mathematics"
         });
       }
+      // Add AP Statistics for AI/ML students
+      if (hasAIInterests && currentGrade <= 11) {
+        recommendations.push({
+          title: "AP Statistics",
+          grade: "11th Grade",
+          year: "2026",
+          description: "Statistical analysis and data science fundamentals for AI/ML",
+          prerequisites: "Algebra II",
+          matchLevel: "perfect", 
+          category: "Mathematics"
+        });
+      }
     }
 
-    // Science courses
-    if (interests.includes("STEM Research") || interests.includes("Medical Research") ||
-        interestedSubjects.includes("Science")) {
+    // Science courses - Prioritized for Robotics/Engineering
+    if (interests.includes("STEM Research") || interests.includes("Engineering") || 
+        interestedSubjects.includes("Science") || hasAIInterests) {
       if (currentGrade <= 10) {
         recommendations.push({
           title: "AP Physics 1",
           grade: "10th Grade",
           year: "2025",
-          description: "Strong foundation for STEM applications",
+          description: hasAIInterests ? "Physics principles essential for robotics and engineering systems" : "Strong foundation for STEM applications",
           prerequisites: "None",
-          matchLevel: "high",
+          matchLevel: hasAIInterests ? "perfect" : "high",
           category: "Science"
         });
       }
       if (currentGrade <= 11) {
-        recommendations.push({
-          title: "AP Chemistry",
-          grade: "11th Grade",
-          year: "2026",
-          description: "Critical for pre-med and chemistry-focused programs",
-          prerequisites: "Chemistry or Honors Chemistry",
-          matchLevel: "perfect",
-          category: "Science"
-        });
+        // Physics C for robotics students
+        if (hasAIInterests) {
+          recommendations.push({
+            title: "AP Physics C (Mechanics)",
+            grade: "11th Grade",
+            year: "2026",
+            description: "Advanced mechanics for robotics and engineering applications",
+            prerequisites: "AP Physics 1, Calculus AB",
+            matchLevel: "perfect",
+            category: "Science"
+          });
+        } else {
+          recommendations.push({
+            title: "AP Chemistry",
+            grade: "11th Grade", 
+            year: "2026",
+            description: "Critical for pre-med and chemistry-focused programs",
+            prerequisites: "Chemistry or Honors Chemistry",
+            matchLevel: "high",
+            category: "Science"
+          });
+        }
       }
+      // Only add biology for medical research interests
       if (interests.includes("Medical Research")) {
         recommendations.push({
           title: "AP Biology",
@@ -101,18 +134,33 @@ export default function RecommendedCourses({ studentProfile }: RecommendedCourse
       }
     }
 
-    // Computer Science
+    // Computer Science - Enhanced for AI/ML/Robotics interests
     if (interests.includes("Computer Science") || interests.includes("Engineering") ||
-        interestedSubjects.includes("Computer Science")) {
+        interestedSubjects.includes("Computer Science") || hasAIInterests) {
+      // AP Computer Science A - earlier for AI students
+      const csaGrade = hasAIInterests ? Math.max(currentGrade + 1, 10) : Math.max(currentGrade + 1, 11);
       recommendations.push({
         title: "AP Computer Science A",
-        grade: `${Math.max(currentGrade + 1, 11)}th Grade`,
-        year: `${new Date().getFullYear() + Math.max(1, 11 - currentGrade)}`,
-        description: "Aligns with your interest in technology competitions",
+        grade: `${csaGrade}th Grade`,
+        year: `${new Date().getFullYear() + Math.max(1, csaGrade - currentGrade)}`,
+        description: hasAIInterests ? "Programming foundation essential for AI/ML development and startup success" : "Aligns with your interest in technology competitions",
         prerequisites: "Algebra II",
         matchLevel: "perfect",
         category: "Computer Science"
       });
+      
+      // Add AP Computer Science Principles for broader CS understanding
+      if (hasAIInterests) {
+        recommendations.push({
+          title: "AP Computer Science Principles",
+          grade: `${currentGrade + 1}th Grade`,
+          year: `${new Date().getFullYear() + 1}`,
+          description: "Computational thinking and technology entrepreneurship concepts",
+          prerequisites: "None",
+          matchLevel: "perfect",
+          category: "Computer Science"
+        });
+      }
     }
 
     // Social Sciences
@@ -129,16 +177,18 @@ export default function RecommendedCourses({ studentProfile }: RecommendedCourse
       });
     }
 
-    // Business and Economics
-    if (interests.includes("Business & Entrepreneurship") ||
-        interestedSubjects.includes("Business")) {
+    // Business and Economics - Enhanced for startup interests
+    if (interests.includes("Business & Entrepreneurship") || 
+        interestedSubjects.includes("Business") ||
+        careerGoals.toLowerCase().includes("startup") || 
+        careerGoals.toLowerCase().includes("company")) {
       recommendations.push({
         title: "AP Economics (Micro/Macro)",
         grade: "12th Grade",
         year: `${new Date().getFullYear() + (12 - currentGrade)}`,
-        description: "Foundation for business and economics programs",
+        description: careerGoals.toLowerCase().includes("startup") ? "Economic principles essential for startup success and business strategy" : "Foundation for business and economics programs",
         prerequisites: "Algebra II",
-        matchLevel: "high",
+        matchLevel: "perfect",
         category: "Social Science"
       });
     }
