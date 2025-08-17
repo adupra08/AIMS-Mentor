@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { User, Mail, Save, X, GraduationCap, Settings, Activity } from "lucide-react";
+import { User, Mail, Save, X, GraduationCap, Settings, Activity, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,12 @@ export default function ProfileSettings() {
   const [academicFormData, setAcademicFormData] = useState({
     extracurricularActivities: [] as string[],
     academicInterests: [] as string[],
-    interestedSubjects: [] as string[]
+    interestedSubjects: [] as string[],
+    testScores: {
+      sat: undefined as number | undefined,
+      act: undefined as number | undefined,
+      psat: undefined as number | undefined
+    }
   });
   const { toast } = useToast();
 
@@ -85,6 +90,7 @@ export default function ProfileSettings() {
       extracurricularActivities?: string[];
       academicInterests?: string[];
       interestedSubjects?: string[];
+      testScores?: {sat?: number, act?: number, psat?: number};
     }) => {
       const response = await apiRequest("PUT", `/api/student/profile/${profileData?.id}`, updates);
       return response.json();
@@ -118,7 +124,12 @@ export default function ProfileSettings() {
       setAcademicFormData({
         extracurricularActivities: profileData.extracurricularActivities || [],
         academicInterests: profileData.academicInterests || [],
-        interestedSubjects: profileData.interestedSubjects || []
+        interestedSubjects: profileData.interestedSubjects || [],
+        testScores: {
+          sat: profileData.testScores?.sat || undefined,
+          act: profileData.testScores?.act || undefined,
+          psat: profileData.testScores?.psat || undefined
+        }
       });
     }
     setIsEditing(true);
@@ -145,7 +156,12 @@ export default function ProfileSettings() {
     setAcademicFormData({
       extracurricularActivities: [],
       academicInterests: [],
-      interestedSubjects: []
+      interestedSubjects: [],
+      testScores: {
+        sat: undefined,
+        act: undefined,
+        psat: undefined
+      }
     });
   };
 
@@ -173,6 +189,17 @@ export default function ProfileSettings() {
       interestedSubjects: checked
         ? [...prev.interestedSubjects, subject]
         : prev.interestedSubjects.filter(item => item !== subject)
+    }));
+  };
+
+  const handleTestScoreChange = (testType: 'sat' | 'act' | 'psat', value: string) => {
+    const numValue = value === '' ? undefined : parseInt(value);
+    setAcademicFormData(prev => ({
+      ...prev,
+      testScores: {
+        ...prev.testScores,
+        [testType]: numValue
+      }
     }));
   };
 
@@ -449,6 +476,94 @@ export default function ProfileSettings() {
                           </div>
                         ) : (
                           <p className="text-gray-500 text-sm">No interested subjects selected</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Test Scores */}
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <BookOpen className="mr-2 h-5 w-5 text-primary" />
+                      <Label className="text-base font-medium">Test Scores</Label>
+                    </div>
+                    
+                    {isEditing ? (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-200 rounded-md p-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="sat-score" className="text-sm font-medium">SAT Score</Label>
+                          <Input
+                            id="sat-score"
+                            type="number"
+                            placeholder="1600 max"
+                            min="400"
+                            max="1600"
+                            value={academicFormData.testScores.sat || ''}
+                            onChange={(e) => handleTestScoreChange('sat', e.target.value)}
+                            className="text-center"
+                          />
+                          <p className="text-xs text-gray-500 text-center">400-1600</p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="act-score" className="text-sm font-medium">ACT Score</Label>
+                          <Input
+                            id="act-score"
+                            type="number"
+                            placeholder="36 max"
+                            min="1"
+                            max="36"
+                            value={academicFormData.testScores.act || ''}
+                            onChange={(e) => handleTestScoreChange('act', e.target.value)}
+                            className="text-center"
+                          />
+                          <p className="text-xs text-gray-500 text-center">1-36</p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="psat-score" className="text-sm font-medium">PSAT Score</Label>
+                          <Input
+                            id="psat-score"
+                            type="number"
+                            placeholder="1520 max"
+                            min="320"
+                            max="1520"
+                            value={academicFormData.testScores.psat || ''}
+                            onChange={(e) => handleTestScoreChange('psat', e.target.value)}
+                            className="text-center"
+                          />
+                          <p className="text-xs text-gray-500 text-center">320-1520</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+                        {(profileData?.testScores?.sat || profileData?.testScores?.act || profileData?.testScores?.psat) ? (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {profileData?.testScores?.sat && (
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-blue-600">{profileData.testScores.sat}</div>
+                                <div className="text-sm text-gray-600">SAT Score</div>
+                              </div>
+                            )}
+                            {profileData?.testScores?.act && (
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-green-600">{profileData.testScores.act}</div>
+                                <div className="text-sm text-gray-600">ACT Score</div>
+                              </div>
+                            )}
+                            {profileData?.testScores?.psat && (
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-purple-600">{profileData.testScores.psat}</div>
+                                <div className="text-sm text-gray-600">PSAT Score</div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center py-4">
+                            <BookOpen className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                            <p className="text-gray-500 text-sm">No test scores recorded yet</p>
+                            <p className="text-xs text-gray-400 mt-1">Add your SAT, ACT, or PSAT scores to track your progress</p>
+                          </div>
                         )}
                       </div>
                     )}
