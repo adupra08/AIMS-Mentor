@@ -43,6 +43,7 @@ export default function ProfileSettings() {
     extracurricularActivities: [] as string[],
     academicInterests: [] as string[],
     interestedSubjects: [] as string[],
+    currentGpa: undefined as number | undefined,
     testScores: {
       sat: undefined as number | undefined,
       act: undefined as number | undefined,
@@ -90,6 +91,7 @@ export default function ProfileSettings() {
       extracurricularActivities?: string[];
       academicInterests?: string[];
       interestedSubjects?: string[];
+      currentGpa?: number;
       testScores?: {sat?: number, act?: number, psat?: number};
     }) => {
       const response = await apiRequest("PUT", `/api/student/profile/${profileData?.id}`, updates);
@@ -125,6 +127,7 @@ export default function ProfileSettings() {
         extracurricularActivities: profileData.extracurricularActivities || [],
         academicInterests: profileData.academicInterests || [],
         interestedSubjects: profileData.interestedSubjects || [],
+        currentGpa: profileData.currentGpa ? parseFloat(profileData.currentGpa) : undefined,
         testScores: {
           sat: profileData.testScores?.sat || undefined,
           act: profileData.testScores?.act || undefined,
@@ -157,6 +160,7 @@ export default function ProfileSettings() {
       extracurricularActivities: [],
       academicInterests: [],
       interestedSubjects: [],
+      currentGpa: undefined,
       testScores: {
         sat: undefined,
         act: undefined,
@@ -200,6 +204,14 @@ export default function ProfileSettings() {
         ...prev.testScores,
         [testType]: numValue
       }
+    }));
+  };
+
+  const handleGpaChange = (value: string) => {
+    const numValue = value === '' ? undefined : parseFloat(value);
+    setAcademicFormData(prev => ({
+      ...prev,
+      currentGpa: numValue
     }));
   };
 
@@ -367,6 +379,54 @@ export default function ProfileSettings() {
                 </div>
               ) : (
                 <div className="space-y-6">
+                  {/* Current GPA */}
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <GraduationCap className="mr-2 h-5 w-5 text-primary" />
+                      <Label className="text-base font-medium">Current GPA</Label>
+                    </div>
+                    
+                    {isEditing ? (
+                      <div className="border border-gray-200 rounded-md p-4">
+                        <div className="max-w-xs">
+                          <Label htmlFor="gpa" className="text-sm font-medium">GPA (4.0 Scale)</Label>
+                          <Input
+                            id="gpa"
+                            type="number"
+                            step="0.01"
+                            min="0.00"
+                            max="4.00"
+                            placeholder="Enter your current GPA"
+                            value={academicFormData.currentGpa || ''}
+                            onChange={(e) => handleGpaChange(e.target.value)}
+                            className="mt-2"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Update this each year as your GPA changes</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+                        {profileData?.currentGpa ? (
+                          <div className="flex items-center space-x-4">
+                            <div className="text-center">
+                              <div className="text-3xl font-bold text-primary">{parseFloat(profileData.currentGpa).toFixed(2)}</div>
+                              <div className="text-sm text-gray-600">Current GPA</div>
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              <p>Grade {profileData.currentGrade} • 4.0 Scale</p>
+                              <p className="text-xs">Update annually to track progress</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center py-4">
+                            <GraduationCap className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                            <p className="text-gray-500 text-sm">GPA not entered yet</p>
+                            <p className="text-xs text-gray-400 mt-1">Add your current GPA to track academic progress</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   {/* Extracurricular Activities */}
                   <div className="space-y-4">
                     <div className="flex items-center">
