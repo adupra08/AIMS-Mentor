@@ -121,8 +121,29 @@ Environment variables required:
 
 **Status**: ✅ DEPLOYED SUCCESSFULLY - All deployment issues resolved and application is now live in production.
 
+## Recent Updates
+
+### August 18, 2025 - **PROFILE EDITING SYSTEM** ✅
+- **Enhanced ProfileSettings Component**: Added comprehensive profile editing with tabbed interface
+- **Basic Info Tab**: Edit first name, last name (email read-only)
+- **Academic Profile Tab**: Full editing capabilities for:
+  - Extracurricular Activities: 16 predefined options with checkboxes
+  - Academic Interests: 14 subject areas with visual tags
+  - Interested Subjects: 15 academic subjects with color-coded display
+  - **GPA Updates**: Annual GPA tracking (0.00-4.00 scale) with progress reminders
+  - **Test Scores**: SAT (400-1600), ACT (1-36), PSAT (320-1520) score management
+- **Real-time Updates**: Form validation, state management, and database persistence
+- **Visual Design**: Color-coded tags, empty states, and intuitive UI/UX
+
+### Key Features Added:
+- **Profile Management**: Students can now update all academic information post-onboarding
+- **Test Prep Integration**: Test scores directly impact progress calculations (75% when scores present)
+- **Annual GPA Tracking**: Built-in reminders for yearly GPA updates
+- **Achievement System**: Extracurricular accomplishments tracked separately from general activities
+
 ## Changelog
 
+- August 18, 2025: **PROFILE EDITING SYSTEM** - Added comprehensive profile editing with GPA updates, test scores management, and extracurricular activities modification
 - July 18, 2025 (Evening): **DEPLOYMENT FIXES** - Resolved all deployment configuration errors: added environment variable validation, fixed session table creation, enhanced build process with database schema deployment
 - July 18, 2025 (Evening): Fixed build process - Resolved static file serving path issue, created build-deploy.sh script, verified production build works correctly
 - July 18, 2025 (Evening): Applied deployment fixes - Added environment variable validation for REPL_ID and SESSION_SECRET, configured cookie security settings for production, verified database and session table configuration
