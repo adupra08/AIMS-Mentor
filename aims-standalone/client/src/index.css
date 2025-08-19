@@ -1,0 +1,258 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(162, 76%, 50%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(45, 93%, 47%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Custom AIMS colors */
+  --aims-primary: hsl(207, 90%, 54%);
+  --aims-secondary: hsl(162, 76%, 50%);
+  --aims-accent: hsl(45, 93%, 47%);
+  --aims-dark: hsl(215, 25%, 27%);
+  --aims-light: hsl(60, 9%, 98%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .aims-gradient {
+    background: linear-gradient(135deg, var(--aims-primary), var(--aims-secondary));
+  }
+  
+  .aims-card-hover {
+    @apply transition-all duration-200 hover:shadow-lg;
+  }
+
+  /* Animation Utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+  }
+
+  .animate-bounce-gentle {
+    animation: bounceGentle 0.8s ease-out;
+  }
+
+  .animate-pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  /* Micro-interaction styles */
+  .micro-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .micro-hover:hover {
+    @apply transform -translate-y-1 shadow-lg;
+  }
+
+  .button-press {
+    @apply transition-transform duration-150 active:scale-95;
+  }
+
+  .card-interactive {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer;
+  }
+
+  .progress-animate {
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .badge-float {
+    @apply transition-transform duration-200 hover:-translate-y-0.5;
+  }
+
+  /* Enhanced scrollbar styling for chat */
+  .chat-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground)) transparent;
+  }
+  
+  .chat-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .chat-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .chat-scrollbar::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground));
+    border-radius: 2px;
+  }
+  
+  .chat-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--foreground));
+  }
+
+  /* Better touch targets for mobile */
+  @media (max-width: 640px) {
+    .mobile-touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Smooth animations for chat */
+  .chat-message-enter {
+    animation: slideInFromBottom 0.3s ease-out;
+  }
+
+  /* Better focus states for accessibility */
+  .chat-input:focus {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceGentle {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+  to { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .text-aims-primary {
+    color: var(--aims-primary);
+  }
+  
+  .text-aims-secondary {
+    color: var(--aims-secondary);
+  }
+  
+  .text-aims-accent {
+    color: var(--aims-accent);
+  }
+  
+  .bg-aims-primary {
+    background-color: var(--aims-primary);
+  }
+  
+  .bg-aims-secondary {
+    background-color: var(--aims-secondary);
+  }
+  
+  .bg-aims-accent {
+    background-color: var(--aims-accent);
+  }
+}
