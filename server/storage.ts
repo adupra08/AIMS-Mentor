@@ -698,6 +698,20 @@ export class DatabaseStorage implements IStorage {
         isPaid: true,
         difficultyLevel: "advanced",
         tags: ["Microsoft", "Startup", "Technology", "Global", "AI", "Cloud"]
+      },
+      {
+        title: "Regional Science Talent Research",
+        description: "Regional competition for high school students to conduct original scientific research projects. Students present their research findings to panels of scientists and compete for scholarships and research mentorship opportunities.",
+        category: "competition",
+        eligibleGrades: [10, 11, 12],
+        subjects: ["Biology", "Chemistry", "Physics", "Environmental Science", "Mathematics"],
+        deadline: new Date("2025-12-15"),
+        applicationUrl: "https://www.sciencetalentsearch.org/regional",
+        isTeamBased: false,
+        location: "Regional",
+        isPaid: false,
+        difficultyLevel: "intermediate",
+        tags: ["Science", "Research", "Regional", "Competition", "Scholarship"]
       }
     ];
 
