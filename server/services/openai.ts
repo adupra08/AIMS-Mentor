@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { StudentProfile } from "@shared/schema";
 
 const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 export async function getChatResponse(message: string, studentProfile: StudentProfile): Promise<string> {
@@ -49,7 +49,7 @@ Response formatting guidelines:
 Be encouraging, specific, and actionable in your educational responses. Always format your responses professionally with clear structure and proper indentation.`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // Current model - change this to: "gpt-4o-mini", "gpt-4-turbo", "gpt-4", or "gpt-3.5-turbo"
+      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: message }
@@ -61,7 +61,20 @@ Be encouraging, specific, and actionable in your educational responses. Always f
     return response.choices[0].message.content || "I apologize, but I couldn't generate a response. Please try asking your question again.";
   } catch (error) {
     console.error("Error getting chat response:", error);
-    return "I'm having trouble connecting right now. Please try again in a moment.";
+    
+    // Check for specific API errors
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorCode = (error as any)?.code;
+    
+    if (errorCode === 'insufficient_quota') {
+      return "I'm temporarily unavailable due to API limits. Please try again later.";
+    } else if (errorCode === 'invalid_api_key') {
+      return "There's a configuration issue with my AI service. Please contact support.";
+    } else if (errorCode === 'model_not_found') {
+      return "I'm having trouble with my AI model. Please try again in a moment.";
+    }
+    
+    return "I'm having trouble connecting to my AI service right now. Please try again in a moment, and if the issue persists, contact support.";
   }
 }
 
@@ -94,7 +107,7 @@ Provide a JSON response with:
 - recommendations: array of 3-5 specific, actionable recommendations`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // Current model - change this to: "gpt-4o-mini", "gpt-4-turbo", "gpt-4", or "gpt-3.5-turbo"
+      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
       temperature: 0.3,
