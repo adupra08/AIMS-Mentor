@@ -1,9 +1,7 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { StudentProfile } from "@shared/schema";
 
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY
-});
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY_NEW || "" });
 
 export async function getChatResponse(message: string, studentProfile: StudentProfile): Promise<string> {
   try {
@@ -48,17 +46,17 @@ Response formatting guidelines:
 
 Be encouraging, specific, and actionable in your educational responses. Always format your responses professionally with clear structure and proper indentation.`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: message }
-      ],
-      max_tokens: 800,
-      temperature: 0.7,
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      config: {
+        systemInstruction: systemPrompt,
+        maxOutputTokens: 800,
+        temperature: 0.7,
+      },
+      contents: message,
     });
 
-    return response.choices[0].message.content || "I apologize, but I couldn't generate a response. Please try asking your question again.";
+    return response.text || "I apologize, but I couldn't generate a response. Please try asking your question again.";
   } catch (error) {
     console.error("Error getting chat response:", error);
     
@@ -106,14 +104,30 @@ Provide a JSON response with:
 - testPrep: test preparation progress score (0-100)
 - recommendations: array of 3-5 specific, actionable recommendations`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-pro",
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "object",
+          properties: {
+            overall: { type: "number" },
+            academic: { type: "number" },
+            extracurricular: { type: "number" },
+            testPrep: { type: "number" },
+            recommendations: {
+              type: "array",
+              items: { type: "string" }
+            }
+          },
+          required: ["overall", "academic", "extracurricular", "testPrep", "recommendations"],
+        },
+        temperature: 0.3,
+      },
+      contents: prompt,
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(response.text || "{}");
     
     return {
       overall: Math.max(0, Math.min(100, result.overall || 50)),
