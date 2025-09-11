@@ -1,8 +1,8 @@
 -- AIMS (AI Mentor for Students) Database Schema
 -- Complete SQL file for PostgreSQL database setup
 
--- Enable UUID extension if needed
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Note: If you need UUID extension, run this separately first:
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- =====================================================
 -- 1. SESSION STORAGE TABLE (for authentication)
