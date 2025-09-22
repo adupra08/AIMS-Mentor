@@ -34,7 +34,7 @@ import {
   type InsertStudentCourseProgress,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gte, lte, inArray } from "drizzle-orm";
+import { eq, desc, and, gte, lte, inArray, isNotNull } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (for email/password auth)
@@ -53,6 +53,15 @@ export interface IStorage {
   setEmailVerified(id: string, verified: boolean): Promise<void>;
   setVerificationToken(id: string, token: string | null, expires: Date | null): Promise<void>;
   updatePassword(id: string, passwordHash: string): Promise<void>;
+  getPendingVerifications(): Promise<Array<{
+    id: string;
+    email: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    verificationToken: string | null;
+    verificationTokenExpires: Date | null;
+    createdAt: Date | null;
+  }>>;
   
   // Student profile operations
   getStudentProfile(userId: string): Promise<StudentProfile | undefined>;
@@ -194,6 +203,33 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date()
       })
       .where(eq(users.id, id));
+  }
+
+  async getPendingVerifications(): Promise<Array<{
+    id: string;
+    email: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    verificationToken: string | null;
+    verificationTokenExpires: Date | null;
+    createdAt: Date | null;
+  }>> {
+    const pendingUsers = await db.select({
+      id: users.id,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      verificationToken: users.verificationToken,
+      verificationTokenExpires: users.verificationTokenExpires,
+      createdAt: users.createdAt,
+    }).from(users).where(
+      and(
+        eq(users.emailVerified, false),
+        isNotNull(users.verificationToken)
+      )
+    );
+    
+    return pendingUsers;
   }
 
   // Student profile operations

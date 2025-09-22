@@ -286,6 +286,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Development endpoint to get pending verification codes (remove in production)
+  app.get('/api/auth/pending-verifications', async (req, res) => {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(404).json({ message: 'Not found' });
+    }
+
+    try {
+      const pendingUsers = await storage.getPendingVerifications();
+      res.json(pendingUsers);
+    } catch (error) {
+      console.error("Error fetching pending verifications:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // User info route
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
