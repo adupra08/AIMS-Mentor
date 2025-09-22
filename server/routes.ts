@@ -19,6 +19,9 @@ import { generateAcademicPathway } from "./services/pathwayGenerator";
 import { getChatResponse } from "./services/openai";
 import type { User } from "@shared/schema";
 
+// Development-only token cache (stores raw tokens for testing)
+const devTokenCache: Map<string, string> = new Map();
+
 // Convert full user to safe user for client responses
 function toSafeUser(user: User): SafeUser {
   return {
@@ -89,7 +92,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // TODO: Send verification email here
-      console.log(`Verification token for ${user.email}: ${verificationToken}`);
+      // Store raw token in development cache for testing and logging
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Verification token for ${user.email}: ${verificationToken}`);
+        devTokenCache.set(user.email, verificationToken);
+      }
       
       res.json({ 
         message: "Registration successful! Please check your email to verify your account.",
@@ -191,6 +198,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST endpoint for email verification (used by frontend)
+  app.post('/api/auth/verify-email', strictAuthLimiter, async (req, res) => {
+    try {
+      const { token, email } = verifyEmailSchema.parse(req.body);
+      
+      // Get user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(400).json({ message: "Invalid verification request" });
+      }
+
+      // Check if already verified
+      if (user.emailVerified) {
+        return res.status(400).json({ message: "Email is already verified" });
+      }
+
+      // Check token expiration
+      if (!user.verificationTokenExpires || user.verificationTokenExpires < new Date()) {
+        return res.status(400).json({ message: "Verification code has expired" });
+      }
+
+      // Verify token
+      if (!user.verificationToken) {
+        return res.status(400).json({ message: "Invalid verification request" });
+      }
+
+      const { verifyToken } = await import('./localAuth');
+      const isValidToken = await verifyToken(user.verificationToken, token);
+      if (!isValidToken) {
+        return res.status(400).json({ message: "Invalid verification code" });
+      }
+
+      // Mark email as verified and clear token
+      await storage.setEmailVerified(user.id, true);
+      await storage.setVerificationToken(user.id, null, null);
+
+      res.json({ 
+        message: "Email verified successfully! You can now log in.",
+        success: true 
+      });
+    } catch (error) {
+      console.error("Email verification error:", error);
+      res.status(400).json({ 
+        message: "Email verification failed", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   app.post('/api/auth/logout', (req, res) => {
     req.logout((err) => {
       if (err) {
@@ -227,7 +283,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.setVerificationToken(user.id, hashedToken, tokenExpires);
 
       // TODO: Send password setup email here
-      console.log(`Password setup token for ${user.email}: ${setupToken}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Password setup token for ${user.email}: ${setupToken}`);
+      }
       
       res.json({ message: "If that email exists, we've sent setup instructions." });
     } catch (error) {
@@ -286,15 +344,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Development endpoint to get pending verification codes (remove in production)
+  // Development endpoint to get pending verification codes (development only)
   app.get('/api/auth/pending-verifications', async (req, res) => {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV !== 'development') {
       return res.status(404).json({ message: 'Not found' });
     }
 
     try {
       const pendingUsers = await storage.getPendingVerifications();
-      res.json(pendingUsers);
+      
+      // Replace hashed tokens with raw tokens from development cache
+      const usersWithRawTokens = pendingUsers.map(user => ({
+        ...user,
+        verificationToken: devTokenCache.get(user.email || '') || user.verificationToken
+      }));
+      
+      res.json(usersWithRawTokens);
     } catch (error) {
       console.error("Error fetching pending verifications:", error);
       res.status(500).json({ message: "Internal server error" });

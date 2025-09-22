@@ -24,10 +24,14 @@ function Router() {
   return (
     <Switch>
       {!isAuthenticated ? (
-        <Route path="/" component={Landing} />
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="/home" component={Landing} />
+        </>
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/home" component={Home} />
           <Route path="/onboarding" component={Onboarding} />
           <Route path="/settings" component={Settings} />
         </>
