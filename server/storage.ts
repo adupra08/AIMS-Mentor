@@ -37,9 +37,22 @@ import { db } from "./db";
 import { eq, desc, and, gte, lte, inArray } from "drizzle-orm";
 
 export interface IStorage {
-  // User operations (mandatory for Replit Auth)
+  // User operations (for email/password auth)
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUserWithPassword(userData: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    passwordHash: string;
+    verificationToken?: string;
+    verificationTokenExpires?: Date;
+  }): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUserLastLogin(id: string): Promise<void>;
+  setEmailVerified(id: string, verified: boolean): Promise<void>;
+  setVerificationToken(id: string, token: string | null, expires: Date | null): Promise<void>;
+  updatePassword(id: string, passwordHash: string): Promise<void>;
   
   // Student profile operations
   getStudentProfile(userId: string): Promise<StudentProfile | undefined>;
@@ -92,9 +105,38 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations (mandatory for Replit Auth)
+  // User operations (for email/password auth)
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUserWithPassword(userData: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    passwordHash: string;
+    verificationToken?: string;
+    verificationTokenExpires?: Date;
+  }): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        id: crypto.randomUUID(),
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        passwordHash: userData.passwordHash,
+        emailVerified: false,
+        verificationToken: userData.verificationToken || null,
+        verificationTokenExpires: userData.verificationTokenExpires || null,
+      })
+      .returning();
     return user;
   }
 
@@ -111,6 +153,47 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  async updateUserLastLogin(id: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        lastLoginAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
+  }
+
+  async setEmailVerified(id: string, verified: boolean): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        emailVerified: verified,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
+  }
+
+  async setVerificationToken(id: string, token: string | null, expires: Date | null): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        verificationToken: token,
+        verificationTokenExpires: expires,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
+  }
+
+  async updatePassword(id: string, passwordHash: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        passwordHash,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
   }
 
   // Student profile operations

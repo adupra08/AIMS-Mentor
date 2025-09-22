@@ -25,13 +25,18 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table for Replit Auth
+// User storage table for email/password authentication
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
+  email: varchar("email").unique(), // nullable during transition
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  passwordHash: text("password_hash"), // nullable during transition
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  verificationToken: varchar("verification_token"),
+  verificationTokenExpires: timestamp("verification_token_expires"),
+  lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -337,3 +342,63 @@ export const insertStudentCourseProgressSchema = createInsertSchema(studentCours
   id: true,
   createdAt: true,
 });
+
+// User authentication schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  emailVerified: true,
+  verificationToken: true,
+  verificationTokenExpires: true,
+  lastLoginAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const registerUserSchema = insertUserSchema.pick({
+  email: true,
+  firstName: true,
+  lastName: true,
+}).extend({
+  password: z.string().min(8, "Password must be at least 8 characters").max(100),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export const loginUserSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const verifyEmailSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  token: z.string().min(1, "Verification token is required"),
+});
+
+export const requestPasswordSetupSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export const completePasswordSetupSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  token: z.string().min(1, "Setup token is required"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(100),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+// Safe user type for client responses (no sensitive fields)
+export type SafeUser = {
+  id: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  profileImageUrl: string | null;
+  emailVerified: boolean;
+  lastLoginAt: Date | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};

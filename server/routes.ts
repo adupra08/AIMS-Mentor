@@ -1,27 +1,300 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./googleAuth";
+import { setupAuth, isAuthenticated } from "./localAuth";
 import { 
   insertStudentProfileSchema, 
   insertTodoSchema, 
   insertChatMessageSchema,
   insertAchievementSchema,
-  insertStudentCourseProgressSchema
+  insertStudentCourseProgressSchema,
+  registerUserSchema,
+  loginUserSchema,
+  verifyEmailSchema,
+  requestPasswordSetupSchema,
+  completePasswordSetupSchema,
+  type SafeUser
 } from "@shared/schema";
 import { generateAcademicPathway } from "./services/pathwayGenerator";
 import { getChatResponse } from "./services/openai";
+import type { User } from "@shared/schema";
+
+// Convert full user to safe user for client responses
+function toSafeUser(user: User): SafeUser {
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    profileImageUrl: user.profileImageUrl,
+    emailVerified: user.emailVerified,
+    lastLoginAt: user.lastLoginAt,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Auth routes
+  // Rate limiting for authentication endpoints
+  const rateLimit = (await import('express-rate-limit')).default;
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 requests per windowMs
+    message: {
+      message: "Too many authentication attempts, please try again later."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  const strictAuthLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 3, // Limit each IP to 3 requests per windowMs for verification
+    message: {
+      message: "Too many verification attempts, please try again later."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  // Authentication routes (email/password)
+  app.post('/api/auth/register', authLimiter, async (req, res) => {
+    try {
+      const validatedData = registerUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email address is already registered" });
+      }
+
+      // Hash password and generate verification token
+      const { hashPassword, generateVerificationToken, hashVerificationToken } = await import('./localAuth');
+      const passwordHash = await hashPassword(validatedData.password);
+      const verificationToken = generateVerificationToken();
+      const hashedToken = await hashVerificationToken(verificationToken);
+      const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      // Create user
+      const user = await storage.createUserWithPassword({
+        email: validatedData.email,
+        firstName: validatedData.firstName || '',
+        lastName: validatedData.lastName || '',
+        passwordHash,
+        verificationToken: hashedToken,
+        verificationTokenExpires: tokenExpires,
+      });
+
+      // TODO: Send verification email here
+      console.log(`Verification token for ${user.email}: ${verificationToken}`);
+      
+      res.json({ 
+        message: "Registration successful! Please check your email to verify your account.",
+        userId: user.id 
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(400).json({ 
+        message: "Registration failed", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.post('/api/auth/login', authLimiter, async (req, res) => {
+    try {
+      const validatedData = loginUserSchema.parse(req.body);
+      
+      // Use passport local strategy
+      const passport = await import('passport');
+      passport.default.authenticate('local', (err: any, user: any, info: any) => {
+        if (err) {
+          console.error("Login error:", err);
+          return res.status(500).json({ message: "Login failed" });
+        }
+        
+        if (!user) {
+          return res.status(401).json({ message: info?.message || "Invalid credentials" });
+        }
+
+        req.logIn(user, (err) => {
+          if (err) {
+            console.error("Session error:", err);
+            return res.status(500).json({ message: "Login failed" });
+          }
+          
+          res.json({ 
+            message: "Login successful",
+            user: {
+              id: user.id,
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName
+            }
+          });
+        });
+      })(req, res);
+    } catch (error) {
+      console.error("Login validation error:", error);
+      res.status(400).json({ 
+        message: "Invalid login data", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.get('/api/auth/verify', strictAuthLimiter, async (req, res) => {
+    try {
+      const { token, email } = verifyEmailSchema.parse(req.query);
+      
+      // Get user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(400).json({ message: "Invalid verification link" });
+      }
+
+      // Check if already verified
+      if (user.emailVerified) {
+        return res.redirect('/?verified=already');
+      }
+
+      // Check token expiration
+      if (!user.verificationTokenExpires || user.verificationTokenExpires < new Date()) {
+        return res.status(400).json({ message: "Verification link has expired" });
+      }
+
+      // Verify token
+      if (!user.verificationToken) {
+        return res.status(400).json({ message: "Invalid verification link" });
+      }
+
+      const { verifyToken } = await import('./localAuth');
+      const isValidToken = await verifyToken(user.verificationToken, token);
+      if (!isValidToken) {
+        return res.status(400).json({ message: "Invalid verification link" });
+      }
+
+      // Mark email as verified and clear token
+      await storage.setEmailVerified(user.id, true);
+      await storage.setVerificationToken(user.id, null, null);
+
+      res.redirect('/?verified=success');
+    } catch (error) {
+      console.error("Email verification error:", error);
+      res.status(400).json({ 
+        message: "Email verification failed", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.post('/api/auth/logout', (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      res.json({ message: "Logout successful" });
+    });
+  });
+
+  // Password setup for existing OAuth users
+  app.post('/api/auth/request-password-setup', authLimiter, async (req, res) => {
+    try {
+      const { email } = requestPasswordSetupSchema.parse(req.body);
+      
+      // Check if user exists and is an OAuth user (no password)
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Don't reveal if email exists (security)
+        return res.json({ message: "If that email exists, we've sent setup instructions." });
+      }
+
+      if (user.passwordHash) {
+        return res.status(400).json({ message: "This account already has a password set up." });
+      }
+
+      // Generate setup token
+      const { generateVerificationToken, hashVerificationToken } = await import('./localAuth');
+      const setupToken = generateVerificationToken();
+      const hashedToken = await hashVerificationToken(setupToken);
+      const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      // Store token
+      await storage.setVerificationToken(user.id, hashedToken, tokenExpires);
+
+      // TODO: Send password setup email here
+      console.log(`Password setup token for ${user.email}: ${setupToken}`);
+      
+      res.json({ message: "If that email exists, we've sent setup instructions." });
+    } catch (error) {
+      console.error("Password setup request error:", error);
+      res.status(400).json({ 
+        message: "Failed to process request", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.post('/api/auth/complete-password-setup', strictAuthLimiter, async (req, res) => {
+    try {
+      const validatedData = completePasswordSetupSchema.parse(req.body);
+      
+      // Get user by email
+      const user = await storage.getUserByEmail(validatedData.email);
+      if (!user) {
+        return res.status(400).json({ message: "Invalid setup link" });
+      }
+
+      // Check if user already has password
+      if (user.passwordHash) {
+        return res.status(400).json({ message: "This account already has a password set up." });
+      }
+
+      // Check token expiration
+      if (!user.verificationTokenExpires || user.verificationTokenExpires < new Date()) {
+        return res.status(400).json({ message: "Setup link has expired" });
+      }
+
+      // Verify token
+      if (!user.verificationToken) {
+        return res.status(400).json({ message: "Invalid setup link" });
+      }
+
+      const { verifyToken, hashPassword } = await import('./localAuth');
+      const isValidToken = await verifyToken(user.verificationToken, validatedData.token);
+      if (!isValidToken) {
+        return res.status(400).json({ message: "Invalid setup link" });
+      }
+
+      // Hash password and update user
+      const passwordHash = await hashPassword(validatedData.password);
+      await storage.updatePassword(user.id, passwordHash);
+      await storage.setEmailVerified(user.id, true);
+      await storage.setVerificationToken(user.id, null, null);
+
+      res.json({ message: "Password setup completed successfully! You can now log in." });
+    } catch (error) {
+      console.error("Password setup completion error:", error);
+      res.status(400).json({ 
+        message: "Failed to complete password setup", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // User info route
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
-      res.json(user);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(toSafeUser(user));
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -31,7 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Student profile routes
   app.get('/api/student/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       res.json(profile);
     } catch (error) {
@@ -42,7 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/student/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Properly format array fields for JSONB storage
       const {
@@ -108,7 +381,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Academic pathway routes
   app.get('/api/student/pathway', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -124,7 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/student/pathway/regenerate', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -160,7 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If recommended=true, apply smart matching
       if (recommended === 'true') {
-        const userId = req.user.claims.sub;
+        const userId = req.user.id;
         const studentProfile = await storage.getStudentProfile(userId);
         if (studentProfile) {
           const { matchOpportunities } = await import("./services/opportunityMatcher");
@@ -183,7 +456,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/student/opportunities', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -199,7 +472,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/student/opportunities/:opportunityId/bookmark', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { opportunityId } = req.params;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
@@ -222,7 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get recommended opportunities for current student
   app.get('/api/student/recommended-opportunities', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const studentProfile = await storage.getStudentProfile(userId);
       if (!studentProfile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -252,7 +525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Todo routes
   app.get('/api/student/todos', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -268,7 +541,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/student/todos', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       console.log("Creating todo for user:", userId);
       console.log("Request body:", req.body);
       
@@ -321,7 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat routes
   app.get('/api/student/chat', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -337,7 +610,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/student/chat', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -372,7 +645,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Graduation requirements routes
   app.get('/api/student/graduation-requirements', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -390,7 +663,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/student/course-progress', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -424,7 +697,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User profile update route
   app.patch('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { firstName, lastName } = req.body;
       
       // Update user profile
@@ -432,8 +705,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: userId,
         firstName,
         lastName,
-        email: req.user.claims.email,
-        profileImageUrl: req.user.claims.picture
+        email: req.user.email,
+        profileImageUrl: req.user.profileImageUrl
       });
       
       res.json(updatedUser);
@@ -446,7 +719,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Progress routes
   app.get('/api/student/progress', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -463,7 +736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Achievement routes
   app.get('/api/student/achievements', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
@@ -479,10 +752,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/student/achievements', isAuthenticated, async (req: any, res) => {
     try {
-      console.log("Creating achievement for user:", req.user.claims.sub);
+      console.log("Creating achievement for user:", req.user.id);
       console.log("Request body:", req.body);
       
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getStudentProfile(userId);
       if (!profile) {
         return res.status(404).json({ message: "Student profile not found" });
