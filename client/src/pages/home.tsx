@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { apiRequest } from "@/lib/queryClient";
 import { StudentProfile, User } from "@shared/schema";
 import WelcomeHeader from "@/components/WelcomeHeader";
 import QuickActions from "@/components/QuickActions";
@@ -26,20 +27,20 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Redirect to home if not authenticated
+  // Redirect to landing page if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
+        title: "Session Expired",
+        description: "Your session has expired. Please sign in again.",
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        setLocation("/");
       }, 500);
       return;
     }
-  }, [isAuthenticated, isLoading, toast]);
+  }, [isAuthenticated, isLoading, toast, setLocation]);
 
   const { data: studentProfile, isLoading: profileLoading } = useQuery<StudentProfile>({
     queryKey: ["/api/student/profile"],
@@ -54,8 +55,35 @@ export default function Home() {
     }
   }, [studentProfile, profileLoading, isAuthenticated, setLocation]);
 
+  const queryClient = useQueryClient();
+
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/auth/logout");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      setLocation("/");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Logout Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      // Even if logout fails, redirect to landing page for security
+      setLocation("/");
+    },
+  });
+
   const handleLogout = () => {
-    window.location.href = "/api/logout";
+    logoutMutation.mutate();
   };
 
   if (isLoading || profileLoading) {

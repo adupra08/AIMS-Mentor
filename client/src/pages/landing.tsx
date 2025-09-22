@@ -1,10 +1,15 @@
+import { useState } from "react";
 import { GraduationCap, Target, Users, TrendingUp, BookOpen, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import AuthForms from "@/components/AuthForms";
 
 export default function Landing() {
-  const handleLogin = () => {
-    window.location.href = "/api/login";
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+
+  const handleGetStarted = () => {
+    setShowAuthDialog(true);
   };
 
   return (
@@ -19,7 +24,7 @@ export default function Landing() {
               </div>
               <span className="ml-3 text-xl font-bold text-gray-900">AI Mentor for Students - AIMS</span>
             </div>
-            <Button onClick={handleLogin} className="bg-primary hover:bg-primary/90">
+            <Button onClick={handleGetStarted} className="bg-primary hover:bg-primary/90" data-testid="nav-get-started">
               Get Started
             </Button>
           </div>
@@ -42,9 +47,10 @@ export default function Landing() {
           </p>
           <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
             <Button 
-              onClick={handleLogin}
+              onClick={handleGetStarted}
               size="lg" 
               className="bg-primary hover:bg-primary/90 text-lg px-8 py-3"
+              data-testid="hero-start-journey"
             >
               Start Your Journey
             </Button>
@@ -242,9 +248,10 @@ export default function Landing() {
             Join thousands of students who are already using AIMS to navigate their path to their dream colleges.
           </p>
           <Button 
-            onClick={handleLogin}
+            onClick={handleGetStarted}
             size="lg" 
             className="bg-white text-primary hover:bg-gray-100 text-lg px-8 py-3"
+            data-testid="cta-get-started-now"
           >
             Get Started Now
           </Button>
@@ -270,6 +277,17 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Authentication Dialog */}
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="max-w-md p-0 border-0 bg-transparent shadow-none">
+          <DialogTitle className="sr-only">Sign in to AIMS</DialogTitle>
+          <DialogDescription className="sr-only">
+            Sign in to your account or create a new one to access AI-powered academic mentoring
+          </DialogDescription>
+          <AuthForms onSuccess={() => setShowAuthDialog(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
