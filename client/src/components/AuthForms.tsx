@@ -30,14 +30,9 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-const verifyEmailSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  token: z.string().min(1, "Verification code is required"),
-});
 
 type RegisterData = z.infer<typeof registerSchema>;
 type LoginData = z.infer<typeof loginSchema>;
-type VerifyEmailData = z.infer<typeof verifyEmailSchema>;
 
 interface AuthFormsProps {
   onSuccess?: () => void;
@@ -47,7 +42,6 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
   const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [verificationEmail, setVerificationEmail] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
@@ -73,14 +67,6 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
     },
   });
 
-  // Email verification form
-  const verifyForm = useForm<VerifyEmailData>({
-    resolver: zodResolver(verifyEmailSchema),
-    defaultValues: {
-      email: verificationEmail,
-      token: "",
-    },
-  });
 
   // Registration mutation
   const registerMutation = useMutation({
@@ -91,13 +77,9 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
     onSuccess: (data) => {
       toast({
         title: "Registration Successful!",
-        description: "Please check your email to verify your account.",
+        description: "You can now log in with your account.",
       });
-      const email = registerForm.getValues("email");
-      setVerificationEmail(email);
-      // Auto-populate email in verification form
-      verifyForm.reset({ email, token: "" });
-      setActiveTab("verify");
+      setActiveTab("login");
       registerForm.reset();
     },
     onError: (error: Error) => {
@@ -134,28 +116,6 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
     },
   });
 
-  // Email verification mutation
-  const verifyMutation = useMutation({
-    mutationFn: async (data: VerifyEmailData) => {
-      const response = await apiRequest("POST", "/api/auth/verify-email", data);
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Email Verified!",
-        description: "Your account is now verified. You can log in.",
-      });
-      setActiveTab("login");
-      verifyForm.reset();
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Verification Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
 
   const onRegister = (data: RegisterData) => {
     registerMutation.mutate(data);
@@ -165,9 +125,6 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
     loginMutation.mutate(data);
   };
 
-  const onVerify = (data: VerifyEmailData) => {
-    verifyMutation.mutate(data);
-  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -179,10 +136,9 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login" data-testid="tab-login">Login</TabsTrigger>
             <TabsTrigger value="register" data-testid="tab-register">Register</TabsTrigger>
-            <TabsTrigger value="verify" data-testid="tab-verify">Verify</TabsTrigger>
           </TabsList>
 
           {/* Login Tab */}
@@ -377,57 +333,6 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
             </form>
           </TabsContent>
 
-          {/* Email Verification Tab */}
-          <TabsContent value="verify" className="space-y-4">
-            <div className="text-center text-sm text-gray-600 mb-4">
-              Enter the verification code sent to your email address.
-            </div>
-            <form onSubmit={verifyForm.handleSubmit(onVerify)} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="verify-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="verify-email"
-                    type="email"
-                    placeholder="Enter your email"
-                    className="pl-10"
-                    data-testid="input-verify-email"
-                    {...verifyForm.register("email")}
-                  />
-                </div>
-                {verifyForm.formState.errors.email && (
-                  <p className="text-sm text-red-600" data-testid="error-verify-email">
-                    {verifyForm.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="verify-token">Verification Code</Label>
-                <Input
-                  id="verify-token"
-                  placeholder="Enter verification code"
-                  data-testid="input-verify-token"
-                  {...verifyForm.register("token")}
-                />
-                {verifyForm.formState.errors.token && (
-                  <p className="text-sm text-red-600" data-testid="error-verify-token">
-                    {verifyForm.formState.errors.token.message}
-                  </p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={verifyMutation.isPending}
-                data-testid="button-verify"
-              >
-                {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
-              </Button>
-            </form>
-          </TabsContent>
         </Tabs>
       </CardContent>
     </Card>

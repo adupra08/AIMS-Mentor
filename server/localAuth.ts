@@ -106,10 +106,6 @@ export async function setupAuth(app: Express) {
             return done(null, false, { message: "Please set up your password first" });
           }
 
-          // Check if email is verified
-          if (!user.emailVerified) {
-            return done(null, false, { message: "Please verify your email address first" });
-          }
 
           // Verify password
           const isValidPassword = await verifyPassword(user.passwordHash, password);

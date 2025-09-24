@@ -74,32 +74,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email address is already registered" });
       }
 
-      // Hash password and generate verification token
-      const { hashPassword, generateVerificationToken, hashVerificationToken } = await import('./localAuth');
+      // Hash password
+      const { hashPassword } = await import('./localAuth');
       const passwordHash = await hashPassword(validatedData.password);
-      const verificationToken = generateVerificationToken();
-      const hashedToken = await hashVerificationToken(verificationToken);
-      const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-      // Create user
+      // Create user with email already verified
       const user = await storage.createUserWithPassword({
         email: validatedData.email,
         firstName: validatedData.firstName || '',
         lastName: validatedData.lastName || '',
         passwordHash,
-        verificationToken: hashedToken,
-        verificationTokenExpires: tokenExpires,
+        emailVerified: true, // Skip email verification
       });
-
-      // TODO: Send verification email here
-      // Store raw token in development cache for testing and logging
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`Verification token for ${user.email}: ${verificationToken}`);
-        devTokenCache.set(user.email, verificationToken);
-      }
       
       res.json({ 
-        message: "Registration successful! Please check your email to verify your account.",
+        message: "Registration successful! You can now log in.",
         userId: user.id 
       });
     } catch (error) {
