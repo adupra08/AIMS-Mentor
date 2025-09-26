@@ -207,7 +207,7 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
           {/* Register Tab */}
           <TabsContent value="register" className="space-y-4">
             <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="register-firstName">First Name</Label>
                   <div className="relative">

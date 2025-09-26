@@ -55,19 +55,19 @@ export default function QuickActions({ onTabChange }: QuickActionsProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {quickActions.map((action, index) => {
             const IconComponent = action.icon;
             return (
               <button
                 key={index}
                 onClick={action.action}
-                className={`${action.color} p-4 rounded-lg micro-hover button-press flex flex-col items-center justify-center space-y-2 min-h-[100px] group animate-fade-in relative overflow-hidden`}
+                className={`${action.color} p-3 sm:p-4 rounded-lg micro-hover button-press flex flex-col items-center justify-center space-y-2 min-h-[80px] sm:min-h-[100px] group animate-fade-in relative overflow-hidden transition-all duration-200`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                <IconComponent className="h-6 w-6 group-hover:scale-125 group-hover:rotate-6 transition-all duration-300 relative z-10" />
-                <span className="text-sm font-bold text-center leading-tight relative z-10 group-hover:font-extrabold transition-all duration-200">{action.label}</span>
+                <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-125 group-hover:rotate-6 transition-all duration-300 relative z-10" />
+                <span className="text-xs sm:text-sm font-bold text-center leading-tight relative z-10 group-hover:font-extrabold transition-all duration-200">{action.label}</span>
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-current opacity-0 group-hover:opacity-30 transform scale-x-0 group-hover:scale-x-100 transition-all duration-300"></div>
               </button>
             );

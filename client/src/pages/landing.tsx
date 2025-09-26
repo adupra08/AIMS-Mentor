@@ -280,7 +280,7 @@ export default function Landing() {
 
       {/* Authentication Dialog */}
       <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent className="max-w-md p-0 border-0 bg-transparent shadow-none">
+        <DialogContent className="max-w-[90vw] sm:max-w-md p-0 border-0 bg-transparent shadow-none">
           <DialogTitle className="sr-only">Sign in to AIMS</DialogTitle>
           <DialogDescription className="sr-only">
             Sign in to your account or create a new one to access AI-powered academic mentoring

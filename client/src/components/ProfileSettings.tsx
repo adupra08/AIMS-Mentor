@@ -342,18 +342,20 @@ export default function ProfileSettings() {
 
           {/* Tabs for Basic and Academic Profile */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="basic" className="flex items-center">
-                <Settings className="mr-2 h-4 w-4" />
-                Basic Info
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-0">
+              <TabsTrigger value="basic" className="flex items-center justify-center text-xs sm:text-sm py-2">
+                <Settings className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Basic Info</span>
+                <span className="xs:hidden">Basic</span>
               </TabsTrigger>
-              <TabsTrigger value="academic" className="flex items-center">
-                <GraduationCap className="mr-2 h-4 w-4" />
-                Academic Profile
+              <TabsTrigger value="academic" className="flex items-center justify-center text-xs sm:text-sm py-2">
+                <GraduationCap className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Academic Profile</span>
+                <span className="sm:hidden">Academic</span>
               </TabsTrigger>
-              <TabsTrigger value="password" className="flex items-center">
-                <Lock className="mr-2 h-4 w-4" />
-                Password
+              <TabsTrigger value="password" className="flex items-center justify-center text-xs sm:text-sm py-2">
+                <Lock className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Password</span>
               </TabsTrigger>
             </TabsList>
 

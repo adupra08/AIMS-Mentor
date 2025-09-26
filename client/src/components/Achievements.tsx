@@ -565,7 +565,7 @@ export default function Achievements() {
           </div>
         ) : (
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1 sm:gap-0">
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="competition">Competitions</TabsTrigger>
               <TabsTrigger value="research">Research</TabsTrigger>
