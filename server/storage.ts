@@ -51,17 +51,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserLastLogin(id: string): Promise<void>;
   setEmailVerified(id: string, verified: boolean): Promise<void>;
-  setVerificationToken(id: string, token: string | null, expires: Date | null): Promise<void>;
   updatePassword(id: string, passwordHash: string): Promise<void>;
-  getPendingVerifications(): Promise<Array<{
-    id: string;
-    email: string | null;
-    firstName: string | null;
-    lastName: string | null;
-    verificationToken: string | null;
-    verificationTokenExpires: Date | null;
-    createdAt: Date | null;
-  }>>;
   
   // Student profile operations
   getStudentProfile(userId: string): Promise<StudentProfile | undefined>;
@@ -184,17 +174,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id));
   }
 
-  async setVerificationToken(id: string, token: string | null, expires: Date | null): Promise<void> {
-    await db
-      .update(users)
-      .set({ 
-        verificationToken: token,
-        verificationTokenExpires: expires,
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, id));
-  }
-
   async updatePassword(id: string, passwordHash: string): Promise<void> {
     await db
       .update(users)
@@ -203,33 +182,6 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date()
       })
       .where(eq(users.id, id));
-  }
-
-  async getPendingVerifications(): Promise<Array<{
-    id: string;
-    email: string | null;
-    firstName: string | null;
-    lastName: string | null;
-    verificationToken: string | null;
-    verificationTokenExpires: Date | null;
-    createdAt: Date | null;
-  }>> {
-    const pendingUsers = await db.select({
-      id: users.id,
-      email: users.email,
-      firstName: users.firstName,
-      lastName: users.lastName,
-      verificationToken: users.verificationToken,
-      verificationTokenExpires: users.verificationTokenExpires,
-      createdAt: users.createdAt,
-    }).from(users).where(
-      and(
-        eq(users.emailVerified, false),
-        isNotNull(users.verificationToken)
-      )
-    );
-    
-    return pendingUsers;
   }
 
   // Student profile operations
