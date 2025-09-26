@@ -236,13 +236,13 @@ I can help you with:
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="flex-1 text-sm focus:ring-2 focus:ring-primary focus:border-transparent h-9 sm:h-10 chat-input"
+                className="flex-1 text-sm focus:ring-2 focus:ring-primary focus:border-transparent min-h-[44px] py-3 chat-input"
                 disabled={sendMessageMutation.isPending}
               />
               <Button
                 onClick={handleSendMessage}
                 disabled={sendMessageMutation.isPending || !message.trim()}
-                className="bg-primary hover:bg-primary/90 h-9 w-9 sm:h-10 sm:w-10 p-0 flex-shrink-0 mobile-touch-target"
+                className="bg-primary hover:bg-primary/90 min-h-[44px] min-w-[44px] h-11 w-11 p-0 flex-shrink-0 mobile-touch-target"
               >
                 {sendMessageMutation.isPending ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
