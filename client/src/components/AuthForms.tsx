@@ -30,25 +30,8 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-const requestPasswordSetupSchema = z.object({
-  email: z.string().email("Invalid email address"),
-});
-
-const completePasswordSetupSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  token: z.string().min(1, "Setup token is required"),
-  password: z.string().min(8, "Password must be at least 8 characters").max(100),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-
 type RegisterData = z.infer<typeof registerSchema>;
 type LoginData = z.infer<typeof loginSchema>;
-type RequestPasswordSetupData = z.infer<typeof requestPasswordSetupSchema>;
-type CompletePasswordSetupData = z.infer<typeof completePasswordSetupSchema>;
 
 interface AuthFormsProps {
   onSuccess?: () => void;
@@ -58,7 +41,6 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
   const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [setupEmail, setSetupEmail] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
@@ -84,24 +66,6 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
     },
   });
 
-  // Password setup request form  
-  const requestSetupForm = useForm<RequestPasswordSetupData>({
-    resolver: zodResolver(requestPasswordSetupSchema),
-    defaultValues: {
-      email: "",
-    },
-  });
-
-  // Password setup completion form
-  const completeSetupForm = useForm<CompletePasswordSetupData>({
-    resolver: zodResolver(completePasswordSetupSchema),
-    defaultValues: {
-      email: setupEmail,
-      token: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
 
 
   // Registration mutation
@@ -161,62 +125,6 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
     loginMutation.mutate(data);
   };
 
-  // Password setup request mutation
-  const requestSetupMutation = useMutation({
-    mutationFn: async (data: RequestPasswordSetupData) => {
-      const response = await apiRequest("POST", "/api/auth/request-password-setup", data);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Setup Instructions Sent!",
-        description: "If an account exists with that email, we've sent password setup instructions.",
-      });
-      const email = requestSetupForm.getValues("email");
-      setSetupEmail(email);
-      completeSetupForm.reset({ email, token: "", password: "", confirmPassword: "" });
-      setActiveTab("complete-setup");
-      requestSetupForm.reset();
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Request Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Password setup completion mutation
-  const completeSetupMutation = useMutation({
-    mutationFn: async (data: CompletePasswordSetupData) => {
-      const response = await apiRequest("POST", "/api/auth/complete-password-setup", data);
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Password Set Successfully!",
-        description: "Your password has been set. You can now log in.",
-      });
-      setActiveTab("login");
-      completeSetupForm.reset();
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Setup Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const onRequestSetup = (data: RequestPasswordSetupData) => {
-    requestSetupMutation.mutate(data);
-  };
-
-  const onCompleteSetup = (data: CompletePasswordSetupData) => {
-    completeSetupMutation.mutate(data);
-  };
 
 
   return (
@@ -229,11 +137,9 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login" data-testid="tab-login">Login</TabsTrigger>
             <TabsTrigger value="register" data-testid="tab-register">Register</TabsTrigger>
-            <TabsTrigger value="setup-password" data-testid="tab-setup-password">Set Password</TabsTrigger>
-            <TabsTrigger value="complete-setup" data-testid="tab-complete-setup">Complete Setup</TabsTrigger>
           </TabsList>
 
           {/* Login Tab */}
@@ -428,150 +334,7 @@ export default function AuthForms({ onSuccess }: AuthFormsProps) {
             </form>
           </TabsContent>
 
-          {/* Password Setup Request Tab */}
-          <TabsContent value="setup-password" className="space-y-4">
-            <div className="text-center text-sm text-gray-600 mb-4">
-              Enter your email to set up a password for your existing account.
-            </div>
-            <form onSubmit={requestSetupForm.handleSubmit(onRequestSetup)} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="setup-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="setup-email"
-                    type="email"
-                    placeholder="Enter your email"
-                    className="pl-10"
-                    data-testid="input-setup-email"
-                    {...requestSetupForm.register("email")}
-                  />
-                </div>
-                {requestSetupForm.formState.errors.email && (
-                  <p className="text-sm text-red-600" data-testid="error-setup-email">
-                    {requestSetupForm.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={requestSetupMutation.isPending}
-                data-testid="button-request-setup"
-              >
-                {requestSetupMutation.isPending ? "Sending instructions..." : "Send Setup Instructions"}
-              </Button>
-            </form>
-          </TabsContent>
-
-          {/* Password Setup Completion Tab */}
-          <TabsContent value="complete-setup" className="space-y-4">
-            <div className="text-center text-sm text-gray-600 mb-4">
-              Enter the setup code sent to your email and choose a new password.
-            </div>
-            <form onSubmit={completeSetupForm.handleSubmit(onCompleteSetup)} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="complete-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="complete-email"
-                    type="email"
-                    placeholder="Enter your email"
-                    className="pl-10"
-                    data-testid="input-complete-email"
-                    {...completeSetupForm.register("email")}
-                  />
-                </div>
-                {completeSetupForm.formState.errors.email && (
-                  <p className="text-sm text-red-600" data-testid="error-complete-email">
-                    {completeSetupForm.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="setup-token">Setup Code</Label>
-                <Input
-                  id="setup-token"
-                  placeholder="Enter setup code"
-                  data-testid="input-setup-token"
-                  {...completeSetupForm.register("token")}
-                />
-                {completeSetupForm.formState.errors.token && (
-                  <p className="text-sm text-red-600" data-testid="error-setup-token">
-                    {completeSetupForm.formState.errors.token.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="setup-password">New Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="setup-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter new password"
-                    className="pl-10 pr-10"
-                    data-testid="input-setup-password"
-                    {...completeSetupForm.register("password")}
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    onClick={() => setShowPassword(!showPassword)}
-                    data-testid="toggle-setup-password"
-                  >
-                    {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
-                  </button>
-                </div>
-                {completeSetupForm.formState.errors.password && (
-                  <p className="text-sm text-red-600" data-testid="error-setup-password">
-                    {completeSetupForm.formState.errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="setup-confirmPassword">Confirm Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="setup-confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm new password"
-                    className="pl-10 pr-10"
-                    data-testid="input-setup-confirmPassword"
-                    {...completeSetupForm.register("confirmPassword")}
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    data-testid="toggle-setup-confirmPassword"
-                  >
-                    {showConfirmPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
-                  </button>
-                </div>
-                {completeSetupForm.formState.errors.confirmPassword && (
-                  <p className="text-sm text-red-600" data-testid="error-setup-confirmPassword">
-                    {completeSetupForm.formState.errors.confirmPassword.message}
-                  </p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={completeSetupMutation.isPending}
-                data-testid="button-complete-setup"
-              >
-                {completeSetupMutation.isPending ? "Setting password..." : "Set Password"}
-              </Button>
-            </form>
-          </TabsContent>
 
         </Tabs>
       </CardContent>
