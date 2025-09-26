@@ -13,6 +13,7 @@ import {
   verifyEmailSchema,
   requestPasswordSetupSchema,
   completePasswordSetupSchema,
+  changePasswordSchema,
   type SafeUser
 } from "@shared/schema";
 import { generateAcademicPathway } from "./services/pathwayGenerator";
@@ -150,6 +151,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json({ message: "Logout successful" });
     });
+  });
+
+  // Change password for authenticated users
+  app.post('/api/auth/change-password', authLimiter, isAuthenticated, async (req: any, res) => {
+    try {
+      const validatedData = changePasswordSchema.parse(req.body);
+      const userId = req.user.id;
+      
+      // Get user from database
+      const user = await storage.getUser(userId);
+      if (!user || !user.passwordHash) {
+        return res.status(400).json({ message: "Unable to change password" });
+      }
+
+      // Verify current password
+      const { verifyPassword } = await import('./localAuth');
+      const isCurrentPasswordValid = await verifyPassword(user.passwordHash, validatedData.currentPassword);
+      if (!isCurrentPasswordValid) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      // Hash new password and update
+      const { hashPassword } = await import('./localAuth');
+      const newPasswordHash = await hashPassword(validatedData.newPassword);
+      await storage.updatePassword(userId, newPasswordHash);
+
+      res.json({ message: "Password changed successfully" });
+    } catch (error) {
+      console.error("Password change error:", error);
+      res.status(400).json({ 
+        message: "Failed to change password", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
   });
 
 

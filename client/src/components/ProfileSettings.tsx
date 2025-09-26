@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { User, Mail, Save, X, GraduationCap, Settings, Activity, BookOpen } from "lucide-react";
+import { User, Mail, Save, X, GraduationCap, Settings, Activity, BookOpen, Lock, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,10 +34,20 @@ const INTERESTED_SUBJECTS = [
 export default function ProfileSettings() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: ""
+  });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
   });
   const [academicFormData, setAcademicFormData] = useState({
     extracurricularActivities: [] as string[],
@@ -109,6 +119,32 @@ export default function ProfileSettings() {
       toast({
         title: "Error",
         description: "Failed to update academic profile. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Password change mutation
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string; confirmPassword: string }) => {
+      const response = await apiRequest("POST", "/api/auth/change-password", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Password Changed!",
+        description: "Your password has been successfully updated.",
+      });
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Password Change Failed",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -306,7 +342,7 @@ export default function ProfileSettings() {
 
           {/* Tabs for Basic and Academic Profile */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="basic" className="flex items-center">
                 <Settings className="mr-2 h-4 w-4" />
                 Basic Info
@@ -314,6 +350,10 @@ export default function ProfileSettings() {
               <TabsTrigger value="academic" className="flex items-center">
                 <GraduationCap className="mr-2 h-4 w-4" />
                 Academic Profile
+              </TabsTrigger>
+              <TabsTrigger value="password" className="flex items-center">
+                <Lock className="mr-2 h-4 w-4" />
+                Password
               </TabsTrigger>
             </TabsList>
 
@@ -630,6 +670,106 @@ export default function ProfileSettings() {
                   </div>
                 </div>
               )}
+            </TabsContent>
+
+            {/* Password Tab */}
+            <TabsContent value="password" className="space-y-6 mt-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="current-password">Current Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="current-password"
+                      type={showPasswords.current ? "text" : "password"}
+                      placeholder="Enter your current password"
+                      className="pl-10 pr-10"
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                      data-testid="input-current-password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                      data-testid="toggle-current-password"
+                    >
+                      {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="new-password"
+                      type={showPasswords.new ? "text" : "password"}
+                      placeholder="Enter your new password"
+                      className="pl-10 pr-10"
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                      data-testid="input-new-password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                      data-testid="toggle-new-password"
+                    >
+                      {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500">Password must be at least 8 characters long</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="confirm-password"
+                      type={showPasswords.confirm ? "text" : "password"}
+                      placeholder="Confirm your new password"
+                      className="pl-10 pr-10"
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      data-testid="input-confirm-password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                      data-testid="toggle-confirm-password"
+                    >
+                      {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <Button
+                    onClick={() => {
+                      if (passwordData.newPassword !== passwordData.confirmPassword) {
+                        toast({
+                          title: "Password Mismatch",
+                          description: "New passwords don't match",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      changePasswordMutation.mutate(passwordData);
+                    }}
+                    disabled={changePasswordMutation.isPending || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+                    className="flex items-center"
+                    data-testid="button-change-password"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    {changePasswordMutation.isPending ? "Changing..." : "Change Password"}
+                  </Button>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

@@ -390,6 +390,15 @@ export const completePasswordSetupSchema = z.object({
   path: ["confirmPassword"],
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(8, "New password must be at least 8 characters").max(100),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "New passwords don't match",
+  path: ["confirmPassword"],
+});
+
 // Safe user type for client responses (no sensitive fields)
 export type SafeUser = {
   id: string;
