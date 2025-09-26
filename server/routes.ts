@@ -271,12 +271,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store token
       await storage.setVerificationToken(user.id, hashedToken, tokenExpires);
 
-      // TODO: Send password setup email here
+      // Send password setup email
+      let emailSent = false;
+      try {
+        const { sendEmail, createPasswordSetupEmail } = await import('./services/emailService');
+        const emailParams = createPasswordSetupEmail(user.email!, setupToken);
+        emailSent = await sendEmail(emailParams);
+        
+        if (!emailSent) {
+          console.error(`Failed to send password setup email to ${user.email}`);
+        }
+      } catch (emailError) {
+        console.error("Email sending error:", emailError);
+        if (emailError instanceof Error && emailError.message.includes('SENDGRID_API_KEY')) {
+          console.error("SendGrid configuration error - please check your API key");
+        }
+      }
+
+      // Still log to console in development for testing
       if (process.env.NODE_ENV === 'development') {
         console.log(`Password setup token for ${user.email}: ${setupToken}`);
+        if (!emailSent) {
+          console.log("Note: Email sending failed, but token is logged above for development testing");
+        }
       }
       
-      res.json({ message: "If that email exists, we've sent setup instructions." });
+      res.json({ 
+        message: "If that email exists, we've sent setup instructions.",
+        // In development, include additional info about email status
+        ...(process.env.NODE_ENV === 'development' && { emailSent })
+      });
     } catch (error) {
       console.error("Password setup request error:", error);
       res.status(400).json({ 
