@@ -45,8 +45,6 @@ export interface IStorage {
     firstName: string;
     lastName: string;
     passwordHash: string;
-    verificationToken?: string;
-    verificationTokenExpires?: Date;
   }): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserLastLogin(id: string): Promise<void>;
@@ -120,8 +118,6 @@ export class DatabaseStorage implements IStorage {
     firstName: string;
     lastName: string;
     passwordHash: string;
-    verificationToken?: string;
-    verificationTokenExpires?: Date;
   }): Promise<User> {
     const [user] = await db
       .insert(users)
@@ -131,9 +127,7 @@ export class DatabaseStorage implements IStorage {
         firstName: userData.firstName,
         lastName: userData.lastName,
         passwordHash: userData.passwordHash,
-        emailVerified: false,
-        verificationToken: userData.verificationToken || null,
-        verificationTokenExpires: userData.verificationTokenExpires || null,
+        emailVerified: true, // Skip email verification completely
       })
       .returning();
     return user;
