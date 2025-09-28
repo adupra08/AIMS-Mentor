@@ -47,7 +47,7 @@ export default function WelcomeHeader({ studentProfile, user }: WelcomeHeaderPro
             <p className="text-blue-100 text-lg">
               Let's continue your journey to {dreamCollege}
             </p>
-            <div className="mt-4 flex items-center space-x-6">
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6">
               <div className="flex items-center">
                 <Calendar className="mr-2 h-4 w-4" />
                 <span className="text-sm">

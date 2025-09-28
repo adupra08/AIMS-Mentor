@@ -124,7 +124,7 @@ export default function ProgressOverview({ studentProfile }: ProgressOverviewPro
             <CardTitle className="text-xl font-semibold text-gray-900">Academic Progress Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="text-center animate-pulse">
                   <div className="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-3"></div>
@@ -155,7 +155,7 @@ export default function ProgressOverview({ studentProfile }: ProgressOverviewPro
             </defs>
           </svg>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {progressItems.map((item, index) => (
               <div key={index} className="text-center">
                 <div className="mb-3">

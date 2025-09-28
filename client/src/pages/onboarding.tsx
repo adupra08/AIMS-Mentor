@@ -271,7 +271,7 @@ export default function Onboarding() {
               render={() => (
                 <FormItem>
                   <FormLabel>Select all subjects you're currently taking *</FormLabel>
-                  <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
                     {CURRENT_SUBJECTS.map((subject) => (
                       <FormField
                         key={subject}
@@ -318,7 +318,7 @@ export default function Onboarding() {
               render={() => (
                 <FormItem>
                   <FormLabel>Subjects you're interested in studying *</FormLabel>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {INTERESTED_SUBJECTS.map((subject) => (
                       <FormField
                         key={subject}
@@ -355,7 +355,7 @@ export default function Onboarding() {
               render={() => (
                 <FormItem>
                   <FormLabel>Academic areas of focus *</FormLabel>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {ACADEMIC_INTERESTS.map((interest) => (
                       <FormField
                         key={interest}
@@ -560,7 +560,7 @@ export default function Onboarding() {
               render={() => (
                 <FormItem>
                   <FormLabel>Current or planned extracurricular activities</FormLabel>
-                  <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto">
                     {EXTRACURRICULAR_ACTIVITIES.map((activity) => (
                       <FormField
                         key={activity}
@@ -615,7 +615,7 @@ export default function Onboarding() {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="location"
@@ -674,7 +674,9 @@ export default function Onboarding() {
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
                 <GraduationCap className="text-white text-lg" />
               </div>
-              <span className="ml-3 text-xl font-bold text-gray-900">AI Mentor for Students - AIMS</span>
+              <span className="ml-3 text-lg sm:text-xl font-bold text-gray-900">
+                <span className="hidden sm:inline">AI Mentor for Students - </span>AIMS
+              </span>
             </div>
             <div className="text-sm text-gray-500">
               Step {currentStep} of {totalSteps}

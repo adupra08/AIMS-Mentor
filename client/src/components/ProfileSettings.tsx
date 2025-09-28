@@ -477,7 +477,7 @@ export default function ProfileSettings() {
                     </div>
                     
                     {isEditing ? (
-                      <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-4">
                         {EXTRACURRICULAR_ACTIVITIES.map((activity) => (
                           <div key={activity} className="flex items-start space-x-3 space-y-0">
                             <Checkbox
@@ -515,7 +515,7 @@ export default function ProfileSettings() {
                     </div>
                     
                     {isEditing ? (
-                      <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-4">
                         {ACADEMIC_INTERESTS.map((interest) => (
                           <div key={interest} className="flex items-start space-x-3 space-y-0">
                             <Checkbox
@@ -553,7 +553,7 @@ export default function ProfileSettings() {
                     </div>
                     
                     {isEditing ? (
-                      <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-4">
                         {INTERESTED_SUBJECTS.map((subject) => (
                           <div key={subject} className="flex items-start space-x-3 space-y-0">
                             <Checkbox

@@ -24,7 +24,7 @@ export default function PersonalizedPathway({ studentProfile }: PersonalizedPath
           <CardContent className="p-6">
             <div className="animate-pulse">
               <div className="h-4 bg-gray-300 rounded w-1/4 mb-4"></div>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="space-y-3">
                     <div className="h-12 bg-gray-300 rounded-full mx-auto"></div>
@@ -197,7 +197,7 @@ export default function PersonalizedPathway({ studentProfile }: PersonalizedPath
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {renderGradeColumn(9, enhancedPathwayData.grade9)}
             {renderGradeColumn(10, enhancedPathwayData.grade10)}
             {renderGradeColumn(11, enhancedPathwayData.grade11)}
