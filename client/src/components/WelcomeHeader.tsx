@@ -9,7 +9,32 @@ interface WelcomeHeaderProps {
 export default function WelcomeHeader({ studentProfile, user }: WelcomeHeaderProps) {
   const firstName = user?.firstName || "Student";
   const dreamCollege = studentProfile.dreamColleges?.[0] || "your dream college";
-  const progress = 68; // This would be calculated from actual progress data
+  
+  // Calculate actual progress based on student profile data
+  const calculateProgress = () => {
+    // Overall progress based on grade and completion
+    const gradeProgress = ((studentProfile.currentGrade - 9) / 3) * 100;
+    const overallProgress = Math.min(gradeProgress + 20, 100); // Add base progress
+
+    // Academic performance based on GPA
+    const gpaScore = studentProfile.currentGpa ? (parseFloat(studentProfile.currentGpa.toString()) / 4.0) * 100 : 75;
+    
+    // Extracurricular based on activities count
+    const extracurricularCount = studentProfile.extracurricularActivities?.length || 0;
+    const extracurricularProgress = Math.min(extracurricularCount * 15, 100);
+
+    // Test prep based on test scores
+    const hasTestScores = studentProfile.testScores && 
+      (studentProfile.testScores.sat || studentProfile.testScores.act || studentProfile.testScores.psat);
+    const testPrepProgress = hasTestScores ? 75 : (studentProfile.currentGrade >= 11 ? 30 : 20);
+
+    // Weight the different components for overall progress
+    const weightedProgress = (overallProgress * 0.4) + (gpaScore * 0.3) + (extracurricularProgress * 0.2) + (testPrepProgress * 0.1);
+    
+    return Math.round(Math.min(weightedProgress, 100));
+  };
+  
+  const progress = calculateProgress();
 
   return (
     <div className="mb-8 animate-fade-in">
