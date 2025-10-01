@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import AuthForms from "@/components/AuthForms";
+import Footer from "@/components/Footer";
 
 export default function Landing() {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
@@ -66,7 +67,7 @@ export default function Landing() {
       </div>
 
       {/* Features Section */}
-      <div className="py-20 bg-white">
+      <div id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -167,7 +168,7 @@ export default function Landing() {
       </div>
 
       {/* Problem Statement */}
-      <div className="py-20 bg-gray-50">
+      <div id="about" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -259,24 +260,7 @@ export default function Landing() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-                <GraduationCap className="text-white text-xl" />
-              </div>
-              <span className="ml-3 text-xl font-bold">AIMS</span>
-            </div>
-            <p className="text-gray-400 mb-4">
-              Artificial Intelligence Mentor for Students
-            </p>
-            <p className="text-gray-500 text-sm">
-              © 2024 AIMS. All rights reserved. Empowering students to reach their full potential.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Authentication Dialog */}
       <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>

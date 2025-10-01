@@ -17,6 +17,7 @@ import RecommendedCourses from "@/components/RecommendedCourses";
 import Achievements from "@/components/Achievements";
 import GraduationRequirements from "@/components/GraduationRequirements";
 import FloatingChatButton from "@/components/FloatingChatButton";
+import Footer from "@/components/Footer";
 
 import { GraduationCap, Bell, Settings, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -374,6 +375,9 @@ export default function Home() {
 
       {/* Floating Chat Button */}
       <FloatingChatButton />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
