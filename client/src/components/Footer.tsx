@@ -52,7 +52,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@aims.edu" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-link-contact">
+                <a href="mailto:Pranav.adurty@gmail.com" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-link-contact">
                   Contact Support
                 </a>
               </li>
@@ -64,12 +64,12 @@ export default function Footer() {
             <h3 className="text-lg font-semibold text-white" data-testid="footer-resources-title">Support</h3>
             <ul className="space-y-2">
               <li>
-                <a href="mailto:support@aims.edu" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-link-support">
+                <a href="mailto:Pranav.adurty@gmail.com" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-link-support">
                   Email Support
                 </a>
               </li>
               <li>
-                <a href="tel:+1-800-246-7338" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-link-phone">
+                <a href="tel:805-501-6142" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-link-phone">
                   Call Us
                 </a>
               </li>
@@ -88,14 +88,14 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start space-x-3">
                 <Mail className="text-primary mt-0.5 flex-shrink-0" size={16} />
-                <a href="mailto:support@aims.edu" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-contact-email">
-                  support@aims.edu
+                <a href="mailto:Pranav.adurty@gmail.com" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-contact-email">
+                  Pranav.adurty@gmail.com
                 </a>
               </li>
               <li className="flex items-start space-x-3">
                 <Phone className="text-primary mt-0.5 flex-shrink-0" size={16} />
-                <a href="tel:+1-800-AIMS-EDU" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-contact-phone">
-                  +1-800-AIMS-EDU
+                <a href="tel:805-501-6142" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-contact-phone">
+                  805-501-6142
                 </a>
               </li>
               <li className="flex items-start space-x-3">
