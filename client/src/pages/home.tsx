@@ -113,8 +113,8 @@ export default function Home() {
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
                     <GraduationCap className="text-white text-base sm:text-lg" />
                   </div>
-                  <span className="ml-2 sm:ml-3 text-lg sm:text-xl font-bold text-gray-900 hidden xs:block">AIMS</span>
-                  <span className="ml-2 sm:ml-3 text-lg sm:text-xl font-bold text-gray-900 hidden sm:block">AI Mentor for Students - AIMS</span>
+                  <span className="ml-2 sm:ml-3 text-lg sm:text-xl font-bold text-gray-900 lg:hidden">AIMS</span>
+                  <span className="ml-2 sm:ml-3 text-lg sm:text-xl font-bold text-gray-900 hidden lg:block">AI Mentor for Students - AIMS</span>
                 </div>
               </div>
             </div>
