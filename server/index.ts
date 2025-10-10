@@ -6,8 +6,6 @@ import { setupVite, serveStatic, log } from "./vite";
 if (process.env.NODE_ENV === "production") {
   const requiredEnvVars = [
     'DATABASE_URL',
-    'REPLIT_DOMAINS', 
-    'REPL_ID',
     'SESSION_SECRET'
   ];
 
@@ -23,6 +21,11 @@ if (process.env.NODE_ENV === "production") {
   }
   
   console.log('✓ All required environment variables are present');
+  
+  // Replit-specific variables are optional
+  if (!process.env.REPLIT_DOMAINS || !process.env.REPL_ID) {
+    console.log('⚠️  Replit OAuth not configured - using local authentication only');
+  }
 }
 
 const app = express();
@@ -79,10 +82,8 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  // Use PORT from environment (Render) or default to 5000 (Replit)
+  const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   server.listen({
     port,
     host: "0.0.0.0",
