@@ -1,7 +1,9 @@
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 import { StudentProfile } from "@shared/schema";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY_NEW || "" });
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY || "" 
+});
 
 export async function getChatResponse(message: string, studentProfile: StudentProfile): Promise<string> {
   try {
@@ -49,17 +51,17 @@ Response formatting guidelines:
 
 Be encouraging, specific, and actionable in all your responses. Always format your responses professionally with clear structure and proper indentation. When students ask about non-academic topics, feel free to engage helpfully while looking for natural opportunities to connect their interests to educational or career possibilities.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      config: {
-        systemInstruction: systemPrompt,
-        maxOutputTokens: 800,
-        temperature: 0.7,
-      },
-      contents: message,
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message }
+      ],
+      max_tokens: 800,
+      temperature: 0.7,
     });
 
-    return response.text || "I apologize, but I couldn't generate a response. Please try asking your question again.";
+    return completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try asking your question again.";
   } catch (error) {
     console.error("Error getting chat response:", error);
     
@@ -67,7 +69,7 @@ Be encouraging, specific, and actionable in all your responses. Always format yo
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorCode = (error as any)?.code;
     
-    if (errorCode === 'insufficient_quota') {
+    if (errorCode === 'insufficient_quota' || errorCode === 'rate_limit_exceeded') {
       return "I'm temporarily unavailable due to API limits. Please try again later.";
     } else if (errorCode === 'invalid_api_key') {
       return "There's a configuration issue with my AI service. Please contact support.";
@@ -107,30 +109,17 @@ Provide a JSON response with:
 - testPrep: test preparation progress score (0-100)
 - recommendations: array of 3-5 specific, actionable recommendations`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "object",
-          properties: {
-            overall: { type: "number" },
-            academic: { type: "number" },
-            extracurricular: { type: "number" },
-            testPrep: { type: "number" },
-            recommendations: {
-              type: "array",
-              items: { type: "string" }
-            }
-          },
-          required: ["overall", "academic", "extracurricular", "testPrep", "recommendations"],
-        },
-        temperature: 0.3,
-      },
-      contents: prompt,
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are an educational analyst. Respond only with valid JSON." },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
     });
 
-    const result = JSON.parse(response.text || "{}");
+    const result = JSON.parse(completion.choices[0]?.message?.content || "{}");
     
     return {
       overall: Math.max(0, Math.min(100, result.overall || 50)),

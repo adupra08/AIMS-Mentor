@@ -29,7 +29,7 @@ The application follows a full-stack architecture with clear separation between 
 - **Database Layer**: Drizzle ORM with PostgreSQL
 - **Authentication**: Passport.js with OpenID Connect (Replit Auth)
 - **Session Management**: Express sessions with PostgreSQL store
-- **AI Services**: OpenAI integration for chat responses and pathway generation
+- **AI Services**: OpenAI GPT-4o-mini for chat responses and student progress analysis
 
 ### Database Schema
 The application uses a comprehensive database schema including:
@@ -143,6 +143,7 @@ Environment variables required:
 
 ## Changelog
 
+- October 14, 2025: **AI MIGRATION** - Switched from Google Gemini to OpenAI GPT-4o-mini for chat and analysis due to quota limits; enhanced Render deployment compatibility with PostgreSQL SSL support
 - August 18, 2025: **PROFILE EDITING SYSTEM** - Added comprehensive profile editing with GPA updates, test scores management, and extracurricular activities modification
 - July 18, 2025 (Evening): **DEPLOYMENT FIXES** - Resolved all deployment configuration errors: added environment variable validation, fixed session table creation, enhanced build process with database schema deployment
 - July 18, 2025 (Evening): Fixed build process - Resolved static file serving path issue, created build-deploy.sh script, verified production build works correctly
