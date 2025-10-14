@@ -15,12 +15,21 @@ if (!process.env.SESSION_SECRET) {
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
+  
+  // Check if we're using standard PostgreSQL (Render) which needs SSL
+  const isNeonDatabase = process.env.DATABASE_URL?.includes('neon.tech');
+  
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: true,
     ttl: sessionTtl,
     tableName: "sessions",
+    // Add SSL configuration for non-Neon databases in production
+    ...((!isNeonDatabase && process.env.NODE_ENV === 'production') && {
+      ssl: { rejectUnauthorized: false }
+    })
   });
+  
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
