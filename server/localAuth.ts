@@ -16,12 +16,20 @@ export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   
-  // Session store configuration
+  // Check if we're using Neon (Replit) or standard PostgreSQL (Render)
+  const isNeonDatabase = process.env.DATABASE_URL?.includes('neon.tech') || false;
+  
+  // Session store configuration with SSL for non-Neon databases
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: true,
     ttl: sessionTtl,
     tableName: "sessions",
+    // Add SSL configuration for standard PostgreSQL (Render, etc.)
+    ...(!isNeonDatabase && process.env.NODE_ENV === 'production' 
+      ? { ssl: { rejectUnauthorized: false } } 
+      : {}
+    ),
   });
   
   return session({
