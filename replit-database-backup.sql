@@ -133,7 +133,6 @@ CREATE SEQUENCE public.chat_messages_id_seq
 
 ALTER SEQUENCE public.chat_messages_id_seq OWNED BY public.chat_messages.id;
 
-
 --
 -- Name: graduation_requirements; Type: TABLE; Schema: public; Owner: -
 --
