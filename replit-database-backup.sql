@@ -143,7 +143,6 @@ CREATE TABLE public.graduation_requirements (
     district text,
     subject text NOT NULL,
     course_title text NOT NULL,
-    credits_required numeric(3,1) NOT NULL,
     is_mandatory boolean DEFAULT true NOT NULL,
     grade_level text,
     description text,
