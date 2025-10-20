@@ -1,5 +1,7 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool as NeonPool, neonConfig } from '@neondatabase/serverless';
+import { Pool as PgPool } from 'pg';
+import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
+import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
 import ws from "ws";
 import * as schema from "@shared/schema";
 
@@ -12,20 +14,23 @@ if (!process.env.DATABASE_URL) {
 // Check if we're using Neon (Replit) or standard PostgreSQL (Render)
 const isNeonDatabase = process.env.DATABASE_URL.includes('neon.tech');
 
+let pool: NeonPool | PgPool;
+let db: ReturnType<typeof drizzleNeon> | ReturnType<typeof drizzlePg>;
+
 if (isNeonDatabase) {
   // Configure for Neon serverless (Replit)
   neonConfig.webSocketConstructor = ws;
+  pool = new NeonPool({ connectionString: process.env.DATABASE_URL });
+  db = drizzleNeon({ client: pool, schema });
 } else {
   // Configure for standard PostgreSQL (Render, etc.)
-  neonConfig.webSocketConstructor = undefined as any;
+  pool = new PgPool({ 
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' 
+      ? { rejectUnauthorized: false } 
+      : false
+  });
+  db = drizzlePg({ client: pool, schema });
 }
 
-// Create connection pool with SSL for production non-Neon databases
-export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
-  ssl: !isNeonDatabase && process.env.NODE_ENV === 'production' 
-    ? { rejectUnauthorized: false } 
-    : false
-});
-
-export const db = drizzle({ client: pool, schema });
+export { pool, db };
