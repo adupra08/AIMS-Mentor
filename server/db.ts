@@ -24,12 +24,22 @@ if (isNeonDatabase) {
   db = drizzleNeon({ client: pool, schema });
 } else {
   // Configure for standard PostgreSQL (Render, etc.)
-  pool = new PgPool({ 
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' 
-      ? { rejectUnauthorized: false } 
-      : false
-  });
+  // Parse connection string to check if SSL is specified
+  const connectionString = process.env.DATABASE_URL;
+  const requireSSL = connectionString.includes('sslmode=require');
+  
+  const poolConfig: any = {
+    connectionString: connectionString
+  };
+  
+  // Only add SSL config if in production or SSL is required
+  if (process.env.NODE_ENV === 'production' || requireSSL) {
+    poolConfig.ssl = {
+      rejectUnauthorized: false  // Accept self-signed certificates
+    };
+  }
+    
+  pool = new PgPool(poolConfig);
   db = drizzlePg({ client: pool, schema });
 }
 
