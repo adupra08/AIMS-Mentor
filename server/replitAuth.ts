@@ -7,6 +7,7 @@ import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
+import { pool } from "./db";
 
 // SESSION_SECRET is always required
 if (!process.env.SESSION_SECRET) {
@@ -34,9 +35,9 @@ export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   
-  // Session store configuration
+  // Use the same database pool from db.ts which already has SSL configured
   const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
+    pool: pool as any, // Use the existing pool with SSL configuration
     createTableIfMissing: true,
     ttl: sessionTtl,
     tableName: "sessions",

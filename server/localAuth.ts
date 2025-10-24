@@ -6,6 +6,7 @@ import connectPg from "connect-pg-simple";
 import argon2 from "argon2";
 import { v4 as uuidv4 } from "uuid";
 import { storage } from "./storage";
+import { pool } from "./db";
 
 // Validate required environment variables
 if (!process.env.SESSION_SECRET) {
@@ -16,20 +17,12 @@ export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   
-  // Check if we're using Neon (Replit) or standard PostgreSQL (Render)
-  const isNeonDatabase = process.env.DATABASE_URL?.includes('neon.tech') || false;
-  
-  // Session store configuration with SSL for non-Neon databases
+  // Use the same database pool from db.ts which already has SSL configured
   const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
+    pool: pool as any, // Use the existing pool with SSL configuration
     createTableIfMissing: true,
     ttl: sessionTtl,
     tableName: "sessions",
-    // Add SSL configuration for standard PostgreSQL (Render, etc.)
-    ...(!isNeonDatabase && process.env.NODE_ENV === 'production' 
-      ? { ssl: { rejectUnauthorized: false } } 
-      : {}
-    ),
   });
   
   return session({
