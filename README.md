@@ -2,10 +2,7 @@
 
 A comprehensive AI-powered academic mentoring platform that helps high school students create personalized pathways to reach their dream colleges.
 
-## Live Demo
-**Try the live app here: [Open Live Demo](https://ai-student-mentor-pranavadurty1.replit.app/home) 🚀**
-
-## Running Locally
+## 🚀 Running Locally
 
 ### Prerequisites
 
