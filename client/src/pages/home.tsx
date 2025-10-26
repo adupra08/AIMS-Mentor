@@ -107,21 +107,21 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo and Brand */}
-            <div className="flex items-center">
+            <div className="flex items-center pr-8">
               <div className="flex-shrink-0">
                 <div className="flex items-center">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
                     <GraduationCap className="text-white text-base sm:text-lg" />
                   </div>
                   <span className="ml-2 sm:ml-3 text-lg sm:text-xl font-bold text-gray-900 lg:hidden">AIMS</span>
-                  <span className="ml-2 sm:ml-3 text-lg sm:text-xl font-bold text-gray-900 hidden lg:block">AI Mentor for Students - AIMS</span>
+                  <span className="ml-2 sm:ml-3 text-base lg:text-lg font-bold text-gray-900 hidden lg:block">AI Mentor for Students - AIMS</span>
                 </div>
               </div>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:block">
-              <div className="flex items-baseline space-x-2 xl:space-x-4">
+              <div className="flex items-baseline space-x-4 xl:space-x-6">
                 <button 
                   onClick={() => setActiveTab('dashboard')}
                   className={`px-2 xl:px-3 py-2 rounded-md text-xs xl:text-sm font-medium transition-colors ${
