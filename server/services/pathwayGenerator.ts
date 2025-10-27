@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { StudentProfile } from "@shared/schema";
 
 const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
+  apiKey: process.env.OPENAI_API_KEY || ""
 });
 
 export async function generateAcademicPathway(studentProfile: StudentProfile): Promise<{

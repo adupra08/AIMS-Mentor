@@ -6,7 +6,8 @@ import { setupVite, serveStatic, log } from "./vite";
 if (process.env.NODE_ENV === "production") {
   const requiredEnvVars = [
     'DATABASE_URL',
-    'SESSION_SECRET'
+    'SESSION_SECRET',
+    'OPENAI_API_KEY'
   ];
 
   const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
