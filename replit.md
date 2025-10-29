@@ -123,6 +123,16 @@ Environment variables required:
 
 ## Recent Updates
 
+### October 29, 2025 - **STATE-SPECIFIC GRADUATION REQUIREMENTS** ✅
+- **State Selector**: Added dropdown to select state and view state-specific graduation requirements
+- **Available States**: California, New York, and Texas graduation requirements pre-loaded
+- **Dynamic Requirements**: Requirements update in real-time when state is changed
+- **Profile Integration**: Selected state saves to student profile for future sessions
+- **API Endpoints**: 
+  - GET /api/graduation-requirements/states - Returns available states
+  - GET /api/student/graduation-requirements?state={state} - Returns state-specific requirements
+- **User Experience**: MapPin icon with clean dropdown interface, toast notifications on state updates
+
 ### October 29, 2025 - **DEADLINE NOTIFICATION SYSTEM** ✅
 - **Real-time Notifications**: Added bell icon in header with live badge counter showing upcoming deadlines
 - **Smart Filtering**: Automatically tracks incomplete todos and bookmarked opportunities expiring within 7 days
@@ -156,6 +166,7 @@ Environment variables required:
 
 ## Changelog
 
+- October 29, 2025: **STATE-SPECIFIC GRADUATION REQUIREMENTS** - Added state selector dropdown allowing students to view graduation requirements specific to their state (California, New York, Texas); requirements update dynamically with profile persistence
 - October 29, 2025: **DEADLINE NOTIFICATION SYSTEM** - Implemented real-time deadline notifications with bell icon, badge counter, and popover displaying upcoming todos/opportunities within 7 days
 - October 14, 2025: **AI MIGRATION** - Switched from Google Gemini to OpenAI GPT-4o-mini for chat and analysis due to quota limits; enhanced Render deployment compatibility with PostgreSQL SSL support
 - August 18, 2025: **PROFILE EDITING SYSTEM** - Added comprehensive profile editing with GPA updates, test scores management, and extracurricular activities modification
