@@ -123,6 +123,19 @@ Environment variables required:
 
 ## Recent Updates
 
+### October 29, 2025 - **DEADLINE NOTIFICATION SYSTEM** ✅
+- **Real-time Notifications**: Added bell icon in header with live badge counter showing upcoming deadlines
+- **Smart Filtering**: Automatically tracks incomplete todos and bookmarked opportunities expiring within 7 days
+- **Visual Feedback**: Red notification badge displays count of upcoming items
+- **Notification Popover**: Dropdown panel shows:
+  - Task/opportunity titles
+  - Days remaining until deadline
+  - Priority indicators (high priority items highlighted)
+  - Empty state when no deadlines approaching
+- **Auto-refresh**: Notifications update automatically every 5 minutes
+- **Date Logic**: Uses inclusive date range from start of today through end of 7th day
+- **API Endpoint**: GET /api/student/notifications returns structured notification data
+
 ### August 18, 2025 - **PROFILE EDITING SYSTEM** ✅
 - **Enhanced ProfileSettings Component**: Added comprehensive profile editing with tabbed interface
 - **Basic Info Tab**: Edit first name, last name (email read-only)
@@ -143,6 +156,7 @@ Environment variables required:
 
 ## Changelog
 
+- October 29, 2025: **DEADLINE NOTIFICATION SYSTEM** - Implemented real-time deadline notifications with bell icon, badge counter, and popover displaying upcoming todos/opportunities within 7 days
 - October 14, 2025: **AI MIGRATION** - Switched from Google Gemini to OpenAI GPT-4o-mini for chat and analysis due to quota limits; enhanced Render deployment compatibility with PostgreSQL SSL support
 - August 18, 2025: **PROFILE EDITING SYSTEM** - Added comprehensive profile editing with GPA updates, test scores management, and extracurricular activities modification
 - July 18, 2025 (Evening): **DEPLOYMENT FIXES** - Resolved all deployment configuration errors: added environment variable validation, fixed session table creation, enhanced build process with database schema deployment
