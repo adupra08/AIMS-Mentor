@@ -494,6 +494,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Notifications endpoint - get upcoming deadlines
+  app.get('/api/student/notifications', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const profile = await storage.getStudentProfile(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+
+      // Get current date and date 7 days from now
+      const now = new Date();
+      const sevenDaysFromNow = new Date();
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+      // Get all opportunities and filter for upcoming deadlines
+      const allOpportunities = await storage.getOpportunities({});
+      const upcomingOpportunities = allOpportunities.filter(opp => {
+        if (!opp.deadline) return false;
+        const deadline = new Date(opp.deadline);
+        return deadline >= now && deadline <= sevenDaysFromNow;
+      });
+
+      // Get student's bookmarked opportunities
+      const bookmarkedOpportunities = await storage.getStudentOpportunities(profile.id);
+      const bookmarkedIds = new Set(bookmarkedOpportunities.map(o => o.opportunityId));
+
+      // Filter to only show notifications for bookmarked opportunities
+      const opportunityNotifications = upcomingOpportunities
+        .filter(opp => bookmarkedIds.has(opp.id))
+        .map(opp => ({
+          id: `opportunity-${opp.id}`,
+          type: 'opportunity',
+          title: opp.title,
+          deadline: opp.deadline,
+          daysRemaining: Math.ceil((new Date(opp.deadline!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+          priority: new Date(opp.deadline!).getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000 ? 'high' : 'medium'
+        }));
+
+      // Get incomplete todos with upcoming due dates
+      const allTodos = await storage.getStudentTodos(profile.id);
+      const todoNotifications = allTodos
+        .filter(todo => !todo.isCompleted && todo.dueDate)
+        .filter(todo => {
+          const dueDate = new Date(todo.dueDate!);
+          return dueDate >= now && dueDate <= sevenDaysFromNow;
+        })
+        .map(todo => ({
+          id: `todo-${todo.id}`,
+          type: 'todo',
+          title: todo.title,
+          deadline: todo.dueDate,
+          daysRemaining: Math.ceil((new Date(todo.dueDate!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+          priority: todo.priority === 'high' ? 'high' : 
+                   new Date(todo.dueDate!).getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000 ? 'high' : 'medium'
+        }));
+
+      // Combine and sort by deadline
+      const notifications = [...opportunityNotifications, ...todoNotifications]
+        .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime());
+
+      res.json({
+        notifications,
+        count: notifications.length
+      });
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
   // Chat routes
   app.get('/api/student/chat', isAuthenticated, async (req: any, res) => {
     try {
