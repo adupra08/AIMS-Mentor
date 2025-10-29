@@ -14,18 +14,21 @@ if (!process.env.SESSION_SECRET) {
   throw new Error("Environment variable SESSION_SECRET not provided");
 }
 
-// Replit OAuth is optional (for non-Replit deployments)
-const isReplitAuthEnabled = process.env.REPLIT_DOMAINS && process.env.REPL_ID;
+// OAuth is optional (requires OAUTH_DOMAINS and OAUTH_CLIENT_ID)
+const isOAuthEnabled = process.env.OAUTH_DOMAINS && process.env.OAUTH_CLIENT_ID;
 
-if (!isReplitAuthEnabled) {
-  console.log("⚠️  Replit OAuth disabled - REPLIT_DOMAINS or REPL_ID not provided");
+if (!isOAuthEnabled) {
+  console.log("⚠️  OAuth disabled - OAUTH_DOMAINS or OAUTH_CLIENT_ID not provided");
 }
 
 const getOidcConfig = memoize(
   async () => {
+    if (!process.env.ISSUER_URL || !process.env.OAUTH_CLIENT_ID) {
+      throw new Error("ISSUER_URL and OAUTH_CLIENT_ID are required for OAuth");
+    }
     return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
+      new URL(process.env.ISSUER_URL),
+      process.env.OAUTH_CLIENT_ID
     );
   },
   { maxAge: 3600 * 1000 }
@@ -84,8 +87,8 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // Only set up Replit OAuth if environment variables are present
-  if (isReplitAuthEnabled) {
+  // Only set up OAuth if environment variables are present
+  if (isOAuthEnabled) {
     const config = await getOidcConfig();
 
     const verify: VerifyFunction = async (
@@ -99,10 +102,10 @@ export async function setupAuth(app: Express) {
     };
 
     for (const domain of process.env
-      .REPLIT_DOMAINS!.split(",")) {
+      .OAUTH_DOMAINS!.split(",")) {
       const strategy = new Strategy(
         {
-          name: `replitauth:${domain}`,
+          name: `oidcauth:${domain}`,
           config,
           scope: "openid email profile offline_access",
           callbackURL: `https://${domain}/api/callback`,
@@ -116,14 +119,14 @@ export async function setupAuth(app: Express) {
     passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
     app.get("/api/login", (req, res, next) => {
-      passport.authenticate(`replitauth:${req.hostname}`, {
+      passport.authenticate(`oidcauth:${req.hostname}`, {
         prompt: "login consent",
         scope: ["openid", "email", "profile", "offline_access"],
       })(req, res, next);
     });
 
     app.get("/api/callback", (req, res, next) => {
-      passport.authenticate(`replitauth:${req.hostname}`, {
+      passport.authenticate(`oidcauth:${req.hostname}`, {
         successReturnToOrRedirect: "/",
         failureRedirect: "/api/login",
       })(req, res, next);
@@ -133,7 +136,7 @@ export async function setupAuth(app: Express) {
       req.logout(() => {
         res.redirect(
           client.buildEndSessionUrl(config, {
-            client_id: process.env.REPL_ID!,
+            client_id: process.env.OAUTH_CLIENT_ID!,
             post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
           }).href
         );

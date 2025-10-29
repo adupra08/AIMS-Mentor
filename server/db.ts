@@ -11,19 +11,19 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Check if we're using Neon (Replit) or standard PostgreSQL (Render)
+// Check if we're using Neon serverless or standard PostgreSQL
 const isNeonDatabase = process.env.DATABASE_URL.includes('neon.tech');
 
 let pool: NeonPool | PgPool;
 let db: ReturnType<typeof drizzleNeon> | ReturnType<typeof drizzlePg>;
 
 if (isNeonDatabase) {
-  // Configure for Neon serverless (Replit)
+  // Configure for Neon serverless database
   neonConfig.webSocketConstructor = ws;
   pool = new NeonPool({ connectionString: process.env.DATABASE_URL });
   db = drizzleNeon({ client: pool, schema });
 } else {
-  // Configure for standard PostgreSQL (Render, etc.)
+  // Configure for standard PostgreSQL
   const connectionString = process.env.DATABASE_URL;
   
   // Remove any sslmode parameters from the connection string

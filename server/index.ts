@@ -22,11 +22,6 @@ if (process.env.NODE_ENV === "production") {
   }
   
   console.log('✓ All required environment variables are present');
-  
-  // Replit-specific variables are optional
-  if (!process.env.REPLIT_DOMAINS || !process.env.REPL_ID) {
-    console.log('⚠️  Replit OAuth not configured - using local authentication only');
-  }
 }
 
 const app = express();
@@ -83,7 +78,7 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Use PORT from environment (Render) or default to 5000 (Replit)
+  // Use PORT from environment or default to 5000
   const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   server.listen({
     port,

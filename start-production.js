@@ -11,8 +11,6 @@ const __dirname = dirname(__filename);
 // Check required environment variables
 const requiredEnvVars = [
   'DATABASE_URL',
-  'REPLIT_DOMAINS', 
-  'REPL_ID',
   'SESSION_SECRET'
 ];
 
