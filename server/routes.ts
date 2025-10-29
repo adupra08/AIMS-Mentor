@@ -621,6 +621,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Graduation requirements routes
+  app.get('/api/graduation-requirements/states', async (req, res) => {
+    try {
+      const states = await storage.getAvailableStates();
+      res.json({ states });
+    } catch (error) {
+      console.error("Error fetching available states:", error);
+      res.status(500).json({ message: "Failed to fetch states" });
+    }
+  });
+
   app.get('/api/student/graduation-requirements', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
@@ -629,7 +639,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Student profile not found" });
       }
       
-      const requirements = await storage.getGraduationRequirements(profile.state || 'California');
+      // Get state from query parameter or use profile state or default to California
+      const state = (req.query.state as string) || profile.state || 'California';
+      
+      const requirements = await storage.getGraduationRequirements(state);
       const progress = await storage.getStudentCourseProgress(profile.id);
       
       res.json({ requirements, progress });

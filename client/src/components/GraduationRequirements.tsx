@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { BookOpen, CheckCircle, Clock, AlertCircle, Plus, Award, GraduationCap } from "lucide-react";
+import { BookOpen, CheckCircle, Clock, AlertCircle, Plus, Award, GraduationCap, MapPin } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -58,13 +58,58 @@ const courseProgressSchema = z.object({
 export default function GraduationRequirements({ studentProfile }: GraduationRequirementsProps) {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedState, setSelectedState] = useState(studentProfile.state || "California");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["/api/student/graduation-requirements"],
+    queryKey: ["/api/student/graduation-requirements", selectedState],
+    queryFn: async () => {
+      const response = await fetch(`/api/student/graduation-requirements?state=${selectedState}`);
+      if (!response.ok) throw new Error("Failed to fetch graduation requirements");
+      return response.json();
+    },
   });
 
   const requirements: GraduationRequirement[] = (data as { requirements: GraduationRequirement[]; progress: StudentCourseProgress[] })?.requirements || [];
   const progress: StudentCourseProgress[] = (data as { requirements: GraduationRequirement[]; progress: StudentCourseProgress[] })?.progress || [];
+
+  // Get available states
+  const { data: statesData } = useQuery({
+    queryKey: ["/api/graduation-requirements/states"],
+    queryFn: async () => {
+      const response = await fetch("/api/graduation-requirements/states");
+      if (!response.ok) throw new Error("Failed to fetch states");
+      return response.json();
+    },
+  });
+
+  const availableStates: string[] = statesData?.states || ["California", "New York", "Texas"];
+
+  // Update student profile state when changed
+  const updateStateMutation = useMutation({
+    mutationFn: async (newState: string) => {
+      const response = await apiRequest("PATCH", "/api/student/profile", { state: newState });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/student/profile"] });
+      toast({
+        title: "State Updated",
+        description: "Your state preference has been saved.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update state preference.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleStateChange = (newState: string) => {
+    setSelectedState(newState);
+    updateStateMutation.mutate(newState);
+  };
 
   const form = useForm<z.infer<typeof courseProgressSchema>>({
     resolver: zodResolver(courseProgressSchema),
@@ -159,22 +204,38 @@ export default function GraduationRequirements({ studentProfile }: GraduationReq
   return (
     <Card className="shadow-sm border border-gray-200">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <CardTitle className="text-xl font-semibold text-gray-900 flex items-center">
             <GraduationCap className="w-5 h-5 mr-2" />
-            Graduation Requirements as per {studentProfile.state || 'your state'}
+            Graduation Requirements
           </CardTitle>
-          <div className="flex items-center space-x-3">
-            <div className="text-sm text-gray-600">
-              <span className="font-medium">{totalEarnedCredits.toFixed(1)}</span> / {totalRequiredCredits} credits
-            </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="bg-primary hover:bg-primary/90">
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Course
-                </Button>
-              </DialogTrigger>
+          <div className="flex items-center space-x-2">
+            <MapPin className="w-4 h-4 text-gray-500" />
+            <Select value={selectedState} onValueChange={handleStateChange}>
+              <SelectTrigger className="w-[180px]" data-testid="state-selector">
+                <SelectValue placeholder="Select state" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableStates.map((state) => (
+                  <SelectItem key={state} value={state} data-testid={`state-option-${state.toLowerCase().replace(/\s+/g, '-')}`}>
+                    {state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-sm text-gray-600">
+            <span className="font-medium">{totalEarnedCredits.toFixed(1)}</span> / {totalRequiredCredits} credits
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="bg-primary hover:bg-primary/90" data-testid="add-course-button">
+                <Plus className="w-4 h-4 mr-1" />
+                Add Course
+              </Button>
+            </DialogTrigger>
               <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>Add Course Progress</DialogTitle>
@@ -283,7 +344,6 @@ export default function GraduationRequirements({ studentProfile }: GraduationReq
               </DialogContent>
             </Dialog>
           </div>
-        </div>
         <div className="mt-4">
           <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
             <span>Overall Progress</span>

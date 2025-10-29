@@ -91,6 +91,7 @@ export interface IStorage {
   updateAchievement(id: number, updates: Partial<InsertAchievement>): Promise<Achievement>;
   
   // Graduation requirements operations
+  getAvailableStates(): Promise<string[]>;
   getGraduationRequirements(state: string): Promise<GraduationRequirement[]>;
   getStudentCourseProgress(studentId: number): Promise<StudentCourseProgress[]>;
   createStudentCourseProgress(progress: InsertStudentCourseProgress): Promise<StudentCourseProgress>;
@@ -794,6 +795,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Graduation requirements operations
+  async getAvailableStates(): Promise<string[]> {
+    const result = await db
+      .selectDistinct({ state: graduationRequirements.state })
+      .from(graduationRequirements);
+    return result.map(r => r.state).sort();
+  }
+
   async getGraduationRequirements(state: string): Promise<GraduationRequirement[]> {
     return await db
       .select()
