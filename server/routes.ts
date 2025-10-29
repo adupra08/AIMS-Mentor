@@ -503,10 +503,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Student profile not found" });
       }
 
-      // Get current date and date 7 days from now
+      // Get current date (start of today) and date 7 days from now (end of day)
       const now = new Date();
+      now.setHours(0, 0, 0, 0); // Start of today
       const sevenDaysFromNow = new Date();
       sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+      sevenDaysFromNow.setHours(23, 59, 59, 999); // End of the day 7 days from now
 
       // Get all opportunities and filter for upcoming deadlines
       const allOpportunities = await storage.getOpportunities({});
@@ -520,6 +522,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const bookmarkedOpportunities = await storage.getStudentOpportunities(profile.id);
       const bookmarkedIds = new Set(bookmarkedOpportunities.map(o => o.opportunityId));
 
+      // Use current timestamp for accurate day calculations
+      const currentTime = new Date();
+
       // Filter to only show notifications for bookmarked opportunities
       const opportunityNotifications = upcomingOpportunities
         .filter(opp => bookmarkedIds.has(opp.id))
@@ -528,8 +533,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: 'opportunity',
           title: opp.title,
           deadline: opp.deadline,
-          daysRemaining: Math.ceil((new Date(opp.deadline!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
-          priority: new Date(opp.deadline!).getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000 ? 'high' : 'medium'
+          daysRemaining: Math.ceil((new Date(opp.deadline!).getTime() - currentTime.getTime()) / (1000 * 60 * 60 * 24)),
+          priority: new Date(opp.deadline!).getTime() - currentTime.getTime() < 3 * 24 * 60 * 60 * 1000 ? 'high' : 'medium'
         }));
 
       // Get incomplete todos with upcoming due dates
@@ -545,9 +550,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: 'todo',
           title: todo.title,
           deadline: todo.dueDate,
-          daysRemaining: Math.ceil((new Date(todo.dueDate!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+          daysRemaining: Math.ceil((new Date(todo.dueDate!).getTime() - currentTime.getTime()) / (1000 * 60 * 60 * 24)),
           priority: todo.priority === 'high' ? 'high' : 
-                   new Date(todo.dueDate!).getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000 ? 'high' : 'medium'
+                   new Date(todo.dueDate!).getTime() - currentTime.getTime() < 3 * 24 * 60 * 60 * 1000 ? 'high' : 'medium'
         }));
 
       // Combine and sort by deadline
