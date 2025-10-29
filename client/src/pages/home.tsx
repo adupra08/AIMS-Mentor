@@ -18,8 +18,9 @@ import Achievements from "@/components/Achievements";
 import GraduationRequirements from "@/components/GraduationRequirements";
 import FloatingChatButton from "@/components/FloatingChatButton";
 import Footer from "@/components/Footer";
+import NotificationPopover from "@/components/NotificationPopover";
 
-import { GraduationCap, Bell, Settings, Menu, X } from "lucide-react";
+import { GraduationCap, Settings, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -174,9 +175,9 @@ export default function Home() {
             {/* Right Side Actions */}
             <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Notifications - Hidden on small screens */}
-              <button className="hidden sm:block text-gray-500 hover:text-primary p-2 rounded-md transition-colors">
-                <Bell className="w-5 h-5" />
-              </button>
+              <div className="hidden sm:block">
+                <NotificationPopover />
+              </div>
               
               {/* Settings */}
               <button 
