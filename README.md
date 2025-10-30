@@ -2,7 +2,7 @@
 
 A comprehensive AI-powered academic mentoring platform that helps high school students create personalized pathways to reach their dream colleges.
 
-## 🚀 Running Locally
+## Running Locally
 
 ### Prerequisites
 
@@ -132,16 +132,16 @@ npm run start
 
 Make sure to set `NODE_ENV=production` and use proper database credentials.
 
-## 📖 Features
+## Features
 
 - AI-powered academic mentoring
 - Personalized college pathway recommendations
 - Opportunity matching for competitions and programs
 - Progress tracking and achievements
-- Real-time chat with AI mentor
+- Real-time chat with an AI mentor
 - Secure authentication and user profiles
 
-## 🔧 Tech Stack
+## Tech Stack
 
 - React.js with TypeScript
 - Express.js backend
@@ -149,8 +149,3 @@ Make sure to set `NODE_ENV=production` and use proper database credentials.
 - OpenAI GPT-4o integration
 - Drizzle ORM
 - shadcn/ui components
-- Tailwind CSS styling
-
-## 📞 Support
-
-For issues or questions, check the troubleshooting section above or refer to the project documentation.
