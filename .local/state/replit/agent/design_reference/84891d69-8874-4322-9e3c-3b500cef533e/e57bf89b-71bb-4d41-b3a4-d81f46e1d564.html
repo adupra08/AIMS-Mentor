@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIMS - AI Mentor for Students</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="font-inter bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+                                <i class="fas fa-graduation-cap text-white text-lg"></i>
+                            </div>
+                            <span class="ml-3 text-xl font-bold text-dark">AIMS</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#" class="text-dark hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="#" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Pathways</a>
+                        <a href="#" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Opportunities</a>
+                        <a href="#" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Progress</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-primary">
+                        <i class="fas fa-bell text-lg"></i>
+                    </button>
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-medium">JS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <!-- @COMPONENT: WelcomeHeader -->
+        <div class="mb-8">
+            <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2" data-bind="user.name">Welcome back, John! 👋</h1>
+                        <p class="text-blue-100 text-lg">Let's continue your journey to Princeton University</p>
+                        <div class="mt-4 flex items-center space-x-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar-check mr-2"></i>
+                                <span class="text-sm">Grade: <span data-bind="user.grade" class="font-semibold">9th</span></span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-chart-line mr-2"></i>
+                                <span class="text-sm">GPA: <span data-bind="user.gpa" class="font-semibold">3.8</span></span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-target mr-2"></i>
+                                <span class="text-sm">Progress: <span data-bind="user.progress" class="font-semibold">68%</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="relative">
+                            <div class="w-32 h-32 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold">68%</div>
+                                    <div class="text-sm opacity-90">Complete</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: WelcomeHeader -->
+
+        <!-- Quick Actions & AI Chat -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Quick Actions -->
+            <!-- @COMPONENT: QuickActions -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-semibold text-dark mb-6">Quick Actions</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button class="flex flex-col items-center p-4 rounded-lg bg-primary bg-opacity-10 hover:bg-opacity-20 transition-all duration-200 group">
+                            <i class="fas fa-route text-primary text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium text-dark">View Pathway</span>
+                        </button>
+                        <button class="flex flex-col items-center p-4 rounded-lg bg-secondary bg-opacity-10 hover:bg-opacity-20 transition-all duration-200 group">
+                            <i class="fas fa-trophy text-secondary text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium text-dark">Competitions</span>
+                        </button>
+                        <button class="flex flex-col items-center p-4 rounded-lg bg-accent bg-opacity-10 hover:bg-opacity-20 transition-all duration-200 group">
+                            <i class="fas fa-book-open text-accent text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium text-dark">AP Courses</span>
+                        </button>
+                        <button class="flex flex-col items-center p-4 rounded-lg bg-purple-100 hover:bg-purple-200 transition-all duration-200 group">
+                            <i class="fas fa-handshake text-purple-600 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium text-dark">Internships</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: QuickActions -->
+
+            <!-- AI Chat Widget -->
+            <!-- @COMPONENT: AIChatWidget -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-dark">AI Mentor</h3>
+                    <div class="w-3 h-3 bg-secondary rounded-full animate-pulse"></div>
+                </div>
+                <div class="space-y-3 mb-4 max-h-40 overflow-y-auto">
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-white text-xs"></i>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-3 text-sm">
+                            <p data-mock="true">Hi John! I noticed you haven't started your SAT prep yet. Would you like me to create a study schedule?</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="text" placeholder="Ask me anything..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <button class="p-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: AIChatWidget -->
+        </div>
+
+        <!-- Personalized Pathway -->
+        <div class="mb-8">
+            <!-- @COMPONENT: PersonalizedPathway -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-dark">Your Personalized Pathway to Princeton</h2>
+                    <button class="text-primary hover:text-blue-600 text-sm font-medium">
+                        View Full Pathway <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <!-- 9th Grade -->
+                    <div class="relative">
+                        <div class="text-center mb-4">
+                            <div class="w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-check text-lg"></i>
+                            </div>
+                            <h3 class="font-semibold text-dark">9th Grade</h3>
+                            <p class="text-sm text-gray-500">Current</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-green-800">Algebra II Honors</span>
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-blue-800">Science Olympiad</span>
+                                    <i class="fas fa-clock text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">Build Strong Foundation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 10th Grade -->
+                    <div class="relative">
+                        <div class="text-center mb-4">
+                            <div class="w-12 h-12 bg-blue-100 text-primary border-2 border-primary rounded-full flex items-center justify-center mx-auto mb-2">
+                                <span class="text-lg font-bold">10</span>
+                            </div>
+                            <h3 class="font-semibold text-dark">10th Grade</h3>
+                            <p class="text-sm text-gray-500">Next</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">AP Calculus AB</span>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">PSAT Prep</span>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">Research Project</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 11th Grade -->
+                    <div class="relative">
+                        <div class="text-center mb-4">
+                            <div class="w-12 h-12 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <span class="text-lg font-bold">11</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-400">11th Grade</h3>
+                            <p class="text-sm text-gray-400">Future</p>
+                        </div>
+                        <div class="space-y-3 opacity-50">
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">AP Calculus BC</span>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">SAT Preparation</span>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">Leadership Role</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 12th Grade -->
+                    <div class="relative">
+                        <div class="text-center mb-4">
+                            <div class="w-12 h-12 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <span class="text-lg font-bold">12</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-400">12th Grade</h3>
+                            <p class="text-sm text-gray-400">Future</p>
+                        </div>
+                        <div class="space-y-3 opacity-50">
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">College Applications</span>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">Final Portfolio</span>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <span class="text-sm font-medium text-gray-600">Admission Results</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: PersonalizedPathway -->
+        </div>
+
+        <!-- Current Opportunities & To-Do -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Current Opportunities -->
+            <!-- @COMPONENT: CurrentOpportunities -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-dark">Upcoming Opportunities</h2>
+                    <button class="text-primary hover:text-blue-600 text-sm font-medium">View All</button>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- @MAP: opportunities.map(opportunity => ( -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-dark mb-1" data-mock="true">NASA Human Rover Competition</h3>
+                                <p class="text-sm text-gray-600 mb-2" data-mock="true">Perfect for students interested in STEM and engineering</p>
+                                <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                    <span><i class="fas fa-calendar mr-1"></i>Due: Dec 15, 2024</span>
+                                    <span><i class="fas fa-users mr-1"></i>Team Based</span>
+                                    <span class="bg-accent bg-opacity-20 text-accent px-2 py-1 rounded">High Match</span>
+                                </div>
+                            </div>
+                            <button class="ml-4 text-primary hover:text-blue-600">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-dark mb-1" data-mock="true">Congressional App Challenge</h3>
+                                <p class="text-sm text-gray-600 mb-2" data-mock="true">Create an app that helps solve problems in your community</p>
+                                <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                    <span><i class="fas fa-calendar mr-1"></i>Due: Nov 1, 2024</span>
+                                    <span><i class="fas fa-user mr-1"></i>Individual</span>
+                                    <span class="bg-secondary bg-opacity-20 text-secondary px-2 py-1 rounded">Perfect Match</span>
+                                </div>
+                            </div>
+                            <button class="ml-4 text-primary hover:text-blue-600">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-dark mb-1" data-mock="true">Local Hospital Internship</h3>
+                                <p class="text-sm text-gray-600 mb-2" data-mock="true">Summer volunteer opportunity at Texas Children's Hospital</p>
+                                <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                    <span><i class="fas fa-calendar mr-1"></i>Apply by: Jan 15, 2025</span>
+                                    <span><i class="fas fa-map-marker-alt mr-1"></i>Houston, TX</span>
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">Local</span>
+                                </div>
+                            </div>
+                            <button class="ml-4 text-primary hover:text-blue-600">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+            </div>
+            <!-- @END_COMPONENT: CurrentOpportunities -->
+
+            <!-- To-Do List -->
+            <!-- @COMPONENT: TodoList -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-dark">This Week's To-Do</h2>
+                    <span class="text-sm text-gray-500">3 of 7 completed</span>
+                </div>
+                
+                <div class="space-y-3">
+                    <!-- @MAP: todos.map(todo => ( -->
+                    <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                        <input type="checkbox" checked class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" data-implementation="Handle todo completion">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 line-through" data-mock="true">Submit Science Olympiad registration</p>
+                            <p class="text-xs text-gray-400">Due: Today</p>
+                        </div>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Complete</span>
+                    </div>
+
+                    <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                        <input type="checkbox" checked class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 line-through" data-mock="true">Meet with AP Calculus teacher</p>
+                            <p class="text-xs text-gray-400">Due: Yesterday</p>
+                        </div>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Complete</span>
+                    </div>
+
+                    <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 border-l-4 border-accent">
+                        <input type="checkbox" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-dark" data-mock="true">Research NASA Rover Competition requirements</p>
+                            <p class="text-xs text-gray-500">Due: Tomorrow</p>
+                        </div>
+                        <span class="text-xs bg-accent bg-opacity-20 text-accent px-2 py-1 rounded">High Priority</span>
+                    </div>
+
+                    <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                        <input type="checkbox" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-dark" data-mock="true">Start SAT prep chapter 3</p>
+                            <p class="text-xs text-gray-500">Due: Friday</p>
+                        </div>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Study</span>
+                    </div>
+
+                    <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                        <input type="checkbox" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-dark" data-mock="true">Update college research spreadsheet</p>
+                            <p class="text-xs text-gray-500">Due: This weekend</p>
+                        </div>
+                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Research</span>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+
+                <button class="w-full mt-4 py-2 text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Add New Task
+                </button>
+            </div>
+            <!-- @END_COMPONENT: TodoList -->
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="mb-8">
+            <!-- @COMPONENT: ProgressOverview -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-semibold text-dark mb-6">Academic Progress Overview</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="relative w-20 h-20 mx-auto mb-3">
+                            <div class="w-20 h-20 bg-gray-200 rounded-full"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full" style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%, 0% 0%); width: 68%;"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-dark">68%</span>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-dark">Overall Progress</h3>
+                        <p class="text-sm text-gray-500">On track for Princeton</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="relative w-20 h-20 mx-auto mb-3">
+                            <div class="w-20 h-20 bg-gray-200 rounded-full"></div>
+                            <div class="absolute inset-0 bg-secondary rounded-full" style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%, 0% 0%); width: 85%;"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-dark">85%</span>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-dark">Academic Performance</h3>
+                        <p class="text-sm text-gray-500">GPA: 3.8/4.0</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="relative w-20 h-20 mx-auto mb-3">
+                            <div class="w-20 h-20 bg-gray-200 rounded-full"></div>
+                            <div class="absolute inset-0 bg-accent rounded-full" style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%, 0% 0%); width: 45%;"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-dark">45%</span>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-dark">Extracurriculars</h3>
+                        <p class="text-sm text-gray-500">Need improvement</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="relative w-20 h-20 mx-auto mb-3">
+                            <div class="w-20 h-20 bg-gray-200 rounded-full"></div>
+                            <div class="absolute inset-0 bg-purple-500 rounded-full" style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%, 0% 0%); width: 30%;"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-dark">30%</span>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-dark">Test Prep</h3>
+                        <p class="text-sm text-gray-500">Just started</p>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: ProgressOverview -->
+        </div>
+
+        <!-- Recommended AP Courses -->
+        <div class="mb-8">
+            <!-- @COMPONENT: RecommendedCourses -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-dark">Recommended AP/IB Courses</h2>
+                    <button class="text-primary hover:text-blue-600 text-sm font-medium">Customize Recommendations</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- @MAP: recommendedCourses.map(course => ( -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="font-semibold text-dark" data-mock="true">AP Calculus AB</h3>
+                                <p class="text-sm text-gray-500">10th Grade - 2025</p>
+                            </div>
+                            <span class="bg-secondary bg-opacity-20 text-secondary text-xs px-2 py-1 rounded">Perfect Match</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3" data-mock="true">Essential for engineering and math-focused Princeton applications</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                <span><i class="fas fa-clock mr-1"></i>Prerequisites: Algebra II</span>
+                            </div>
+                            <button class="text-primary hover:text-blue-600 text-sm font-medium">Add to Plan</button>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="font-semibold text-dark" data-mock="true">AP Physics 1</h3>
+                                <p class="text-sm text-gray-500">10th Grade - 2025</p>
+                            </div>
+                            <span class="bg-accent bg-opacity-20 text-accent text-xs px-2 py-1 rounded">High Match</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3" data-mock="true">Strong foundation for STEM applications</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                <span><i class="fas fa-clock mr-1"></i>Prerequisites: None</span>
+                            </div>
+                            <button class="text-primary hover:text-blue-600 text-sm font-medium">Add to Plan</button>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="font-semibold text-dark" data-mock="true">AP Computer Science A</h3>
+                                <p class="text-sm text-gray-500">11th Grade - 2026</p>
+                            </div>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Good Match</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3" data-mock="true">Aligns with your interest in technology competitions</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                <span><i class="fas fa-clock mr-1"></i>Prerequisites: Algebra II</span>
+                            </div>
+                            <button class="text-primary hover:text-blue-600 text-sm font-medium">Add to Plan</button>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+            </div>
+            <!-- @END_COMPONENT: RecommendedCourses -->
+        </div>
+    </div>
+
+    <!-- Floating Chat Button -->
+    <!-- @COMPONENT: FloatingChatButton -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button class="w-14 h-14 bg-gradient-to-br from-primary to-secondary text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group">
+            <i class="fas fa-comments text-xl group-hover:scale-110 transition-transform"></i>
+        </button>
+    </div>
+    <!-- @END_COMPONENT: FloatingChatButton -->
+
+    <!-- @STATE: currentUser:object = {name: 'John', grade: '9th', gpa: 3.8, progress: 68} -->
+    <!-- @STATE: opportunities:array = [] -->
+    <!-- @STATE: todos:array = [] -->
+    <!-- @STATE: recommendedCourses:array = [] -->
+    <!-- @STATE: chatMessages:array = [] -->
+
+    <script>
+        (function() {
+            // TODO: Implement business logic, API calls, or state management
+            
+            // Mock interaction for demonstration
+            const quickActionButtons = document.querySelectorAll('.group');
+            quickActionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // TODO: Handle navigation to specific sections
+                    console.log('Quick action clicked');
+                });
+            });
+
+            // Chat input handling
+            const chatInput = document.querySelector('input[placeholder="Ask me anything..."]');
+            const chatButton = document.querySelector('.fa-paper-plane').parentElement;
+            
+            chatButton.addEventListener('click', function() {
+                // TODO: Send message to AI backend
+                if (chatInput.value.trim()) {
+                    console.log('Sending message:', chatInput.value);
+                    chatInput.value = '';
+                }
+            });
+
+            // Todo checkbox handling
+            const todoCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+            todoCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // TODO: Update todo status in backend
+                    console.log('Todo status changed');
+                });
+            });
+
+            // Progress circle animations (placeholder)
+            const progressCircles = document.querySelectorAll('.relative.w-20.h-20');
+            progressCircles.forEach(circle => {
+                // TODO: Implement actual progress circle animations
+                circle.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                circle.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Floating chat button
+            const floatingChatButton = document.querySelector('.fixed.bottom-6.right-6 button');
+            floatingChatButton.addEventListener('click', function() {
+                // TODO: Open full chat interface
+                console.log('Opening chat interface');
+            });
+
+            // Bookmark buttons
+            const bookmarkButtons = document.querySelectorAll('.fa-bookmark');
+            bookmarkButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // TODO: Toggle bookmark status
+                    this.classList.toggle('fas');
+                    this.classList.toggle('far');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
