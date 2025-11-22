@@ -870,6 +870,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Student profile not found" });
       }
       
+      // Check if already saved
+      const existing = await storage.getStudentScholarships(profile.id);
+      const alreadySaved = existing.some(s => s.scholarshipId === parseInt(scholarshipId));
+      
+      if (alreadySaved) {
+        return res.status(200).json({ message: "Scholarship already saved", alreadySaved: true });
+      }
+      
       const saved = await storage.saveScholarship({
         studentId: profile.id,
         scholarshipId: parseInt(scholarshipId),
@@ -879,7 +887,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(saved);
     } catch (error) {
       console.error("Error saving scholarship:", error);
-      res.status(400).json({ message: "Failed to save scholarship" });
+      res.status(500).json({ message: "Failed to save scholarship", error: (error as Error).message });
     }
   });
 

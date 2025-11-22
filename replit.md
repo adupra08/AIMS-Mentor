@@ -37,6 +37,8 @@ The application uses a comprehensive database schema including:
 - **Student Profiles**: Academic information, interests, and goals
 - **Academic Pathways**: AI-generated personalized academic plans
 - **Opportunities**: Competitions, courses, and activities
+- **Scholarships**: Financial aid opportunities with eligibility criteria and matching metadata
+- **Student Scholarships**: Saved scholarships with application tracking
 - **Todos**: Task management for students
 - **Chat Messages**: AI conversation history
 - **Progress Tracking**: Student achievement monitoring
@@ -123,6 +125,30 @@ Environment variables required:
 
 ## Recent Updates
 
+### November 22, 2025 - **INTELLIGENT SCHOLARSHIP MATCHING SYSTEM** ✅
+- **Database Schema**: Added scholarships and studentScholarships tables with comprehensive matching criteria
+- **Seed Data**: Pre-loaded 18 diverse scholarships covering STEM, arts, athletics, leadership, and community service
+- **Matching Algorithm**: Multi-criteria scoring system in `server/services/scholarshipMatcher.ts`:
+  - Hard eligibility requirements: grade level, minimum GPA, state residency, test scores
+  - Preference bonuses: academic subjects, extracurricular activities, specific interests
+  - Match scores range 0-100% with detailed match reasons
+- **API Endpoints**:
+  - GET /api/student/matched-scholarships - Returns scholarships matched to student profile with scores
+  - POST /api/student/scholarships/:id/save - Save scholarship to student's list (prevents duplicates)
+  - GET /api/student/scholarships - Retrieve student's saved scholarships
+  - PATCH /api/student/scholarships/:id - Update scholarship status and notes
+  - DELETE /api/student/scholarships/:id - Remove saved scholarship
+- **Scholarships Page Component**: Full-featured UI with:
+  - Scholarship cards displaying amount, deadline, provider, requirements
+  - Visual match scores with progress bars and match reason badges
+  - Color-coded deadline indicators (red for <7 days, orange for <30 days)
+  - Save for Later functionality with duplicate prevention
+  - Direct "Apply Now" links to external applications
+  - Saved badge indicators for bookmarked scholarships
+  - Empty states for incomplete profiles
+- **Navigation Integration**: Added Scholarships tab to main navigation (desktop and mobile)
+- **Error Handling**: Comprehensive error handling including duplicate save detection with user-friendly toast messages
+
 ### October 29, 2025 - **STATE-SPECIFIC GRADUATION REQUIREMENTS** ✅
 - **State Selector**: Added dropdown to select state and view state-specific graduation requirements
 - **Available States**: California, New York, and Texas graduation requirements pre-loaded
@@ -166,6 +192,7 @@ Environment variables required:
 
 ## Changelog
 
+- November 22, 2025: **INTELLIGENT SCHOLARSHIP MATCHING SYSTEM** - Implemented comprehensive scholarship recommendation engine with 18 pre-seeded scholarships, multi-criteria matching algorithm (GPA, grade, state, subjects, test scores, extracurriculars), dedicated Scholarships page with save functionality, match scores, deadline tracking, and duplicate prevention
 - October 29, 2025: **STATE-SPECIFIC GRADUATION REQUIREMENTS** - Added state selector dropdown allowing students to view graduation requirements specific to their state (California, New York, Texas); requirements update dynamically with profile persistence
 - October 29, 2025: **DEADLINE NOTIFICATION SYSTEM** - Implemented real-time deadline notifications with bell icon, badge counter, and popover displaying upcoming todos/opportunities within 7 days
 - October 14, 2025: **AI MIGRATION** - Switched from Google Gemini to OpenAI GPT-4o-mini for chat and analysis due to quota limits; enhanced Render deployment compatibility with PostgreSQL SSL support

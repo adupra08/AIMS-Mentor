@@ -42,16 +42,21 @@ export default function Scholarships() {
 
   const handleSaveScholarship = async (scholarshipId: number) => {
     try {
-      await apiRequest(`/api/student/scholarships/${scholarshipId}/save`, {
-        method: 'POST',
-      });
+      const data: any = await apiRequest('POST', `/api/student/scholarships/${scholarshipId}/save`);
       
       await queryClient.invalidateQueries({ queryKey: ['/api/student/matched-scholarships'] });
       
-      toast({
-        title: "Scholarship Saved",
-        description: "Scholarship has been added to your saved list.",
-      });
+      if (data?.alreadySaved) {
+        toast({
+          title: "Already Saved",
+          description: "This scholarship was already in your saved list.",
+        });
+      } else {
+        toast({
+          title: "Scholarship Saved",
+          description: "Scholarship has been added to your saved list.",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
