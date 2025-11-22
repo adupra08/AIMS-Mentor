@@ -802,6 +802,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Scholarship routes
+  app.get('/api/scholarships', async (req, res) => {
+    try {
+      const scholarships = await storage.getScholarships({});
+      res.json(scholarships);
+    } catch (error) {
+      console.error("Error fetching scholarships:", error);
+      res.status(500).json({ message: "Failed to fetch scholarships" });
+    }
+  });
+
+  app.get('/api/student/matched-scholarships', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const studentProfile = await storage.getStudentProfile(userId);
+      if (!studentProfile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+
+      const allScholarships = await storage.getScholarships({});
+      const { matchScholarships } = await import("./services/scholarshipMatcher");
+      
+      const matches = matchScholarships(studentProfile, allScholarships);
+      
+      // Get student's saved scholarships
+      const savedScholarships = await storage.getStudentScholarships(studentProfile.id);
+      const savedIds = new Set(savedScholarships.map(s => s.scholarshipId));
+      
+      res.json({
+        matched: matches.map(match => ({
+          ...match.scholarship,
+          matchScore: match.score,
+          matchReasons: match.reasons,
+          isSaved: savedIds.has(match.scholarship.id)
+        })),
+        totalMatches: matches.length
+      });
+    } catch (error) {
+      console.error("Error fetching matched scholarships:", error);
+      res.status(500).json({ message: "Failed to fetch matched scholarships" });
+    }
+  });
+
+  app.get('/api/student/scholarships', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const profile = await storage.getStudentProfile(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+      
+      const scholarships = await storage.getStudentScholarships(profile.id);
+      res.json(scholarships);
+    } catch (error) {
+      console.error("Error fetching student scholarships:", error);
+      res.status(500).json({ message: "Failed to fetch student scholarships" });
+    }
+  });
+
+  app.post('/api/student/scholarships/:scholarshipId/save', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { scholarshipId } = req.params;
+      const profile = await storage.getStudentProfile(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+      
+      const saved = await storage.saveScholarship({
+        studentId: profile.id,
+        scholarshipId: parseInt(scholarshipId),
+        status: "saved"
+      });
+      
+      res.json(saved);
+    } catch (error) {
+      console.error("Error saving scholarship:", error);
+      res.status(400).json({ message: "Failed to save scholarship" });
+    }
+  });
+
+  app.patch('/api/student/scholarships/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status, notes, awardedAmount } = req.body;
+      
+      const updated = await storage.updateStudentScholarship(parseInt(id), {
+        status,
+        notes,
+        awardedAmount,
+        appliedAt: status === 'submitted' ? new Date() : undefined
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating scholarship:", error);
+      res.status(400).json({ message: "Failed to update scholarship" });
+    }
+  });
+
+  app.delete('/api/student/scholarships/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteStudentScholarship(parseInt(id));
+      res.json({ message: "Scholarship removed successfully" });
+    } catch (error) {
+      console.error("Error removing scholarship:", error);
+      res.status(400).json({ message: "Failed to remove scholarship" });
+    }
+  });
+
   // General opportunities route
   app.get('/api/opportunities', async (req, res) => {
     try {

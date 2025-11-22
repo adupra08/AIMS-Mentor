@@ -10,6 +10,8 @@ import {
   achievements,
   graduationRequirements,
   studentCourseProgress,
+  scholarships,
+  studentScholarships,
   type User,
   type UpsertUser,
   type StudentProfile,
@@ -32,6 +34,10 @@ import {
   type InsertGraduationRequirement,
   type StudentCourseProgress,
   type InsertStudentCourseProgress,
+  type Scholarship,
+  type InsertScholarship,
+  type StudentScholarship,
+  type InsertStudentScholarship,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, inArray, isNotNull } from "drizzle-orm";
@@ -97,6 +103,13 @@ export interface IStorage {
   createStudentCourseProgress(progress: InsertStudentCourseProgress): Promise<StudentCourseProgress>;
   updateStudentCourseProgress(id: number, updates: Partial<InsertStudentCourseProgress>): Promise<StudentCourseProgress>;
   deleteAchievement(id: number): Promise<void>;
+  
+  // Scholarship operations
+  getScholarships(filters?: Record<string, any>): Promise<Scholarship[]>;
+  getStudentScholarships(studentId: number): Promise<(StudentScholarship & { scholarship: Scholarship })[]>;
+  saveScholarship(studentScholarship: InsertStudentScholarship): Promise<StudentScholarship>;
+  updateStudentScholarship(id: number, updates: Partial<InsertStudentScholarship>): Promise<StudentScholarship>;
+  deleteStudentScholarship(id: number): Promise<void>;
   
   // Seed operations
   seedOpportunities(): Promise<void>;
@@ -397,6 +410,51 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(achievements)
       .where(eq(achievements.id, id));
+  }
+
+  // Scholarship operations
+  async getScholarships(filters?: Record<string, any>): Promise<Scholarship[]> {
+    return await db
+      .select()
+      .from(scholarships)
+      .orderBy(desc(scholarships.deadline));
+  }
+
+  async getStudentScholarships(studentId: number): Promise<(StudentScholarship & { scholarship: Scholarship })[]> {
+    const results = await db
+      .select()
+      .from(studentScholarships)
+      .leftJoin(scholarships, eq(studentScholarships.scholarshipId, scholarships.id))
+      .where(eq(studentScholarships.studentId, studentId))
+      .orderBy(desc(studentScholarships.createdAt));
+
+    return results.map(row => ({
+      ...row.student_scholarships,
+      scholarship: row.scholarships!
+    }));
+  }
+
+  async saveScholarship(studentScholarship: InsertStudentScholarship): Promise<StudentScholarship> {
+    const [saved] = await db
+      .insert(studentScholarships)
+      .values(studentScholarship)
+      .returning();
+    return saved;
+  }
+
+  async updateStudentScholarship(id: number, updates: Partial<InsertStudentScholarship>): Promise<StudentScholarship> {
+    const [updated] = await db
+      .update(studentScholarships)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(studentScholarships.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteStudentScholarship(id: number): Promise<void> {
+    await db
+      .delete(studentScholarships)
+      .where(eq(studentScholarships.id, id));
   }
 
   async seedOpportunities(): Promise<void> {
