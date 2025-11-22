@@ -16,6 +16,7 @@ import ProgressOverview from "@/components/ProgressOverview";
 import RecommendedCourses from "@/components/RecommendedCourses";
 import Achievements from "@/components/Achievements";
 import GraduationRequirements from "@/components/GraduationRequirements";
+import Scholarships from "@/components/Scholarships";
 import FloatingChatButton from "@/components/FloatingChatButton";
 import Footer from "@/components/Footer";
 import NotificationPopover from "@/components/NotificationPopover";
@@ -169,6 +170,15 @@ export default function Home() {
                 >
                   Graduation
                 </button>
+                <button 
+                  onClick={() => setActiveTab('scholarships')}
+                  className={`px-2 xl:px-3 py-2 rounded-md text-xs xl:text-sm font-medium transition-colors ${
+                    activeTab === 'scholarships' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary'
+                  }`}
+                  data-testid="tab-scholarships"
+                >
+                  Scholarships
+                </button>
               </div>
             </div>
 
@@ -294,6 +304,18 @@ export default function Home() {
                 >
                   Graduation
                 </button>
+                <button 
+                  onClick={() => {
+                    setActiveTab('scholarships');
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    activeTab === 'scholarships' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary hover:bg-gray-50'
+                  }`}
+                  data-testid="mobile-tab-scholarships"
+                >
+                  Scholarships
+                </button>
                 
                 {/* Mobile-only actions */}
                 <div className="border-t border-gray-200 mt-3 pt-3">
@@ -369,6 +391,10 @@ export default function Home() {
 
         {activeTab === 'graduation' && (
           <GraduationRequirements studentProfile={studentProfile!} />
+        )}
+
+        {activeTab === 'scholarships' && (
+          <Scholarships />
         )}
       </div>
 
