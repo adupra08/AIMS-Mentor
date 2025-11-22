@@ -194,6 +194,47 @@ export const studentCourseProgress = pgTable('student_course_progress', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Scholarships database
+export const scholarships = pgTable("scholarships", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  amount: integer("amount").notNull(), // Scholarship amount in dollars
+  provider: varchar("provider").notNull(), // Organization offering the scholarship
+  deadline: timestamp("deadline"),
+  applicationUrl: varchar("application_url"),
+  eligibleGrades: jsonb("eligible_grades").$type<number[]>().default([]), // 9, 10, 11, 12
+  minGpa: decimal("min_gpa", { precision: 3, scale: 2 }), // Minimum GPA requirement
+  subjects: jsonb("subjects").$type<string[]>().default([]), // Related academic subjects
+  states: jsonb("states").$type<string[]>().default([]), // Eligible states (empty = all states)
+  majors: jsonb("majors").$type<string[]>().default([]), // Intended college majors
+  ethnicities: jsonb("ethnicities").$type<string[]>().default([]), // If ethnicity-specific
+  requiresEssay: boolean("requires_essay").default(false),
+  requiresRecommendation: boolean("requires_recommendation").default(false),
+  minSat: integer("min_sat"), // Minimum SAT score
+  minAct: integer("min_act"), // Minimum ACT score
+  extracurriculars: jsonb("extracurriculars").$type<string[]>().default([]), // Required/preferred activities
+  financialNeedBased: boolean("financial_need_based").default(false),
+  meritBased: boolean("merit_based").default(true),
+  renewable: boolean("renewable").default(false), // Can be renewed multiple years
+  tags: jsonb("tags").$type<string[]>().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Student bookmarked/applied scholarships
+export const studentScholarships = pgTable("student_scholarships", {
+  id: serial("id").primaryKey(),
+  studentId: integer("student_id").notNull().references(() => studentProfiles.id),
+  scholarshipId: integer("scholarship_id").notNull().references(() => scholarships.id),
+  status: varchar("status").default("saved"), // saved, in_progress, submitted, awarded, rejected
+  notes: text("notes"),
+  appliedAt: timestamp("applied_at"),
+  awardedAmount: integer("awarded_amount"), // Actual amount if awarded
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const studentProfileRelations = relations(studentProfiles, ({ one, many }) => ({
   user: one(users, {
@@ -207,6 +248,7 @@ export const studentProfileRelations = relations(studentProfiles, ({ one, many }
   progressRecords: many(progressTracking),
   achievements: many(achievements),
   courseProgress: many(studentCourseProgress),
+  scholarships: many(studentScholarships),
 }));
 
 export const academicPathwayRelations = relations(academicPathways, ({ one }) => ({
@@ -274,6 +316,21 @@ export const studentCourseProgressRelations = relations(studentCourseProgress, (
   }),
 }));
 
+export const scholarshipRelations = relations(scholarships, ({ many }) => ({
+  studentScholarships: many(studentScholarships),
+}));
+
+export const studentScholarshipRelations = relations(studentScholarships, ({ one }) => ({
+  student: one(studentProfiles, {
+    fields: [studentScholarships.studentId],
+    references: [studentProfiles.id],
+  }),
+  scholarship: one(scholarships, {
+    fields: [studentScholarships.scholarshipId],
+    references: [scholarships.id],
+  }),
+}));
+
 // Schema types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -308,6 +365,12 @@ export type GraduationRequirement = typeof graduationRequirements.$inferSelect;
 export type InsertStudentCourseProgress = typeof studentCourseProgress.$inferInsert;
 export type StudentCourseProgress = typeof studentCourseProgress.$inferSelect;
 
+export type InsertScholarship = typeof scholarships.$inferInsert;
+export type Scholarship = typeof scholarships.$inferSelect;
+
+export type InsertStudentScholarship = typeof studentScholarships.$inferInsert;
+export type StudentScholarship = typeof studentScholarships.$inferSelect;
+
 // Zod schemas for validation
 export const insertStudentProfileSchema = createInsertSchema(studentProfiles).omit({
   id: true,
@@ -341,6 +404,18 @@ export const insertGraduationRequirementSchema = createInsertSchema(graduationRe
 export const insertStudentCourseProgressSchema = createInsertSchema(studentCourseProgress).omit({
   id: true,
   createdAt: true,
+});
+
+export const insertScholarshipSchema = createInsertSchema(scholarships).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStudentScholarshipSchema = createInsertSchema(studentScholarships).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 // User authentication schemas
