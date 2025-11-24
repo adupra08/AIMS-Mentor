@@ -17,6 +17,7 @@ import RecommendedCourses from "@/components/RecommendedCourses";
 import Achievements from "@/components/Achievements";
 import GraduationRequirements from "@/components/GraduationRequirements";
 import Scholarships from "@/components/Scholarships";
+import FeaturedScholarships from "@/components/FeaturedScholarships";
 import FloatingChatButton from "@/components/FloatingChatButton";
 import Footer from "@/components/Footer";
 import NotificationPopover from "@/components/NotificationPopover";
@@ -369,6 +370,11 @@ export default function Home() {
             {/* Recommended AP Courses */}
             <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <RecommendedCourses studentProfile={studentProfile!} />
+            </div>
+
+            {/* Featured Scholarships */}
+            <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+              <FeaturedScholarships onViewAll={() => setActiveTab('scholarships')} />
             </div>
           </div>
         )}
