@@ -125,7 +125,7 @@ Environment variables required:
 
 ## Recent Updates
 
-### November 22, 2025 - **INTELLIGENT SCHOLARSHIP MATCHING SYSTEM** ✅
+### November 24, 2025 - **INTELLIGENT SCHOLARSHIP MATCHING SYSTEM** ✅
 - **Database Schema**: Added scholarships and studentScholarships tables with comprehensive matching criteria
 - **Seed Data**: Pre-loaded 18 diverse scholarships covering STEM, arts, athletics, leadership, and community service
 - **Matching Algorithm**: Multi-criteria scoring system in `server/services/scholarshipMatcher.ts`:
@@ -146,6 +146,11 @@ Environment variables required:
   - Direct "Apply Now" links to external applications
   - Saved badge indicators for bookmarked scholarships
   - Empty states for incomplete profiles
+- **Dashboard Integration**:
+  - Featured Scholarships section showing top 3 matches on dashboard
+  - Scholarships Quick Action button for instant access
+  - Click-through navigation to full Scholarships page
+  - Loading and error states with user-friendly messages
 - **Navigation Integration**: Added Scholarships tab to main navigation (desktop and mobile)
 - **Error Handling**: Comprehensive error handling including duplicate save detection with user-friendly toast messages
 
@@ -192,7 +197,7 @@ Environment variables required:
 
 ## Changelog
 
-- November 22, 2025: **INTELLIGENT SCHOLARSHIP MATCHING SYSTEM** - Implemented comprehensive scholarship recommendation engine with 18 pre-seeded scholarships, multi-criteria matching algorithm (GPA, grade, state, subjects, test scores, extracurriculars), dedicated Scholarships page with save functionality, match scores, deadline tracking, and duplicate prevention
+- November 24, 2025: **INTELLIGENT SCHOLARSHIP MATCHING SYSTEM** - Implemented comprehensive scholarship recommendation engine with 18 pre-seeded scholarships, multi-criteria matching algorithm (GPA, grade, state, subjects, test scores, extracurriculars), dedicated Scholarships page with save functionality, match scores, deadline tracking, duplicate prevention, Featured Scholarships dashboard widget, and Quick Action button for instant access
 - October 29, 2025: **STATE-SPECIFIC GRADUATION REQUIREMENTS** - Added state selector dropdown allowing students to view graduation requirements specific to their state (California, New York, Texas); requirements update dynamically with profile persistence
 - October 29, 2025: **DEADLINE NOTIFICATION SYSTEM** - Implemented real-time deadline notifications with bell icon, badge counter, and popover displaying upcoming todos/opportunities within 7 days
 - October 14, 2025: **AI MIGRATION** - Switched from Google Gemini to OpenAI GPT-4o-mini for chat and analysis due to quota limits; enhanced Render deployment compatibility with PostgreSQL SSL support

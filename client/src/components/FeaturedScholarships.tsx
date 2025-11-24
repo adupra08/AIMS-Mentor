@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Award, DollarSign, Calendar, ArrowRight, GraduationCap } from "lucide-react";
+import { Award, Calendar, ArrowRight, GraduationCap, AlertCircle } from "lucide-react";
 
 interface Scholarship {
   id: number;
@@ -20,7 +20,7 @@ interface FeaturedScholarshipsProps {
 }
 
 export default function FeaturedScholarships({ onViewAll }: FeaturedScholarshipsProps) {
-  const { data: scholarshipsData, isLoading } = useQuery<{
+  const { data: scholarshipsData, isLoading, error } = useQuery<{
     matched: Scholarship[];
     totalMatches: number;
   }>({
@@ -69,6 +69,31 @@ export default function FeaturedScholarships({ onViewAll }: FeaturedScholarships
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-20 bg-muted rounded-md animate-pulse" />
             ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Award className="h-5 w-5 text-primary" />
+            Featured Scholarships
+          </CardTitle>
+          <CardDescription>Unable to load scholarships</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <AlertCircle className="h-12 w-12 text-muted-foreground mb-3" />
+            <p className="text-sm text-muted-foreground mb-4">
+              There was an error loading your scholarships. Please try again later.
+            </p>
+            <Button variant="outline" size="sm" onClick={onViewAll}>
+              Try Again
+            </Button>
           </div>
         </CardContent>
       </Card>
