@@ -39,6 +39,9 @@ function toSafeUser(user: User): SafeUser {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Seed graduation requirements on startup
+  await storage.seedGraduationRequirements();
+  
   // Auth middleware
   await setupAuth(app);
 

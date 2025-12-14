@@ -113,6 +113,7 @@ export interface IStorage {
   
   // Seed operations
   seedOpportunities(): Promise<void>;
+  seedGraduationRequirements(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1101,6 +1102,76 @@ export class DatabaseStorage implements IStorage {
       .where(eq(studentCourseProgress.id, id))
       .returning();
     return updated;
+  }
+
+  async seedGraduationRequirements(): Promise<void> {
+    const seedData = [
+      // California requirements
+      { state: "California", subject: "Mathematics", courseTitle: "Algebra I", creditsRequired: "1", isMandatory: true, description: "Foundation in algebraic concepts" },
+      { state: "California", subject: "Mathematics", courseTitle: "Geometry", creditsRequired: "1", isMandatory: true, description: "Spatial reasoning and proofs" },
+      { state: "California", subject: "Mathematics", courseTitle: "Algebra II", creditsRequired: "1", isMandatory: true, description: "Advanced algebraic functions" },
+      { state: "California", subject: "English Language Arts", courseTitle: "English 9", creditsRequired: "1", isMandatory: true, description: "Ninth grade English curriculum" },
+      { state: "California", subject: "English Language Arts", courseTitle: "English 10", creditsRequired: "1", isMandatory: true, description: "Tenth grade English curriculum" },
+      { state: "California", subject: "English Language Arts", courseTitle: "English 11", creditsRequired: "1", isMandatory: true, description: "Eleventh grade English curriculum" },
+      { state: "California", subject: "English Language Arts", courseTitle: "English 12", creditsRequired: "1", isMandatory: true, description: "Twelfth grade English curriculum" },
+      { state: "California", subject: "Science", courseTitle: "Biology", creditsRequired: "1", isMandatory: true, description: "Living systems and heredity" },
+      { state: "California", subject: "Science", courseTitle: "Chemistry", creditsRequired: "1", isMandatory: true, description: "Atoms, molecules, and reactions" },
+      { state: "California", subject: "Science", courseTitle: "Physics", creditsRequired: "1", isMandatory: false, description: "Motion, energy, and forces" },
+      { state: "California", subject: "Social Studies", courseTitle: "World History", creditsRequired: "1", isMandatory: true, description: "Comprehensive world history study" },
+      { state: "California", subject: "Social Studies", courseTitle: "US History", creditsRequired: "1", isMandatory: true, description: "American history and government" },
+      { state: "California", subject: "Social Studies", courseTitle: "US Government", creditsRequired: "0.5", isMandatory: true, description: "Government systems and civics" },
+      { state: "California", subject: "Social Studies", courseTitle: "Economics", creditsRequired: "0.5", isMandatory: true, description: "Economic principles and systems" },
+      { state: "California", subject: "Physical Education", courseTitle: "PE I", creditsRequired: "0.5", isMandatory: true, description: "Physical fitness and wellness" },
+      { state: "California", subject: "Physical Education", courseTitle: "PE II", creditsRequired: "0.5", isMandatory: true, description: "Sports and athletics" },
+      { state: "California", subject: "Fine Arts", courseTitle: "Visual Arts or Performing Arts", creditsRequired: "1", isMandatory: true, description: "Creative expression through arts" },
+
+      // New York requirements
+      { state: "New York", subject: "Mathematics", courseTitle: "Integrated Algebra", creditsRequired: "1", isMandatory: true, description: "Algebra and integrated math concepts" },
+      { state: "New York", subject: "Mathematics", courseTitle: "Geometry", creditsRequired: "1", isMandatory: true, description: "Geometry and spatial reasoning" },
+      { state: "New York", subject: "Mathematics", courseTitle: "Algebra II/Trigonometry", creditsRequired: "1", isMandatory: true, description: "Advanced algebra and trigonometry" },
+      { state: "New York", subject: "English Language Arts", courseTitle: "English 9", creditsRequired: "1", isMandatory: true, description: "Ninth grade ELA curriculum" },
+      { state: "New York", subject: "English Language Arts", courseTitle: "English 10", creditsRequired: "1", isMandatory: true, description: "Tenth grade ELA curriculum" },
+      { state: "New York", subject: "English Language Arts", courseTitle: "English 11", creditsRequired: "1", isMandatory: true, description: "Eleventh grade ELA curriculum" },
+      { state: "New York", subject: "English Language Arts", courseTitle: "English 12", creditsRequired: "1", isMandatory: true, description: "Twelfth grade ELA curriculum" },
+      { state: "New York", subject: "Science", courseTitle: "Living Environment", creditsRequired: "1", isMandatory: true, description: "Biology and living systems" },
+      { state: "New York", subject: "Science", courseTitle: "Physical Science or Chemistry", creditsRequired: "1", isMandatory: true, description: "Chemistry or physics principles" },
+      { state: "New York", subject: "Social Studies", courseTitle: "Global History", creditsRequired: "1", isMandatory: true, description: "World history and cultures" },
+      { state: "New York", subject: "Social Studies", courseTitle: "US History", creditsRequired: "1", isMandatory: true, description: "United States history" },
+      { state: "New York", subject: "Social Studies", courseTitle: "Economics and Government", creditsRequired: "0.5", isMandatory: true, description: "Economics, civics, and government" },
+      { state: "New York", subject: "Physical Education", courseTitle: "PE", creditsRequired: "2", isMandatory: true, description: "Physical education (4 semesters)" },
+
+      // Texas requirements
+      { state: "Texas", subject: "Mathematics", courseTitle: "Algebra I", creditsRequired: "1", isMandatory: true, description: "Algebra fundamentals" },
+      { state: "Texas", subject: "Mathematics", courseTitle: "Geometry", creditsRequired: "1", isMandatory: true, description: "Geometric concepts" },
+      { state: "Texas", subject: "Mathematics", courseTitle: "Algebra II", creditsRequired: "1", isMandatory: true, description: "Advanced algebra" },
+      { state: "Texas", subject: "English Language Arts", courseTitle: "English I", creditsRequired: "1", isMandatory: true, description: "Ninth grade English" },
+      { state: "Texas", subject: "English Language Arts", courseTitle: "English II", creditsRequired: "1", isMandatory: true, description: "Tenth grade English" },
+      { state: "Texas", subject: "English Language Arts", courseTitle: "English III", creditsRequired: "1", isMandatory: true, description: "Eleventh grade English" },
+      { state: "Texas", subject: "English Language Arts", courseTitle: "English IV", creditsRequired: "1", isMandatory: true, description: "Twelfth grade English" },
+      { state: "Texas", subject: "Science", courseTitle: "Biology", creditsRequired: "1", isMandatory: true, description: "Cellular and molecular biology" },
+      { state: "Texas", subject: "Science", courseTitle: "Chemistry or Physics", creditsRequired: "1", isMandatory: true, description: "Chemistry or physics course" },
+      { state: "Texas", subject: "Social Studies", courseTitle: "World History", creditsRequired: "1", isMandatory: true, description: "World civilizations" },
+      { state: "Texas", subject: "Social Studies", courseTitle: "US History", creditsRequired: "1", isMandatory: true, description: "United States history" },
+      { state: "Texas", subject: "Social Studies", courseTitle: "World Geography or Government", creditsRequired: "0.5", isMandatory: true, description: "Global perspectives and government" },
+      { state: "Texas", subject: "Social Studies", courseTitle: "Economics", creditsRequired: "0.5", isMandatory: true, description: "Economics principles" },
+      { state: "Texas", subject: "Physical Education", courseTitle: "PE", creditsRequired: "1", isMandatory: true, description: "Physical fitness and activities" },
+      { state: "Texas", subject: "Fine Arts", courseTitle: "Fine Arts", creditsRequired: "1", isMandatory: true, description: "Visual or performing arts" }
+    ];
+
+    for (const req of seedData) {
+      const existing = await db
+        .select()
+        .from(graduationRequirements)
+        .where(
+          eq(graduationRequirements.state, req.state) && 
+          eq(graduationRequirements.courseTitle, req.courseTitle)
+        )
+        .limit(1);
+      
+      if (existing.length === 0) {
+        await db.insert(graduationRequirements).values(req);
+      }
+    }
   }
 }
 
