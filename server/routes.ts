@@ -18,6 +18,7 @@ import {
 } from "@shared/schema";
 import { generateAcademicPathway } from "./services/pathwayGenerator";
 import { getChatResponse } from "./services/openai";
+import { filterRelevantStartupCompetitions } from "./services/startupCompetitionMatcher";
 import type { User } from "@shared/schema";
 
 // Development-only token cache (stores raw tokens for testing)
@@ -491,6 +492,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error toggling todo:", error);
       res.status(400).json({ message: "Failed to toggle todo" });
+    }
+  });
+
+  // Startup competitions endpoint - filtered by student profile
+  app.get('/api/student/startup-competitions', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const profile = await storage.getStudentProfile(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+
+      const allCompetitions = await storage.getOpportunities({});
+      const filtered = filterRelevantStartupCompetitions(profile, allCompetitions);
+      res.json(filtered);
+    } catch (error) {
+      console.error("Error fetching startup competitions:", error);
+      res.status(500).json({ message: "Failed to fetch startup competitions" });
     }
   });
 

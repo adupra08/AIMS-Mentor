@@ -6,13 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function StartupCompetitions() {
-  const { data: opportunities = [], isLoading, error } = useQuery<Opportunity[]>({
-    queryKey: ["/api/opportunities"],
+  const { data: startupCompetitions = [], isLoading, error } = useQuery<Opportunity[]>({
+    queryKey: ["/api/student/startup-competitions"],
   });
-
-  const startupCompetitions = opportunities.filter(
-    opp => opp.category === "startup-competition"
-  );
 
   if (isLoading) {
     return (
@@ -34,8 +30,8 @@ export default function StartupCompetitions() {
     return (
       <div className="text-center py-12">
         <Trophy className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-        <p className="text-gray-600 text-lg font-medium">No startup competitions available</p>
-        <p className="text-gray-500">Check back soon for new opportunities!</p>
+        <p className="text-gray-600 text-lg font-medium">No matching startup competitions</p>
+        <p className="text-gray-500">Based on your profile, there are no startup competitions matching your interests. Update your profile with entrepreneurship interests to see recommendations!</p>
       </div>
     );
   }
