@@ -41,8 +41,8 @@ export default function Certifications() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div>
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Free Certifications</h1>
         <p className="text-gray-600">Earn recognized certificates to boost your college applications and career prospects</p>
       </div>

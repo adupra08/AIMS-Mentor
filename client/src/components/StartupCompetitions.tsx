@@ -37,8 +37,8 @@ export default function StartupCompetitions() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div>
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">High School Startup Competitions</h1>
         <p className="text-gray-600">Launch your business ideas and compete with other student entrepreneurs</p>
       </div>
