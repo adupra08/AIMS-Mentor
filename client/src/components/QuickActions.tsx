@@ -1,4 +1,4 @@
-import { Route, Trophy, BookOpen, Handshake, Award } from "lucide-react";
+import { Route, Trophy, BookOpen, Handshake, Award, Rocket, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface QuickActionsProps {
@@ -52,6 +52,24 @@ export default function QuickActions({ onTabChange }: QuickActionsProps) {
         console.log("Internships clicked");
         onTabChange('opportunities');
       }
+    },
+    {
+      icon: Rocket,
+      label: "Startup Competitions",
+      color: "bg-orange-100 hover:bg-orange-200 text-orange-600",
+      action: () => {
+        console.log("Startup Competitions clicked");
+        onTabChange('startup-competitions');
+      }
+    },
+    {
+      icon: CheckCircle,
+      label: "Free Certifications",
+      color: "bg-cyan-100 hover:bg-cyan-200 text-cyan-600",
+      action: () => {
+        console.log("Free Certifications clicked");
+        onTabChange('certifications');
+      }
     }
   ];
 
@@ -64,7 +82,7 @@ export default function QuickActions({ onTabChange }: QuickActionsProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4">
           {quickActions.map((action, index) => {
             const IconComponent = action.icon;
             return (
