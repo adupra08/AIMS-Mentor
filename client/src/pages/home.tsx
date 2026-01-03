@@ -173,33 +173,6 @@ export default function Home() {
                 >
                   Graduation
                 </button>
-                <button 
-                  onClick={() => setActiveTab('scholarships')}
-                  className={`px-2 xl:px-3 py-2 rounded-md text-xs xl:text-sm font-medium transition-colors ${
-                    activeTab === 'scholarships' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary'
-                  }`}
-                  data-testid="tab-scholarships"
-                >
-                  Scholarships
-                </button>
-                <button 
-                  onClick={() => setActiveTab('startup-competitions')}
-                  className={`px-2 xl:px-3 py-2 rounded-md text-xs xl:text-sm font-medium transition-colors ${
-                    activeTab === 'startup-competitions' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary'
-                  }`}
-                  data-testid="tab-startup-competitions"
-                >
-                  Startup Competitions
-                </button>
-                <button 
-                  onClick={() => setActiveTab('certifications')}
-                  className={`px-2 xl:px-3 py-2 rounded-md text-xs xl:text-sm font-medium transition-colors ${
-                    activeTab === 'certifications' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary'
-                  }`}
-                  data-testid="tab-certifications"
-                >
-                  Free Certifications
-                </button>
               </div>
             </div>
 
@@ -324,42 +297,6 @@ export default function Home() {
                   }`}
                 >
                   Graduation
-                </button>
-                <button 
-                  onClick={() => {
-                    setActiveTab('scholarships');
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    activeTab === 'scholarships' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary hover:bg-gray-50'
-                  }`}
-                  data-testid="mobile-tab-scholarships"
-                >
-                  Scholarships
-                </button>
-                <button 
-                  onClick={() => {
-                    setActiveTab('startup-competitions');
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    activeTab === 'startup-competitions' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary hover:bg-gray-50'
-                  }`}
-                  data-testid="mobile-tab-startup-competitions"
-                >
-                  Startup Competitions
-                </button>
-                <button 
-                  onClick={() => {
-                    setActiveTab('certifications');
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    activeTab === 'certifications' ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary hover:bg-gray-50'
-                  }`}
-                  data-testid="mobile-tab-certifications"
-                >
-                  Free Certifications
                 </button>
                 
                 {/* Mobile-only actions */}
