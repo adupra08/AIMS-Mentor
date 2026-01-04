@@ -951,13 +951,13 @@ export class DatabaseStorage implements IStorage {
         tags: ["INCubatoredu", "Real Investors", "$172K+ Awards", "Funding Opportunity"]
       },
       {
-        title: "Google IT Support Professional Certification",
-        description: "Free Google certification course covering IT fundamentals. Gain skills in computer networking, operating systems, and system administration.",
+        title: "Google IT Support Professional Certificate",
+        description: "Official Google certification covering IT fundamentals. Gain skills in computer networking, operating systems, and system administration directly from Google's training platform.",
         category: "certification",
         eligibleGrades: [9, 10, 11, 12],
         subjects: ["Computer Science", "Technology", "IT"],
         deadline: new Date("2025-12-31"),
-        applicationUrl: "https://www.coursera.org/professional-certificates/google-it-support",
+        applicationUrl: "https://grow.google/certificates/it-support/",
         isTeamBased: false,
         location: "Online",
         isPaid: false,
@@ -965,13 +965,13 @@ export class DatabaseStorage implements IStorage {
         tags: ["Google", "Free", "IT Support", "Online"]
       },
       {
-        title: "IBM Data Science Professional Certification",
-        description: "Free IBM professional certificate in Data Science. Learn data analysis, machine learning, and data visualization skills.",
+        title: "IBM Data Science Professional Certificate",
+        description: "Official IBM data science training. Learn Python, SQL, data visualization, and machine learning directly from IBM's digital learning platform.",
         category: "certification",
         eligibleGrades: [10, 11, 12],
         subjects: ["Computer Science", "Data Science", "Mathematics"],
         deadline: new Date("2025-12-31"),
-        applicationUrl: "https://www.coursera.org/professional-certificates/ibm-data-science",
+        applicationUrl: "https://www.ibm.com/training/certification/C0000300",
         isTeamBased: false,
         location: "Online",
         isPaid: false,
@@ -1035,19 +1035,33 @@ export class DatabaseStorage implements IStorage {
         tags: ["CompTIA", "IT", "Technology", "Industry Certification"]
       },
       {
-        title: "Cisco CCNA Routing & Switching",
-        description: "Professional networking certification from Cisco. Validate expertise in network administration and routing technologies.",
+        title: "Microsoft Cybersecurity Architect (SC-100)",
+        description: "Official Microsoft certification for designing cybersecurity strategies. Perfect for students interested in digital security and network protection.",
         category: "certification",
-        eligibleGrades: [10, 11, 12],
-        subjects: ["Computer Science", "Networking", "Technology"],
+        eligibleGrades: [11, 12],
+        subjects: ["Computer Science", "Technology", "Cybersecurity"],
         deadline: new Date("2025-12-31"),
-        applicationUrl: "https://www.cisco.com/c/en/us/training-events/training-certifications/certifications/associate/ccna.html",
+        applicationUrl: "https://learn.microsoft.com/en-us/credentials/certifications/cybersecurity-architect-expert/",
         isTeamBased: false,
         location: "Online",
         isPaid: false,
         difficultyLevel: "advanced",
-        tags: ["Cisco", "Networking", "Technology", "Professional"]
-      }
+        tags: ["Microsoft", "Cybersecurity", "Free", "Advanced"]
+      },
+      {
+        title: "Cisco Skills for All: Networking Basics",
+        description: "Direct Cisco networking course. Learn how networks operate, including protocols, services, and network administration fundamentals.",
+        category: "certification",
+        eligibleGrades: [9, 10, 11, 12],
+        subjects: ["Computer Science", "Networking", "Technology"],
+        deadline: new Date("2025-12-31"),
+        applicationUrl: "https://skillsforall.com/course/networking-basics",
+        isTeamBased: false,
+        location: "Online",
+        isPaid: false,
+        difficultyLevel: "beginner",
+        tags: ["Cisco", "Networking", "Free", "Direct"]
+      },
     ];
 
     for (const opportunity of seedData) {
