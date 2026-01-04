@@ -951,6 +951,48 @@ export class DatabaseStorage implements IStorage {
         tags: ["INCubatoredu", "Real Investors", "$172K+ Awards", "Funding Opportunity"]
       },
       {
+        title: "Python Essentials 1 (Basics)",
+        description: "Official Python Institute beginner course. Learn the fundamental concepts of computer programming and start your journey with Python. 100% free.",
+        category: "certification",
+        eligibleGrades: [9, 10, 11, 12],
+        subjects: ["Computer Science", "Programming", "Python"],
+        deadline: new Date("2025-12-31"),
+        applicationUrl: "https://edube.org/study/pe1",
+        isTeamBased: false,
+        location: "Online",
+        isPaid: false,
+        difficultyLevel: "beginner",
+        tags: ["Python Institute", "Python", "Free", "Programming"]
+      },
+      {
+        title: "Python Essentials 2 (Intermediate)",
+        description: "Continue your Python journey with intermediate concepts like modules, packages, exceptions, and object-oriented programming. 100% free.",
+        category: "certification",
+        eligibleGrades: [10, 11, 12],
+        subjects: ["Computer Science", "Programming", "Python"],
+        deadline: new Date("2025-12-31"),
+        applicationUrl: "https://edube.org/study/pe2",
+        isTeamBased: false,
+        location: "Online",
+        isPaid: false,
+        difficultyLevel: "intermediate",
+        tags: ["Python Institute", "Python", "Free", "Programming"]
+      },
+      {
+        title: "Advanced OOP with Python",
+        description: "Master advanced Object-Oriented Programming concepts in Python. Deep dive into classes, inheritance, and advanced design patterns. 100% free.",
+        category: "certification",
+        eligibleGrades: [11, 12],
+        subjects: ["Computer Science", "Programming", "Python"],
+        deadline: new Date("2025-12-31"),
+        applicationUrl: "https://edube.org/study/pcpp1-1",
+        isTeamBased: false,
+        location: "Online",
+        isPaid: false,
+        difficultyLevel: "advanced",
+        tags: ["Python Institute", "Python", "Free", "OOP"]
+      },
+      {
         title: "IBM SkillsBuild: AI Fundamentals",
         description: "Direct IBM certification on artificial intelligence. Learn AI concepts, ethics, and applications directly from IBM's student learning platform.",
         category: "certification",
