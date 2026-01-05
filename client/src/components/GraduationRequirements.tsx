@@ -14,7 +14,7 @@ import { z } from "zod";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { StudentProfile } from "@shared/schema";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface GraduationRequirementsProps {
   studentProfile: StudentProfile;
@@ -59,6 +59,13 @@ export default function GraduationRequirements({ studentProfile }: GraduationReq
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedState, setSelectedState] = useState(studentProfile.state || "California");
+
+  // Keep selectedState in sync with studentProfile.state
+  useEffect(() => {
+    if (studentProfile.state && studentProfile.state !== selectedState) {
+      setSelectedState(studentProfile.state);
+    }
+  }, [studentProfile.state]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["/api/student/graduation-requirements", selectedState],
