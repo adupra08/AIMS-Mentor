@@ -32,6 +32,14 @@ const INTERESTED_SUBJECTS = [
   "Psychology", "Economics", "Political Science", "Environmental Science"
 ];
 
+const US_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", 
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", 
+  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", 
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", 
+  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+];
+
 export default function ProfileSettings() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
@@ -64,11 +72,11 @@ export default function ProfileSettings() {
   });
   const { toast } = useToast();
 
-  const { data: statesData } = useQuery({
+  const { data: statesData } = useQuery<{ states: string[] }>({
     queryKey: ["/api/graduation-requirements/states"],
   });
 
-  const availableStates: string[] = statesData?.states || ["California", "New York", "Texas"];
+  const availableStates: string[] = statesData?.states || US_STATES;
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["/api/auth/user"],

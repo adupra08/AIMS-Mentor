@@ -55,6 +55,14 @@ const courseProgressSchema = z.object({
   requirementId: z.number().optional(),
 });
 
+const US_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", 
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", 
+  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", 
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", 
+  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+];
+
 export default function GraduationRequirements({ studentProfile }: GraduationRequirementsProps) {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -80,7 +88,7 @@ export default function GraduationRequirements({ studentProfile }: GraduationReq
   const progress: StudentCourseProgress[] = (data as { requirements: GraduationRequirement[]; progress: StudentCourseProgress[] })?.progress || [];
 
   // Get available states
-  const { data: statesData } = useQuery({
+  const { data: statesData } = useQuery<{ states: string[] }>({
     queryKey: ["/api/graduation-requirements/states"],
     queryFn: async () => {
       const response = await fetch("/api/graduation-requirements/states");
@@ -89,7 +97,7 @@ export default function GraduationRequirements({ studentProfile }: GraduationReq
     },
   });
 
-  const availableStates: string[] = statesData?.states || ["California", "New York", "Texas"];
+  const availableStates: string[] = statesData?.states || US_STATES;
 
   // Update student profile state when changed
   const updateStateMutation = useMutation({
