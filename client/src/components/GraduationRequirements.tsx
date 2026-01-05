@@ -188,7 +188,9 @@ export default function GraduationRequirements({ studentProfile }: GraduationReq
   // Calculate overall graduation progress
   const totalRequiredCredits = requirements.reduce((sum, req) => sum + parseFloat(req.creditsRequired), 0);
   const totalEarnedCredits = progress.reduce((sum, p) => sum + parseFloat(p.creditsEarned || '0'), 0);
-  const overallProgress = Math.min((totalEarnedCredits / totalRequiredCredits) * 100, 100);
+  const overallProgress = totalRequiredCredits > 0 
+    ? Math.min((totalEarnedCredits / totalRequiredCredits) * 100, 100)
+    : 0;
 
   if (isLoading) {
     return (
