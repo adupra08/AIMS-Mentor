@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
@@ -58,9 +59,16 @@ export default function ProfileSettings() {
       sat: undefined as number | undefined,
       act: undefined as number | undefined,
       psat: undefined as number | undefined
-    }
+    },
+    state: "" as string
   });
   const { toast } = useToast();
+
+  const { data: statesData } = useQuery({
+    queryKey: ["/api/graduation-requirements/states"],
+  });
+
+  const availableStates: string[] = statesData?.states || ["California", "New York", "Texas"];
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["/api/auth/user"],
@@ -103,6 +111,7 @@ export default function ProfileSettings() {
       interestedSubjects?: string[];
       currentGpa?: number;
       testScores?: {sat?: number, act?: number, psat?: number};
+      state?: string;
     }) => {
       const response = await apiRequest("PUT", `/api/student/profile/${profileData?.id}`, updates);
       return response.json();
@@ -168,7 +177,8 @@ export default function ProfileSettings() {
           sat: profileData.testScores?.sat || undefined,
           act: profileData.testScores?.act || undefined,
           psat: profileData.testScores?.psat || undefined
-        }
+        },
+        state: profileData.state || ""
       });
     }
     setIsEditing(true);
@@ -201,7 +211,8 @@ export default function ProfileSettings() {
         sat: undefined,
         act: undefined,
         psat: undefined
-      }
+      },
+      state: ""
     });
   };
 
@@ -421,6 +432,50 @@ export default function ProfileSettings() {
                 </div>
               ) : (
                 <div className="space-y-6">
+                  {/* State of Residency */}
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <Activity className="mr-2 h-5 w-5 text-primary" />
+                      <Label className="text-base font-medium">State of Residency</Label>
+                    </div>
+
+                    {isEditing ? (
+                      <div className="border border-gray-200 rounded-md p-4">
+                        <div className="max-w-xs">
+                          <Label htmlFor="state" className="text-sm font-medium">Select State</Label>
+                          <Select 
+                            value={academicFormData.state} 
+                            onValueChange={(value) => setAcademicFormData(prev => ({ ...prev, state: value }))}
+                          >
+                            <SelectTrigger className="mt-2">
+                              <SelectValue placeholder="Select your state" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableStates.map((state) => (
+                                <SelectItem key={state} value={state}>
+                                  {state}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-gray-500 mt-1">This will update your graduation requirements</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+                        {profileData?.state ? (
+                          <div className="flex items-center space-x-2">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              {profileData.state}
+                            </span>
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 text-sm">No state selected</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Current GPA */}
                   <div className="space-y-4">
                     <div className="flex items-center">
