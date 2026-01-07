@@ -39,11 +39,14 @@ function toSafeUser(user: User): SafeUser {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Seed all necessary data on startup
+  // Seed all necessary data on startup (opportunities include certifications, startup competitions, etc.)
+  console.log("Seeding database on startup...");
   await Promise.all([
     storage.seedGraduationRequirements(),
     storage.seedOpportunities(),
+    storage.seedScholarships(),
   ]);
+  console.log("Database seeding complete.");
   
   // Auth middleware
   await setupAuth(app);

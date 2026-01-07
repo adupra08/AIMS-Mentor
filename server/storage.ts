@@ -114,6 +114,7 @@ export interface IStorage {
   // Seed operations
   seedOpportunities(): Promise<void>;
   seedGraduationRequirements(): Promise<void>;
+  seedScholarships(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -415,10 +416,100 @@ export class DatabaseStorage implements IStorage {
 
   // Scholarship operations
   async getScholarships(filters?: Record<string, any>): Promise<Scholarship[]> {
-    return await db
+    const allScholarships = await db
       .select()
       .from(scholarships)
       .orderBy(desc(scholarships.deadline));
+    
+    // If no scholarships exist, seed them
+    if (allScholarships.length === 0) {
+      await this.seedScholarships();
+      return await db
+        .select()
+        .from(scholarships)
+        .orderBy(desc(scholarships.deadline));
+    }
+    
+    return allScholarships;
+  }
+
+  async seedScholarships(): Promise<void> {
+    // Check if scholarships already exist
+    const existing = await db.select().from(scholarships).limit(1);
+    if (existing.length > 0) {
+      console.log("Scholarships already seeded, skipping...");
+      return;
+    }
+
+    const seedData = [
+      {
+        title: "STEM Excellence Scholarship",
+        provider: "National Science Foundation",
+        amount: 5000,
+        deadline: new Date("2025-12-01"),
+        description: "For high school seniors with a passion for STEM fields.",
+        eligibleGrades: [12],
+        subjects: ["STEM", "Science", "Technology", "Engineering", "Math"],
+        minGpa: "3.50",
+        applicationUrl: "https://www.nsf.gov/",
+        extracurriculars: ["Robotics", "Coding Club", "Science Fair"],
+        meritBased: true
+      },
+      {
+        title: "Community Leadership Award",
+        provider: "Local Foundation",
+        amount: 2000,
+        deadline: new Date("2025-03-15"),
+        description: "Recognizing outstanding community service and leadership.",
+        eligibleGrades: [11, 12],
+        minGpa: "3.00",
+        applicationUrl: "https://www.communityfoundation.org",
+        extracurriculars: ["Student Government", "Volunteer Work", "Scouts"],
+        meritBased: true
+      },
+      {
+        title: "Arts & Humanities Grant",
+        provider: "Creative Arts Council",
+        amount: 3000,
+        deadline: new Date("2025-02-28"),
+        description: "Supporting students pursuing degrees in fine arts, music, or literature.",
+        eligibleGrades: [12],
+        subjects: ["Music", "Art", "Literature"],
+        applicationUrl: "https://www.arts.gov",
+        extracurriculars: ["Art Club", "School Band", "Drama Club"],
+        meritBased: true
+      },
+      {
+        title: "First Generation College Student Scholarship",
+        provider: "Education Access Foundation",
+        amount: 10000,
+        deadline: new Date("2025-04-01"),
+        description: "For students who will be the first in their family to attend college.",
+        eligibleGrades: [11, 12],
+        minGpa: "2.50",
+        applicationUrl: "https://www.educationaccess.org",
+        financialNeedBased: true,
+        meritBased: false
+      },
+      {
+        title: "Future Engineers Scholarship",
+        provider: "Society of Professional Engineers",
+        amount: 7500,
+        deadline: new Date("2025-05-15"),
+        description: "For students planning to pursue engineering degrees.",
+        eligibleGrades: [11, 12],
+        subjects: ["Engineering", "Mathematics", "Physics"],
+        minGpa: "3.20",
+        applicationUrl: "https://www.nspe.org/students",
+        extracurriculars: ["Robotics", "Math Team", "Science Club"],
+        meritBased: true
+      }
+    ];
+
+    for (const data of seedData) {
+      await db.insert(scholarships).values(data).onConflictDoNothing();
+    }
+    console.log("Scholarships seeded successfully.");
   }
 
   async getStudentScholarships(studentId: number): Promise<(StudentScholarship & { scholarship: Scholarship })[]> {
