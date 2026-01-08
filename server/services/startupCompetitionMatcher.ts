@@ -59,27 +59,67 @@ export function matchStartupCompetitions(
       isRelevant = false;
     }
 
-    // Entrepreneurship interest alignment (KEY FILTER)
+    // Entrepreneurship interest alignment (KEY FILTER - expanded to be more inclusive)
     const studentInterests = [
       ...(studentProfile.academicInterests || []),
       ...(studentProfile.interestedSubjects || []),
       ...(studentProfile.extracurricularActivities || [])
     ];
 
-    const hasEntrepreneurshipInterest = studentInterests.some(interest =>
+    // Check for direct entrepreneurship keywords
+    const hasDirectEntrepreneurship = studentInterests.some(interest =>
       interest.toLowerCase().includes("business") ||
       interest.toLowerCase().includes("entrepren") ||
       interest.toLowerCase().includes("startup") ||
-      interest.toLowerCase().includes("leadership") ||
-      interest.toLowerCase().includes("finance")
+      interest.toLowerCase().includes("finance") ||
+      interest.toLowerCase().includes("economics")
     );
 
-    if (hasEntrepreneurshipInterest) {
+    // Check for leadership indicators (activities that show leadership potential)
+    const hasLeadershipIndicators = studentInterests.some(interest => {
+      const lower = interest.toLowerCase();
+      return lower.includes("leadership") ||
+        lower.includes("student government") ||
+        lower.includes("honor society") ||
+        lower.includes("president") ||
+        lower.includes("captain") ||
+        lower.includes("debate") ||
+        lower.includes("model un") ||
+        lower.includes("deca") ||
+        lower.includes("fbla");
+    });
+
+    // Check for tech/innovation interests (valuable for tech startups)
+    const hasTechInnovation = studentInterests.some(interest => {
+      const lower = interest.toLowerCase();
+      return lower.includes("computer") ||
+        lower.includes("technology") ||
+        lower.includes("robotics") ||
+        lower.includes("coding") ||
+        lower.includes("programming") ||
+        lower.includes("engineering") ||
+        lower.includes("app") ||
+        lower.includes("software");
+    });
+
+    if (hasDirectEntrepreneurship) {
       score += 30;
       reasons.push("Strong entrepreneurship interest");
       isRelevant = true;
+    } else if (hasLeadershipIndicators && hasTechInnovation) {
+      score += 25;
+      reasons.push("Leadership + tech background ideal for startups");
+      isRelevant = true;
+    } else if (hasLeadershipIndicators) {
+      score += 20;
+      reasons.push("Leadership experience valuable for startups");
+      isRelevant = true;
+    } else if (hasTechInnovation) {
+      score += 15;
+      reasons.push("Tech skills valuable for startup competitions");
+      isRelevant = true;
     } else {
-      // No entrepreneurship interest = not relevant
+      // No relevant background = not shown
       isRelevant = false;
     }
 
