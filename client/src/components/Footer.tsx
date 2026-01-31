@@ -64,20 +64,9 @@ export default function Footer() {
             <h3 className="text-lg font-semibold text-white" data-testid="footer-resources-title">Support</h3>
             <ul className="space-y-2">
               <li>
-                <a href="mailto:Pranav.adurty@gmail.com" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-link-support">
+                <a href="mailto:aims.ai.donotreply@gmail.com" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-link-support">
                   Email Support
                 </a>
-              </li>
-              <li>
-                <a href="tel:805-501-6142" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-link-phone">
-                  Call Us
-                </a>
-              </li>
-              <li>
-                <span className="text-gray-500 text-sm">Monday - Friday</span>
-              </li>
-              <li>
-                <span className="text-gray-500 text-sm">9:00 AM - 5:00 PM EST</span>
               </li>
             </ul>
           </div>
@@ -88,22 +77,9 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start space-x-3">
                 <Mail className="text-primary mt-0.5 flex-shrink-0" size={16} />
-                <a href="mailto:Pranav.adurty@gmail.com" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-contact-email">
-                  Pranav.adurty@gmail.com
+                <a href="mailto:aims.ai.donotreply@gmail.com" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-contact-email">
+                  aims.ai.donotreply@gmail.com
                 </a>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Phone className="text-primary mt-0.5 flex-shrink-0" size={16} />
-                <a href="tel:805-501-6142" className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm" data-testid="footer-contact-phone">
-                  805-501-6142
-                </a>
-              </li>
-              <li className="flex items-start space-x-3">
-                <MapPin className="text-primary mt-0.5 flex-shrink-0" size={16} />
-                <span className="text-gray-400 text-sm" data-testid="footer-contact-address">
-                  123 Education Ave<br />
-                  San Francisco, CA 94105
-                </span>
               </li>
             </ul>
           </div>
